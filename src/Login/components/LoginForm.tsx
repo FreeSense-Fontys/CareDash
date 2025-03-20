@@ -3,6 +3,7 @@ import Cookies from 'js-cookie'
 import exh from '../../Auth'
 import { MfaRequiredError } from '@extrahorizon/javascript-sdk'
 import Const from '../../Auth/const'
+import { IoMdInformationCircleOutline } from 'react-icons/io'
 
 interface LoginProps {
     setAccessToken: (token: string) => void
@@ -14,6 +15,7 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
     const [password, setPassword] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const [isLogin, setIsLogin] = useState(true)
+    const [error, setError] = useState('')
 
     const handleForgotPassword = async () => {
         try {
@@ -28,6 +30,7 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
 
     async function UserLogin() {
         try {
+            setError('')
             await exh.auth
                 .authenticate({
                     username: email,
@@ -41,8 +44,10 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                 })
         } catch (error) {
             //handling the multi factor authentication
-            if (error instanceof MfaRequiredError) console.log('user has 2fa')
-            else console.log('something else happened.')
+            if (error instanceof MfaRequiredError) setError('User requires MFA')
+            else if (error.status === 400)
+                setError('Invalid username or password')
+            else setError('An unknown error occurred')
         }
     }
 
@@ -63,6 +68,12 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                 }}
             >
                 <div className="flex flex-col items-center justify-center mt-2">
+                    {error && (
+                        <div className="bg-red-500 text-white w-full p-2 flex items-center">
+                            <IoMdInformationCircleOutline size={25} />
+                            <p className="pl-2">{error}</p>
+                        </div>
+                    )}
                     <div className="flex flex-col m-2 w-xs">
                         <label htmlFor="email" className="mb-2">
                             Email
