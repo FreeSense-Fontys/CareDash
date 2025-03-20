@@ -7,7 +7,8 @@ import {
     InvalidGrantError,
 } from '@extrahorizon/javascript-sdk'
 import Const from '../../Auth/const'
-import { GoAlertFill, GoAlert } from 'react-icons/go'
+import { GoAlertFill } from 'react-icons/go'
+import { toast, ToastContainer, Bounce } from 'react-toastify'
 
 interface LoginProps {
     setAccessToken: (token: string) => void
@@ -21,9 +22,6 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
     })
     const [isLoading, setIsLoading] = useState(false)
     const [isLogin, setIsLogin] = useState(true)
-
-    // error when login fails
-    const [error, setError] = useState('')
 
     // errors for input validation
     const [inputErrors, setInputErrors] = useState({
@@ -51,17 +49,21 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
         const validationErrors = {
             email: '',
             password: '',
-            mfa: '',
         }
 
         // sets error message for empty fields
         for (const key in formData) {
+            if (!isLogin) {
+                if (key === 'password') continue
+            }
             if (!formData[key as keyof typeof formData]) {
                 validationErrors[key as keyof typeof validationErrors] = `${
                     key.charAt(0).toUpperCase() + key.slice(1)
                 } is required`
             }
         }
+
+        console.log(validationErrors)
 
         // if there are errors, set the errors and return false
         if (
@@ -71,6 +73,7 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                     ''
             )
         ) {
+            // console.log('Validtion errors')
             setInputErrors(validationErrors)
             return false
         }
@@ -86,6 +89,7 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
     // handles forgot password: validates inputs and, if inputs valid, sends password reset email
     const handleForgotPassword = async () => {
         if (validateInputs()) {
+            console.log('forgot password')
             try {
                 setIsLoading(true)
                 setInputErrors({
@@ -94,9 +98,10 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                 })
                 await exh.users.requestPasswordReset(formData.email)
             } catch (error) {
-                if (error instanceof FieldFormatError) setError('Invalid email')
+                if (error instanceof FieldFormatError)
+                    toast.error('Invalid email')
                 if (error instanceof EmailUnknownError)
-                    setError('Email not found')
+                    toast.error('Email not found')
             } finally {
                 setIsLoading(false)
             }
@@ -120,8 +125,8 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                 })
         } catch (error) {
             if (error instanceof InvalidGrantError)
-                setError('Email or password is incorrect')
-            else setError('An unknown error occurred')
+                toast.error('Email or password is incorrect')
+            else toast.error('An unknown error occurred')
         } finally {
             setIsLoading(false)
         }
@@ -130,6 +135,18 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
     return (
         <div className="flex flex-col items-center justify-center bg-accent w-md h-115 rounded-tl-bg rounded-br-bg text-primary">
             {/* Header */}
+            <ToastContainer
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick={false}
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="colored"
+                transition={Bounce}
+            />
             {isLogin ? (
                 <h1 className="text-2xl font-bold">Login to CareDash</h1>
             ) : (
@@ -139,14 +156,6 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
             {/* Inputs */}
             <form onSubmit={handleSubmit}>
                 <div className="flex flex-col items-center justify-center mt-2">
-                    {/* Error message banner */}
-                    {error && (
-                        <div className="bg-red-500 text-white w-full p-4 flex items-center">
-                            <GoAlert size={25} />
-                            <p className="pl-2">{error}</p>
-                        </div>
-                    )}
-
                     {/* Email input */}
                     <div className="flex flex-col m-2 w-xs">
                         <label htmlFor="email" className="mb-2">
@@ -207,7 +216,6 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                                 <button
                                     onClick={async (e) => {
                                         e.preventDefault()
-                                        setError('')
                                         setInputErrors({
                                             email: '',
                                             password: '',
@@ -228,7 +236,6 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                                 <button
                                     className="underline text-xs text-left hover:cursor-pointer hover:text-neutral-300"
                                     onClick={() => {
-                                        setError('')
                                         setInputErrors({
                                             email: '',
                                             password: '',
