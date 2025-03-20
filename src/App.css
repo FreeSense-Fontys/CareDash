@@ -1,0 +1,26 @@
+@import 'tailwindcss';
+
+@theme {
+    --font-sans:
+        'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+        'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --color-primary: #ffffff;
+    --color-secondary: #144966;
+    --color-login-background: #7dd8ff;
+    --color-accent: #1f96c9;
+    --text-primary: #000000;
+    --text-secondary: #ffffff;
+    --color-background: #e2f2fc;
+    --text-footer: #4b5563;
+    --color-section-background: #e7f4fc;
+    --color-dark-on-dark-section: #1a5f82;
+    --color-alarm: #f15151;
+    --radius-sml: 30px;
+    --radius-bg: 70px;
+    --radius-xsm: 15px;
+}
+
+html,
+body {
+    background-color: white;
+}
