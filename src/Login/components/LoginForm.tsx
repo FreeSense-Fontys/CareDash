@@ -188,6 +188,7 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                             autoComplete="email"
                             type="email"
                             name="email"
+                            data-testid="email"
                             placeholder={
                                 inputErrors.email ? inputErrors.email : 'Email'
                             }
