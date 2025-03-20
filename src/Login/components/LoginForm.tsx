@@ -147,7 +147,10 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
     }
 
     return (
-        <div className="flex flex-col items-center justify-center bg-accent w-md h-115 rounded-tl-bg rounded-br-bg text-primary">
+        <div
+            className="flex flex-col items-center justify-center bg-accent w-md h-115 rounded-tl-bg rounded-br-bg text-primary"
+            data-testid="login-form"
+        >
             {/* Header */}
             <ToastContainer
                 autoClose={5000}
