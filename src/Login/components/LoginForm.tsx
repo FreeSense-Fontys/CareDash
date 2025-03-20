@@ -20,6 +20,8 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
         email: '',
         password: '',
     })
+    // Add this near your other state declarations
+    const [resetCooldown, setResetCooldown] = useState(0)
     const [isLoading, setIsLoading] = useState(false)
     const [isLogin, setIsLogin] = useState(true)
 
@@ -63,8 +65,6 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
             }
         }
 
-        console.log(validationErrors)
-
         // if there are errors, set the errors and return false
         if (
             Object.keys(validationErrors).some(
@@ -73,7 +73,6 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                     ''
             )
         ) {
-            // console.log('Validtion errors')
             setInputErrors(validationErrors)
             return false
         }
@@ -89,14 +88,29 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
     // handles forgot password: validates inputs and, if inputs valid, sends password reset email
     const handleForgotPassword = async () => {
         if (validateInputs()) {
-            console.log('forgot password')
             try {
                 setIsLoading(true)
                 setInputErrors({
                     email: '',
                     password: '',
                 })
-                await exh.users.requestPasswordReset(formData.email)
+                // await exh.users.requestPasswordReset(formData.email)
+                toast.success('Password reset email sent')
+
+                // set cooldown period (30 seconds)
+                const cooldownTime = 30
+                setResetCooldown(cooldownTime)
+
+                // start countdown timer
+                const countdownInterval = setInterval(() => {
+                    setResetCooldown((prevTime) => {
+                        if (prevTime <= 1) {
+                            clearInterval(countdownInterval)
+                            return 0
+                        }
+                        return prevTime - 1
+                    })
+                }, 1000)
             } catch (error) {
                 if (error instanceof FieldFormatError)
                     toast.error('Invalid email')
@@ -264,15 +278,17 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                     ) : (
                         // Reset password button
                         <button
-                            className="bg-secondary hover:cursor-pointer w-xs p-4 rounded-tl-xsm rounded-br-xsm hover:scale-105 active:opacity-75"
+                            className="bg-secondary hover:cursor-pointer w-xs p-4 rounded-tl-xsm rounded-br-xsm hover:scale-105 active:opacity-75 disabled:opacity-75 disabled:cursor-not-allowed disabled:hover:scale-100"
                             type="submit"
                             onClick={(e) => {
                                 e.preventDefault()
                                 handleForgotPassword()
                             }}
-                            disabled={isLoading}
+                            disabled={isLoading || resetCooldown > 0}
                         >
-                            Reset Password
+                            {resetCooldown > 0
+                                ? `Try again in ${resetCooldown}s`
+                                : 'Reset Password'}
                         </button>
                     )}
                 </div>
