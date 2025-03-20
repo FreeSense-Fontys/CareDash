@@ -94,7 +94,7 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                     email: '',
                     password: '',
                 })
-                // await exh.users.requestPasswordReset(formData.email)
+                await exh.users.requestPasswordReset(formData.email)
                 toast.success('Password reset email sent')
 
                 // set cooldown period (30 seconds)
