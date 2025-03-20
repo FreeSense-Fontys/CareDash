@@ -1,8 +1,14 @@
 import { useState } from 'react'
 import Cookies from 'js-cookie'
 import exh from '../../Auth'
-import { MfaRequiredError } from '@extrahorizon/javascript-sdk'
+import {
+    EmailUnknownError,
+    FieldFormatError,
+    InvalidGrantError,
+} from '@extrahorizon/javascript-sdk'
 import Const from '../../Auth/const'
+import { GoAlertFill } from 'react-icons/go'
+import { toast, ToastContainer, Bounce } from 'react-toastify'
 
 interface LoginProps {
     setAccessToken: (token: string) => void
@@ -10,28 +16,120 @@ interface LoginProps {
 }
 
 function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
+    const [formData, setFormData] = useState({
+        email: '',
+        password: '',
+    })
+    // Add this near your other state declarations
+    const [resetCooldown, setResetCooldown] = useState(0)
     const [isLoading, setIsLoading] = useState(false)
     const [isLogin, setIsLogin] = useState(true)
 
-    const handleForgotPassword = async () => {
-        try {
-            setIsLoading(true)
-            await exh.users.requestPasswordReset(email)
-        } catch (error) {
-            console.log(error)
-        } finally {
-            setIsLoading(false)
+    // errors for input validation
+    const [inputErrors, setInputErrors] = useState({
+        email: '',
+        password: '',
+    })
+
+    // general input change handler
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const name = e.target.name as keyof typeof formData
+        const value = e.target.value
+        setFormData({ ...formData, [name]: value })
+
+        // removes input error when input changes
+        if (inputErrors[name]) {
+            setInputErrors((prevErrors) => ({
+                ...prevErrors,
+                [name]: '',
+            }))
         }
     }
 
+    // validates the inputs; returns true if valid, false otherwise
+    const validateInputs = () => {
+        const validationErrors = {
+            email: '',
+            password: '',
+        }
+
+        // sets error message for empty fields
+        for (const key in formData) {
+            if (!isLogin) {
+                if (key === 'password') continue
+            }
+            if (!formData[key as keyof typeof formData]) {
+                validationErrors[key as keyof typeof validationErrors] = `${
+                    key.charAt(0).toUpperCase() + key.slice(1)
+                } is required`
+            }
+        }
+
+        // if there are errors, set the errors and return false
+        if (
+            Object.keys(validationErrors).some(
+                (key) =>
+                    validationErrors[key as keyof typeof validationErrors] !==
+                    ''
+            )
+        ) {
+            setInputErrors(validationErrors)
+            return false
+        }
+        return true
+    }
+
+    // handles form submission: validates inputs and, if inputs valid, logs in user
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        if (validateInputs()) await UserLogin()
+    }
+
+    // handles forgot password: validates inputs and, if inputs valid, sends password reset email
+    const handleForgotPassword = async () => {
+        if (validateInputs()) {
+            try {
+                setIsLoading(true)
+                setInputErrors({
+                    email: '',
+                    password: '',
+                })
+                await exh.users.requestPasswordReset(formData.email)
+                toast.success('Password reset email sent')
+
+                // set cooldown period (30 seconds)
+                const cooldownTime = 30
+                setResetCooldown(cooldownTime)
+
+                // start countdown timer
+                const countdownInterval = setInterval(() => {
+                    setResetCooldown((prevTime) => {
+                        if (prevTime <= 1) {
+                            clearInterval(countdownInterval)
+                            return 0
+                        }
+                        return prevTime - 1
+                    })
+                }, 1000)
+            } catch (error) {
+                if (error instanceof FieldFormatError)
+                    toast.error('Invalid email')
+                if (error instanceof EmailUnknownError)
+                    toast.error('Email not found')
+            } finally {
+                setIsLoading(false)
+            }
+        }
+    }
+
+    // logs in user
     async function UserLogin() {
         try {
+            setIsLoading(true)
             await exh.auth
                 .authenticate({
-                    username: email,
-                    password: password,
+                    username: formData.email,
+                    password: formData.password,
                 })
                 .then((user) => {
                     Cookies.set(Const.ACCESS_TOKEN, user.accessToken)
@@ -40,15 +138,29 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                     setRefreshToken(user.refreshToken)
                 })
         } catch (error) {
-            //handling the multi factor authentication
-            if (error instanceof MfaRequiredError) console.log('user has 2fa')
-            else console.log('something else happened.')
+            if (error instanceof InvalidGrantError)
+                toast.error('Email or password is incorrect')
+            else toast.error('An unknown error occurred')
+        } finally {
+            setIsLoading(false)
         }
     }
 
     return (
         <div className="flex flex-col items-center justify-center bg-accent w-md h-115 rounded-tl-bg rounded-br-bg text-primary">
             {/* Header */}
+            <ToastContainer
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick={false}
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="colored"
+                transition={Bounce}
+            />
             {isLogin ? (
                 <h1 className="text-2xl font-bold">Login to CareDash</h1>
             ) : (
@@ -56,24 +168,31 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
             )}
 
             {/* Inputs */}
-            <form
-                onSubmit={async (e) => {
-                    e.preventDefault()
-                    await UserLogin()
-                }}
-            >
+            <form onSubmit={handleSubmit}>
                 <div className="flex flex-col items-center justify-center mt-2">
+                    {/* Email input */}
                     <div className="flex flex-col m-2 w-xs">
                         <label htmlFor="email" className="mb-2">
-                            Email
+                            <div className="flex flex-row">
+                                Email
+                                {inputErrors.email !== '' && (
+                                    <p className="text-red-500 pl-2">
+                                        <GoAlertFill size={20} />
+                                    </p>
+                                )}
+                            </div>
                         </label>
                         <input
+                            value={formData.email}
                             id="email"
                             autoComplete="email"
                             type="email"
-                            placeholder="Email"
+                            name="email"
+                            placeholder={
+                                inputErrors.email ? inputErrors.email : 'Email'
+                            }
                             className="bg-white text-black p-4 rounded-xsm focus:outline-2"
-                            onChange={(e) => setEmail(e.target.value)}
+                            onChange={(e) => handleChange(e)}
                             disabled={isLoading}
                         />
                     </div>
@@ -82,20 +201,39 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                     {isLogin ? (
                         <div className="flex flex-col mt-2 w-xs">
                             <label htmlFor="password" className="mb-2">
-                                Password
+                                <div className="flex flex-row">
+                                    Password
+                                    {inputErrors.password !== '' && (
+                                        <p className="text-red-500 pl-2">
+                                            <GoAlertFill size={20} />
+                                        </p>
+                                    )}
+                                </div>
                             </label>
                             <input
+                                value={formData.password}
                                 id="password"
+                                name="password"
                                 type="password"
-                                placeholder="Password"
+                                placeholder={
+                                    inputErrors.password
+                                        ? inputErrors.password
+                                        : 'Password'
+                                }
                                 className="bg-white text-black p-4 rounded-xsm focus:outline-2"
-                                onChange={(e) => setPassword(e.target.value)}
+                                onChange={(e) => handleChange(e)}
                                 disabled={isLoading}
                             />
+
+                            {/* Forgot Password button */}
                             <p className="text-xs text-left mt-2">
                                 <button
                                     onClick={async (e) => {
                                         e.preventDefault()
+                                        setInputErrors({
+                                            email: '',
+                                            password: '',
+                                        })
                                         setIsLogin(false)
                                     }}
                                     className="underline hover:cursor-pointer hover:text-neutral-300 bg-transparent border-none p-0"
@@ -106,11 +244,18 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                             </p>
                         </div>
                     ) : (
+                        // Back to login button
                         <div className="flex flex-col mt-2 w-xs">
                             <p>
                                 <button
                                     className="underline text-xs text-left hover:cursor-pointer hover:text-neutral-300"
-                                    onClick={() => setIsLogin(true)}
+                                    onClick={() => {
+                                        setInputErrors({
+                                            email: '',
+                                            password: '',
+                                        })
+                                        setIsLogin(true)
+                                    }}
                                     disabled={isLoading}
                                 >
                                     Back to login
@@ -131,16 +276,19 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                             Login
                         </button>
                     ) : (
+                        // Reset password button
                         <button
-                            className="bg-secondary hover:cursor-pointer w-xs p-4 rounded-tl-xsm rounded-br-xsm hover:scale-105 active:opacity-75"
+                            className="bg-secondary hover:cursor-pointer w-xs p-4 rounded-tl-xsm rounded-br-xsm hover:scale-105 active:opacity-75 disabled:opacity-75 disabled:cursor-not-allowed disabled:hover:scale-100"
                             type="submit"
                             onClick={(e) => {
                                 e.preventDefault()
                                 handleForgotPassword()
                             }}
-                            disabled={isLoading}
+                            disabled={isLoading || resetCooldown > 0}
                         >
-                            Reset Password
+                            {resetCooldown > 0
+                                ? `Try again in ${resetCooldown}s`
+                                : 'Reset Password'}
                         </button>
                     )}
                 </div>
