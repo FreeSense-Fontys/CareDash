@@ -29,3 +29,8 @@ dist-ssr
 .env
 *.env.*
 *package-lock*
+
+# test coverage
+coverage
+test-results
+playwright-report
