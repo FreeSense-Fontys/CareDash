@@ -2,10 +2,10 @@ import { useState } from 'react'
 import Cookies from 'js-cookie'
 import exh from '../../Auth'
 import {
-    EmailUnknownError,
     FieldFormatError,
     InvalidGrantError,
     InvalidRequestError,
+    EmailUnknownError,
 } from '@extrahorizon/javascript-sdk'
 import Const from '../../Auth/const'
 import { GoAlertFill } from 'react-icons/go'
@@ -80,7 +80,7 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
         return true
     }
 
-    // handles form submission: validates inputs and, if inputs valid, logs in user
+    // handles form submission: validates inputs and, if inputs valid, logs in user or sends password reset email
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         if (validateInputs()) {
@@ -101,11 +101,21 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                     email: '',
                     password: '',
                 })
-                await exh.users.requestPasswordReset(formData.email)
-                toast.success('Password reset email sent')
-
-                // set cooldown period (30 seconds)
-                const cooldownTime = 30
+                await exh.users
+                    .requestPasswordReset(formData.email)
+                    .then(() => {
+                        toast.success('Password reset email sent')
+                    })
+            } catch (error) {
+                if (error instanceof FieldFormatError)
+                    toast.error('Invalid email format')
+                // want to emulate success in case of malicious intent (email enumeration)
+                if (error instanceof EmailUnknownError)
+                    toast.success('Password reset email sent')
+            } finally {
+                setIsLoading(false)
+                // set cooldown period (10 seconds) of reset password button
+                const cooldownTime = 10
                 setResetCooldown(cooldownTime)
 
                 // start countdown timer
@@ -118,13 +128,6 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                         return prevTime - 1
                     })
                 }, 1000)
-            } catch (error) {
-                if (error instanceof FieldFormatError)
-                    toast.error('Invalid email')
-                if (error instanceof EmailUnknownError)
-                    toast.error('Email not found')
-            } finally {
-                setIsLoading(false)
             }
         }
     }

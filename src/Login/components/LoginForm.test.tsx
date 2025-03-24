@@ -3,10 +3,7 @@ import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import '@testing-library/jest-dom'
 import LoginForm from './LoginForm'
-import {
-    FieldFormatError,
-    EmailUnknownError,
-} from '@extrahorizon/javascript-sdk'
+import { FieldFormatError } from '@extrahorizon/javascript-sdk'
 import exh from '../../Auth'
 
 // mock the Extra Horizon SDK before importing the client
@@ -72,9 +69,9 @@ describe('forgot password success', () => {
         )
         expect(resetPasswordButton).toHaveTextContent(/Try again in \d+s/i)
 
-        // check if the button is enabled after 30 seconds
+        // check if the button is enabled after 10 seconds
         await act(() => {
-            vi.advanceTimersByTime(30000)
+            vi.advanceTimersByTime(10000)
             vi.runOnlyPendingTimers()
         })
         vi.useRealTimers()
@@ -125,26 +122,6 @@ describe('forgot password fail', () => {
             'invalid-email@gmail'
         )
         expect(screen.getByText('Invalid email')).toBeInTheDocument()
-    })
-
-    // test for email that is not connected to an account
-    it('email not found', async () => {
-        ;(exh.users.requestPasswordReset as Mock).mockRejectedValue(
-            new EmailUnknownError({
-                message: 'Email not found',
-                name: 'EMAIL_UNKNOWN',
-            })
-        )
-        const emailInput = screen.getByTestId('email')
-        const resetPasswordButton = screen.getByTestId('reset-password-button')
-
-        await userEvent.type(emailInput, 'unknown-email@gmail.com')
-        await userEvent.click(resetPasswordButton)
-
-        expect(exh.users.requestPasswordReset).toHaveBeenCalledWith(
-            'unknown-email@gmail.com'
-        )
-        expect(screen.getByText('Email not found')).toBeInTheDocument()
     })
 })
 
