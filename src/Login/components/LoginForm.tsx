@@ -5,6 +5,7 @@ import {
     EmailUnknownError,
     FieldFormatError,
     InvalidGrantError,
+    InvalidRequestError,
 } from '@extrahorizon/javascript-sdk'
 import Const from '../../Auth/const'
 import { GoAlertFill } from 'react-icons/go'
@@ -146,7 +147,12 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
         } catch (error) {
             if (error instanceof InvalidGrantError)
                 toast.error('Email or password is incorrect')
-            else toast.error('An unknown error occurred')
+            else if (error instanceof InvalidRequestError)
+                toast.error('Invalid format')
+            else {
+                toast.error('An unknown error occurred')
+            }
+            console.log(error)
         } finally {
             setIsLoading(false)
         }
