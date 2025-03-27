@@ -16,7 +16,12 @@ export default defineConfig({
             provider: 'v8', // or 'istanbul'
             reporter: ['text', 'lcov'],
             include: ['src/**/*.tsx'], // Specify which folders to cover
-            exclude: ['src/**/*.test.tsx', 'src/**/*.ts', 'src/App.{tsx, ts}', 'src/main.{tsx, ts}'], // Specify which folders to exclude
+            exclude: [
+                'src/**/*.test.tsx',
+                'src/**/*.ts',
+                'src/App.{tsx, ts}',
+                'src/main.{tsx, ts}',
+            ], // Specify which folders to exclude
             thresholds: {
                 statements: 80,
                 branches: 80,
@@ -24,5 +29,5 @@ export default defineConfig({
                 lines: 80,
             },
         },
-    }
+    },
 })

@@ -11,9 +11,9 @@ function App() {
     const [accessToken, setAccessToken] = useState(
         Cookie.get(Const.ACCESS_TOKEN) || ''
     )
-    const [refreshToken, setRefreshToken] = useState(
-        Cookie.get(Const.REFRESH_TOKEN) || ''
-    )
+
+    // add back refreshToken when needed
+    const [, setRefreshToken] = useState(Cookie.get(Const.REFRESH_TOKEN) || '')
 
     const isLoggedIn = () => {
         return accessToken !== ''
