@@ -78,3 +78,28 @@ test('Stay logged in', async ({ page, browserName }) => {
     // check if the user is logged out
     await page.getByRole('heading', { name: 'Login to CareDash' }).click();
 });
+
+test('login not filled', async ({ page }) => {
+    await page.goto('http://localhost:3000/');
+    await page.getByTestId('login-button').click();
+    await page.locator('label').filter({ hasText: 'Password' }).getByRole('img').click();
+    await page.getByTestId('email-empty-icon').locator('path').click();
+});
+
+test('Login no password', async ({ page }) => {
+    await page.goto('http://localhost:3000/');
+    await page.getByTestId('email').click();
+    await page.getByTestId('email').fill('john.doe@example.com');
+    await page.getByTestId('login-button').click();
+    await page.getByTestId('login-form').getByRole('img').click();
+});
+
+test('Login incorrect combination', async ({ page }) => {
+    await page.goto('http://localhost:3000/');
+    await page.getByTestId('email').click();
+    await page.getByTestId('email').fill('abc@gmail.com');
+    await page.getByTestId('email').press('Tab');
+    await page.getByTestId('password').fill('asb');
+    await page.getByTestId('login-button').click();
+    await page.getByText('Email or password is incorrect').click();
+});
