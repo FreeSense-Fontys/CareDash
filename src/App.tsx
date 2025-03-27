@@ -6,6 +6,8 @@ import Login from './Login'
 import Cookie from 'js-cookie'
 import Const from './Auth/const'
 import Layout from './Layout'
+import Configuration from './Configuration'
+import Presets from './Presets'
 
 function App() {
     const [accessToken, setAccessToken] = useState(
@@ -43,6 +45,8 @@ function App() {
             ) : (
                 <Route element={<Layout Logout={Logout} />}>
                     <Route index element={<Home />} />
+                    <Route path="/configuration" element={<Configuration />} />
+                    <Route path="/presets" element={<Presets />} />
                 </Route>
             )}
             {/* <Route path="/" element={isLoggedIn() ? <Home /> : <Login setAccessToken={setAccessToken} setRefreshToken={setRefreshToken} />} /> */}
