@@ -101,11 +101,8 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                     email: '',
                     password: '',
                 })
-                await exh.users
-                    .requestPasswordReset(formData.email)
-                    .then(() => {
-                        toast.success('Password reset email sent')
-                    })
+                await exh.users.requestPasswordReset(formData.email)
+                toast.success('Password reset email sent')
             } catch (error) {
                 if (error instanceof FieldFormatError)
                     toast.error('Invalid email format')
@@ -136,26 +133,22 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
     async function UserLogin() {
         try {
             setIsLoading(true)
-            await exh.auth
-                .authenticate({
-                    username: formData.email,
-                    password: formData.password,
-                })
-                .then((user) => {
-                    Cookies.set(Const.ACCESS_TOKEN, user.accessToken)
-                    setAccessToken(user.accessToken)
-                    Cookies.set(Const.REFRESH_TOKEN, user.refreshToken)
-                    setRefreshToken(user.refreshToken)
-                })
+            const user = await exh.auth.authenticate({
+                username: formData.email,
+                password: formData.password,
+            })
+            Cookies.set(Const.ACCESS_TOKEN, user.accessToken)
+            setAccessToken(user.accessToken)
+            Cookies.set(Const.REFRESH_TOKEN, user.refreshToken)
+            setRefreshToken(user.refreshToken)
         } catch (error) {
             if (error instanceof InvalidGrantError)
                 toast.error('Email or password is incorrect')
             else if (error instanceof InvalidRequestError)
                 toast.error('Invalid format')
             else {
-                toast.error('An unknown error occurred')
+                toast.error('An unknown error has occurred')
             }
-            console.log(error)
         } finally {
             setIsLoading(false)
         }

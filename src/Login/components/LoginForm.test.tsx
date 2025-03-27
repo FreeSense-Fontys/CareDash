@@ -1,9 +1,14 @@
-import { expect, test, describe, vi, Mock } from 'vitest'
+import { expect, describe, vi, Mock } from 'vitest'
 import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import '@testing-library/jest-dom'
 import LoginForm from './LoginForm'
-import { FieldFormatError } from '@extrahorizon/javascript-sdk'
+import {
+    EmailUnknownError,
+    FieldFormatError,
+    InvalidGrantError,
+    InvalidRequestError,
+} from '@extrahorizon/javascript-sdk'
 import exh from '../../Auth'
 
 // mock the Extra Horizon SDK before importing the client
@@ -23,16 +28,154 @@ vi.mock('@extrahorizon/javascript-sdk', async (importOriginal) => {
     }
 })
 
-test('login_succes_test', async () => {
-    const setAccessTokenMock = vi.fn()
-    const setRefreshTokenMock = vi.fn()
+describe('login success', () => {
+    beforeEach(() => {
+        render(<LoginForm setAccessToken={vi.fn()} setRefreshToken={vi.fn()} />)
+    })
 
-    render(
-        <LoginForm
-            setAccessToken={setAccessTokenMock}
-            setRefreshToken={setRefreshTokenMock}
-        />
-    )
+    it('login successfully', async () => {
+        const mockUser = {
+            accessToken: 'test-access-token',
+            refreshToken: 'test-refresh-token',
+        }
+
+        ;(exh.auth.authenticate as Mock).mockResolvedValue(mockUser)
+
+        const loginButton = screen.getByTestId('login-button')
+        const emailInput = screen.getByTestId('email')
+        const passwordInput = screen.getByTestId('password')
+
+        await userEvent.type(emailInput, 'correct-email@gmail.com')
+        await userEvent.type(passwordInput, 'correct-password')
+
+        await userEvent.click(loginButton)
+
+        expect(exh.auth.authenticate).toHaveBeenCalledWith({
+            username: 'correct-email@gmail.com',
+            password: 'correct-password',
+        })
+    })
+})
+
+describe('login fail', () => {
+    beforeEach(() => {
+        render(<LoginForm setAccessToken={vi.fn()} setRefreshToken={vi.fn()} />)
+    })
+
+    it('empty inputs', async () => {
+        const loginButton = screen.getByTestId('login-button')
+        const emailInput = screen.getByTestId('email')
+        const passwordInput = screen.getByTestId('password')
+        await userEvent.click(loginButton)
+
+        expect(screen.getByTestId('email')).toHaveAttribute(
+            'placeholder',
+            'Email is required'
+        )
+        expect(screen.getByTestId('password')).toHaveAttribute(
+            'placeholder',
+            'Password is required'
+        )
+
+        await userEvent.type(emailInput, 'test')
+        await userEvent.type(passwordInput, 'test')
+
+        expect(emailInput).not.toHaveAttribute(
+            'placeholder',
+            'Email is required'
+        )
+        expect(passwordInput).not.toHaveAttribute(
+            'placeholder',
+            'Password is required'
+        )
+    })
+
+    it('incorrect email', async () => {
+        ;(exh.auth.authenticate as Mock).mockRejectedValue(
+            new InvalidGrantError({
+                message: 'Invalid email or password',
+                name: 'INVALID_GRANT',
+            })
+        )
+        const loginButton = screen.getByTestId('login-button')
+        const emailInput = screen.getByTestId('email')
+        const passwordInput = screen.getByTestId('password')
+
+        await userEvent.type(emailInput, 'incorrect-email@gmail.com')
+        await userEvent.type(passwordInput, 'correct-password')
+        await userEvent.click(loginButton)
+
+        expect(exh.auth.authenticate).toHaveBeenCalledWith({
+            username: 'incorrect-email@gmail.com',
+            password: 'correct-password',
+        })
+        expect(
+            screen.getByText('Email or password is incorrect')
+        ).toBeInTheDocument()
+    })
+
+    it('incorrect password', async () => {
+        ;(exh.auth.authenticate as Mock).mockRejectedValue(
+            new InvalidGrantError({
+                message: 'Invalid email or password',
+                name: 'INVALID_GRANT',
+            })
+        )
+        const loginButton = screen.getByTestId('login-button')
+        const emailInput = screen.getByTestId('email')
+        const passwordInput = screen.getByTestId('password')
+
+        await userEvent.type(emailInput, 'correct-email@gmail.com')
+        await userEvent.type(passwordInput, 'incorrect-password')
+        await userEvent.click(loginButton)
+
+        expect(exh.auth.authenticate).toHaveBeenCalledWith({
+            username: 'correct-email@gmail.com',
+            password: 'incorrect-password',
+        })
+        expect(
+            screen.getByText('Email or password is incorrect')
+        ).toBeInTheDocument()
+    })
+
+    it('invalid email format', async () => {
+        ;(exh.auth.authenticate as Mock).mockRejectedValue(
+            new InvalidRequestError({
+                message: 'Invalid format',
+                name: 'INVALID_REQUEST',
+            })
+        )
+        const loginButton = screen.getByTestId('login-button')
+        const emailInput = screen.getByTestId('email')
+        const passwordInput = screen.getByTestId('password')
+
+        await userEvent.type(emailInput, 'correct-email@gmail')
+        await userEvent.type(passwordInput, 'correct-password')
+        await userEvent.click(loginButton)
+
+        expect(exh.auth.authenticate).toHaveBeenCalledWith({
+            username: 'correct-email@gmail',
+            password: 'correct-password',
+        })
+        expect(screen.getByText('Invalid format')).toBeInTheDocument()
+    })
+
+    it('unknown error', async () => {
+        ;(exh.auth.authenticate as Mock).mockRejectedValue(
+            new Error('Unknown error')
+        )
+        const loginButton = screen.getByTestId('login-button')
+        const emailInput = screen.getByTestId('email')
+        const passwordInput = screen.getByTestId('password')
+
+        await userEvent.type(emailInput, 'correct@gmail.com')
+        await userEvent.type(passwordInput, 'correct-password')
+        await userEvent.click(loginButton)
+
+        expect(
+            screen.getByText('An unknown error has occurred')
+        ).toBeInTheDocument()
+    })
 })
 
 describe('forgot password success', () => {
@@ -121,7 +264,25 @@ describe('forgot password fail', () => {
         expect(exh.users.requestPasswordReset).toHaveBeenCalledWith(
             'invalid-email@gmail'
         )
-        expect(screen.getByText('Invalid email')).toBeInTheDocument()
+        expect(screen.getByText('Invalid email format')).toBeInTheDocument()
+    })
+
+    it('unknown email error', async () => {
+        ;(exh.auth.authenticate as Mock).mockRejectedValue(
+            new EmailUnknownError({
+                message: 'Email unknown',
+                name: 'EMAIL_UNKNOWN',
+            })
+        )
+        const loginButton = screen.getByTestId('reset-password-button')
+        const emailInput = screen.getByTestId('email')
+
+        await userEvent.type(emailInput, 'unknown-email@gmail.com')
+        await userEvent.click(loginButton)
+
+        expect(
+            screen.getByText('Password reset email sent')
+        ).toBeInTheDocument()
     })
 })
 
@@ -139,6 +300,7 @@ describe('swapping to login', () => {
         )
         await userEvent.click(screen.getByTestId('forgot-password'))
     })
+
     it('should swap to login', async () => {
         await userEvent.click(screen.getByTestId('back-to-login'))
         const loginButton = screen.getByTestId('login-button')
