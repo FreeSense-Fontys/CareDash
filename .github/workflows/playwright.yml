@@ -30,15 +30,6 @@ jobs:
             - name: Install Playwright Browsers
               run: npx playwright install --with-deps
 
-            - name: Install wait-on
-              run: npm install wait-on
-
-            - name: Run frontend in background
-              run: npm run dev &
-
-            - name: Wait for frontend to be ready
-              run: npx wait-on http://localhost:3000
-
             - name: Run Playwright tests
               run: npx playwright test
 
