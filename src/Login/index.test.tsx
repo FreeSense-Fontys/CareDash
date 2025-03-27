@@ -4,6 +4,24 @@ import '@testing-library/jest-dom'
 import LoginPage from './index'
 
 describe('Login page', () => {
+
+    // mock the Extra Horizon SDK before importing the client
+    vi.mock('@extrahorizon/javascript-sdk', async (importOriginal) => {
+        const actual = (await importOriginal()) as object
+        return {
+            ...actual, // Preserve original exports
+            createOAuth2Client: vi.fn(() => ({
+                auth: {
+                    authenticate: vi.fn(),
+                },
+                users: {
+                    requestPasswordReset: vi.fn(),
+                },
+            })),
+            FieldFormatError: class FieldFormatError extends Error {},
+        }
+    })
+
     const mockSetAccessToken = vi.fn()
     const mockSetRefreshToken = vi.fn()
 
