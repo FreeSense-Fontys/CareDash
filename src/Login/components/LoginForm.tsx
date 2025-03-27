@@ -137,9 +137,15 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                 username: formData.email,
                 password: formData.password,
             })
-            Cookies.set(Const.ACCESS_TOKEN, user.accessToken)
+            Cookies.set(Const.ACCESS_TOKEN, user.accessToken, {
+                path: '/',
+                sameSite: 'Lax', // or 'Strict'
+            })
             setAccessToken(user.accessToken)
-            Cookies.set(Const.REFRESH_TOKEN, user.refreshToken)
+            Cookies.set(Const.REFRESH_TOKEN, user.refreshToken, {
+                path: '/',
+                sameSite: 'Lax', // or 'Strict'
+            })
             setRefreshToken(user.refreshToken)
         } catch (error) {
             if (error instanceof InvalidGrantError)
