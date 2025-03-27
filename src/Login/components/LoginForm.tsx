@@ -2,9 +2,10 @@ import { useState } from 'react'
 import Cookies from 'js-cookie'
 import exh from '../../Auth'
 import {
-    EmailUnknownError,
     FieldFormatError,
     InvalidGrantError,
+    InvalidRequestError,
+    EmailUnknownError,
 } from '@extrahorizon/javascript-sdk'
 import Const from '../../Auth/const'
 import { GoAlertFill } from 'react-icons/go'
@@ -79,10 +80,16 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
         return true
     }
 
-    // handles form submission: validates inputs and, if inputs valid, logs in user
+    // handles form submission: validates inputs and, if inputs valid, logs in user or sends password reset email
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        if (validateInputs()) await UserLogin()
+        if (validateInputs()) {
+            if (isLogin) {
+                await UserLogin()
+            } else {
+                await handleForgotPassword()
+            }
+        }
     }
 
     // handles forgot password: validates inputs and, if inputs valid, sends password reset email
@@ -96,9 +103,16 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                 })
                 await exh.users.requestPasswordReset(formData.email)
                 toast.success('Password reset email sent')
-
-                // set cooldown period (30 seconds)
-                const cooldownTime = 30
+            } catch (error) {
+                if (error instanceof FieldFormatError)
+                    toast.error('Invalid email format')
+                // want to emulate success in case of malicious intent (email enumeration)
+                if (error instanceof EmailUnknownError)
+                    toast.success('Password reset email sent')
+            } finally {
+                setIsLoading(false)
+                // set cooldown period (10 seconds) of reset password button
+                const cooldownTime = 10
                 setResetCooldown(cooldownTime)
 
                 // start countdown timer
@@ -111,13 +125,6 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                         return prevTime - 1
                     })
                 }, 1000)
-            } catch (error) {
-                if (error instanceof FieldFormatError)
-                    toast.error('Invalid email')
-                if (error instanceof EmailUnknownError)
-                    toast.error('Email not found')
-            } finally {
-                setIsLoading(false)
             }
         }
     }
@@ -126,21 +133,22 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
     async function UserLogin() {
         try {
             setIsLoading(true)
-            await exh.auth
-                .authenticate({
-                    username: formData.email,
-                    password: formData.password,
-                })
-                .then((user) => {
-                    Cookies.set(Const.ACCESS_TOKEN, user.accessToken)
-                    setAccessToken(user.accessToken)
-                    Cookies.set(Const.REFRESH_TOKEN, user.refreshToken)
-                    setRefreshToken(user.refreshToken)
-                })
+            const user = await exh.auth.authenticate({
+                username: formData.email,
+                password: formData.password,
+            })
+            Cookies.set(Const.ACCESS_TOKEN, user.accessToken)
+            setAccessToken(user.accessToken)
+            Cookies.set(Const.REFRESH_TOKEN, user.refreshToken)
+            setRefreshToken(user.refreshToken)
         } catch (error) {
             if (error instanceof InvalidGrantError)
                 toast.error('Email or password is incorrect')
-            else toast.error('An unknown error occurred')
+            else if (error instanceof InvalidRequestError)
+                toast.error('Invalid format')
+            else {
+                toast.error('An unknown error has occurred')
+            }
         } finally {
             setIsLoading(false)
         }
@@ -179,7 +187,10 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                             <div className="flex flex-row">
                                 Email
                                 {inputErrors.email !== '' && (
-                                    <p className="text-red-500 pl-2">
+                                    <p
+                                        className="text-red-500 pl-2"
+                                        data-testid="email-empty-icon"
+                                    >
                                         <GoAlertFill size={20} />
                                     </p>
                                 )}
@@ -191,6 +202,7 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                             autoComplete="email"
                             type="email"
                             name="email"
+                            data-testid="email"
                             placeholder={
                                 inputErrors.email ? inputErrors.email : 'Email'
                             }
@@ -215,6 +227,7 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                             </label>
                             <input
                                 value={formData.password}
+                                data-testid="password"
                                 id="password"
                                 name="password"
                                 type="password"
@@ -231,6 +244,7 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                             {/* Forgot Password button */}
                             <p className="text-xs text-left mt-2">
                                 <button
+                                    data-testid="forgot-password"
                                     onClick={async (e) => {
                                         e.preventDefault()
                                         setInputErrors({
@@ -239,6 +253,7 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                                         })
                                         setIsLogin(false)
                                     }}
+                                    type="button"
                                     className="underline hover:cursor-pointer hover:text-neutral-300 bg-transparent border-none p-0"
                                     disabled={isLoading}
                                 >
@@ -259,6 +274,8 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                                         })
                                         setIsLogin(true)
                                     }}
+                                    type="button"
+                                    data-testid="back-to-login"
                                     disabled={isLoading}
                                 >
                                     Back to login
@@ -275,6 +292,7 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                             className="bg-secondary hover:cursor-pointer w-xs p-4 rounded-tl-xsm rounded-br-xsm hover:scale-105 active:opacity-75"
                             type="submit"
                             disabled={isLoading}
+                            data-testid="login-button"
                         >
                             Login
                         </button>
@@ -283,10 +301,7 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                         <button
                             className="bg-secondary hover:cursor-pointer w-xs p-4 rounded-tl-xsm rounded-br-xsm hover:scale-105 active:opacity-75 disabled:opacity-75 disabled:cursor-not-allowed disabled:hover:scale-100"
                             type="submit"
-                            onClick={(e) => {
-                                e.preventDefault()
-                                handleForgotPassword()
-                            }}
+                            data-testid="reset-password-button"
                             disabled={isLoading || resetCooldown > 0}
                         >
                             {resetCooldown > 0
