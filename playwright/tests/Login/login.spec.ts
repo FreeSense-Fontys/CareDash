@@ -70,7 +70,6 @@ test('Stay logged in', async ({ page, browserName }) => {
     
     // navigate back to the app
     await page.goto('http://localhost:3000/');
-    console.log(await page.context().cookies());
     
     // check if the user is still logged in
     await page.getByTestId('logout-button').click();
@@ -82,8 +81,8 @@ test('Stay logged in', async ({ page, browserName }) => {
 test('login not filled', async ({ page }) => {
     await page.goto('http://localhost:3000/');
     await page.getByTestId('login-button').click();
-    await page.locator('label').filter({ hasText: 'Password' }).getByRole('img').click();
-    await page.getByTestId('email-empty-icon').locator('path').click();
+    await page.getByTestId('email-empty-icon');
+    await page.getByTestId('password-empty-icon');
 });
 
 test('Login no password', async ({ page }) => {
