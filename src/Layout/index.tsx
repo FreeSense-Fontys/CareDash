@@ -8,7 +8,7 @@ const Layout = ({ Logout }: LogoutProps) => {
     return (
         <div>
             <h1>Layout</h1>
-            <button onClick={Logout}>Logout</button>
+            <button onClick={Logout} data-testid="logout-button">Logout</button>
             <Outlet />
         </div>
     )
