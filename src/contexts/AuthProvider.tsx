@@ -1,6 +1,5 @@
 import exh from '../Auth'
 import { createContext, useContext, useEffect, useState } from 'react'
-// import { useNavigate } from 'react-router-dom'
 import { TokenDataOauth2, UserData } from '@extrahorizon/javascript-sdk'
 import Cookies from 'js-cookie'
 import Consts from '../Auth/const'
@@ -21,7 +20,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<UserData | undefined>(undefined)
     const [loading, setLoading] = useState(true)
-    // const navigate = useNavigate()
 
     useEffect(() => {
         // getting refresh token from cookies
@@ -32,7 +30,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 // if refresh token is available, authenticate with it
                 if (refreshToken) {
                     await exh.auth.authenticate({
-                        refreshToken: Cookies.get(Consts.REFRESH_TOKEN) || '',
+                        refreshToken: refreshToken,
                     })
                 }
                 // getting current user

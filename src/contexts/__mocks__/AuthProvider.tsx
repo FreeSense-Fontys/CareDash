@@ -1,4 +1,4 @@
-import React, { createContext } from 'react'
+import { createContext } from 'react'
 import { vi } from 'vitest'
 import {
     InvalidGrantError,
@@ -23,13 +23,7 @@ const handleLoginMock = vi.fn().mockImplementation(async (email, password) => {
             name: 'INVALID_REQUEST',
         })
     }
-    if (email === 'unknown-email@gmail.com') {
-        throw new EmailUnknownError({
-            message: 'Email unknown',
-            name: 'EMAIL_UNKNOWN',
-        })
-    }
-    if (email === 'unknown-error@test.com') {
+    if (email === 'unknown-error@gmail.com') {
         throw new Error('Unknown error')
     }
     return { accessToken: 'token', refreshToken: 'refresh' }
@@ -37,7 +31,6 @@ const handleLoginMock = vi.fn().mockImplementation(async (email, password) => {
 
 const handleForgotPasswordMock = vi.fn().mockImplementation(async (email) => {
     if (email === 'invalid-email@gmail') {
-        console.log('Forgot password for email:', email)
         throw new FieldFormatError({
             message: 'Invalid email format',
             name: 'INVALID_EMAIL',
@@ -61,14 +54,6 @@ export const mockAuthValues = {
 }
 
 export const AuthContext = createContext(mockAuthValues)
-
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-    return (
-        <AuthContext.Provider value={mockAuthValues}>
-            {children}
-        </AuthContext.Provider>
-    )
-}
 
 export const useAuth = () => {
     return mockAuthValues

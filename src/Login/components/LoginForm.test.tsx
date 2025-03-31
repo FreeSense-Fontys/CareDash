@@ -3,12 +3,12 @@ import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import '@testing-library/jest-dom'
 import LoginForm from './LoginForm'
-// import {
-//     EmailUnknownError,
-//     FieldFormatError,
-//     InvalidGrantError,
-//     InvalidRequestError,
-// } from '@extrahorizon/javascript-sdk'
+import {
+    EmailUnknownError,
+    FieldFormatError,
+    InvalidGrantError,
+    InvalidRequestError,
+} from '@extrahorizon/javascript-sdk'
 // import exh from '../../Auth'
 import { MemoryRouter } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthProvider'
@@ -53,6 +53,10 @@ describe('login success', () => {
         )
     })
 
+    afterEach(() => {
+        vi.clearAllMocks()
+    })
+
     it('login successfully', async () => {
         const { handleLogin } = useAuth()
 
@@ -75,6 +79,10 @@ describe('login success', () => {
 describe('login fail', () => {
     beforeEach(() => {
         render(<LoginForm />)
+    })
+
+    afterEach(() => {
+        vi.clearAllMocks()
     })
 
     it('empty inputs', async () => {
@@ -161,14 +169,19 @@ describe('login fail', () => {
     })
 
     it('unknown error', async () => {
+        const { handleLogin } = useAuth()
         const loginButton = screen.getByTestId('login-button')
         const emailInput = screen.getByTestId('email')
         const passwordInput = screen.getByTestId('password')
 
-        await userEvent.type(emailInput, 'unknown-error@test.com')
+        await userEvent.type(emailInput, 'unknown-error@gmail.com')
         await userEvent.type(passwordInput, 'correct-password')
         await userEvent.click(loginButton)
 
+        expect(handleLogin).toHaveBeenCalledWith(
+            'unknown-error@gmail.com',
+            'correct-password'
+        )
         expect(
             screen.getByText('An unknown error has occurred')
         ).toBeInTheDocument()
@@ -185,7 +198,7 @@ describe('forgot password success', () => {
     })
 
     afterEach(() => {
-        vi.resetAllMocks()
+        vi.clearAllMocks()
         vi.useRealTimers()
     })
 
@@ -231,7 +244,21 @@ describe('forgot password fail', () => {
     })
 
     afterEach(() => {
-        vi.resetAllMocks()
+        vi.clearAllMocks()
+    })
+
+    // test for invalid email format
+    it('invalid email', async () => {
+        const { handleForgotPassword } = useAuth()
+        const emailInput = screen.getByTestId('email')
+        const resetPasswordButton = screen.getByTestId('reset-password-button')
+
+        await act(async () => {})
+        await userEvent.type(emailInput, 'invalid-email@gmail')
+        await userEvent.click(resetPasswordButton)
+
+        expect(handleForgotPassword).toHaveBeenCalledWith('invalid-email@gmail')
+        expect(screen.getByText('Invalid email format')).toBeInTheDocument()
     })
 
     // test for empty email input field
@@ -246,27 +273,17 @@ describe('forgot password fail', () => {
         expect(screen.getByTestId('email-empty-icon')).toBeInTheDocument()
     })
 
-    // test for invalid email format
-    it('invalid email', async () => {
-        const { handleForgotPassword } = useAuth()
-        const emailInput = screen.getByTestId('email')
-        const resetPasswordButton = screen.getByTestId('reset-password-button')
-
-        await userEvent.type(emailInput, 'invalid-email@gmail')
-
-        await userEvent.click(resetPasswordButton)
-
-        expect(handleForgotPassword).toHaveBeenCalledWith('invalid-email@gmail')
-        expect(screen.getByText(/Invalid email format/i)).toBeInTheDocument()
-    })
-
     it('unknown email error', async () => {
+        const { handleForgotPassword } = useAuth()
         const loginButton = screen.getByTestId('reset-password-button')
         const emailInput = screen.getByTestId('email')
 
         await userEvent.type(emailInput, 'unknown-email@gmail.com')
         await userEvent.click(loginButton)
 
+        expect(handleForgotPassword).toHaveBeenCalledWith(
+            'unknown-email@gmail.com'
+        )
         expect(
             screen.getByText('Password reset email sent')
         ).toBeInTheDocument()
