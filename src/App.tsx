@@ -6,6 +6,7 @@ import Login from './Login'
 import Cookie from 'js-cookie'
 import Const from './Auth/const'
 import Layout from './Layout'
+import PatientListForm from './Monitor/components/PatientListForm'
 
 function App() {
     const [accessToken, setAccessToken] = useState(
@@ -43,6 +44,7 @@ function App() {
             ) : (
                 <Route element={<Layout Logout={Logout} />}>
                     <Route index element={<Home />} />
+                    <Route path="/patientList" element={<PatientListForm />} />
                 </Route>
             )}
             {/* <Route path="/" element={isLoggedIn() ? <Home /> : <Login setAccessToken={setAccessToken} setRefreshToken={setRefreshToken} />} /> */}
