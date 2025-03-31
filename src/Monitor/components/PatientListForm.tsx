@@ -35,12 +35,12 @@ const PatientListForm = () => {
                     </div >
 
                     <div className="flex justify-around gap-5">
-                        <div className="flex justify-center items-center"><div className="text-center border size-12 rounded-lg justify-center bg-accent items-center flex leading-tight">HR [bpm]</div></div>
-                        <div className="flex justify-center items-center"><div className="text-center border size-12 rounded-lg justify-center bg-accent items-center flex leading-tight">BP [mmHg]</div></div>
-                        <div className="flex justify-center items-center"><div className="text-center border size-12 rounded-lg justify-center bg-accent items-center flex leading-tight">SPO2 [%]</div></div>
-                        <div className="flex justify-center items-center"><div className="text-center border size-12 rounded-lg justify-center bg-accent items-center flex leading-tight">RR [min]</div></div>
-                        <div className="flex justify-center items-center"><div className="text-center border size-12 rounded-lg justify-center bg-accent items-center flex leading-tight">ACT [min]</div></div>
-                        <div className="flex justify-center items-center"><div className="text-center border size-12 rounded-lg justify-center bg-accent items-center flex leading-tight">T [°C]</div></div>
+                        <div className="flex justify-center items-center"><div className="text-center border size-12 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">HR<p className="text-[11px]">[/min]</p></div></div>
+                        <div className="flex justify-center items-center"><div className="text-center border size-12 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">BP<p className="text-[11px]">[mmHg]</p></div></div>
+                        <div className="flex justify-center items-center"><div className="text-center border size-12 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">SPO2<p className="text-[11px]">[%]</p></div></div>
+                        <div className="flex justify-center items-center"><div className="text-center border size-12 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">RR<p className="text-[11px]">[/min]</p></div></div>
+                        <div className="flex justify-center items-center"><div className="text-center border size-12 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">ACT<p className="text-[11px]">[min]</p></div></div>
+                        <div className="flex justify-center items-center"><div className="text-center border size-12 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">T<p className="text-[11px]">[°C]</p></div></div>
                     </div>
                     <div className="flex justify-around">
                             <input className="w-6 h-6 rounded border-gray-300 focus:ring-blue-500 mr-5 " />
