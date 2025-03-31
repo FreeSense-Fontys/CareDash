@@ -1,45 +1,60 @@
-import { expect, describe, vi, Mock } from 'vitest'
+import { expect, describe, vi } from 'vitest'
 import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import '@testing-library/jest-dom'
 import LoginForm from './LoginForm'
-import {
-    EmailUnknownError,
-    FieldFormatError,
-    InvalidGrantError,
-    InvalidRequestError,
-} from '@extrahorizon/javascript-sdk'
-import exh from '../../Auth'
+// import {
+//     EmailUnknownError,
+//     FieldFormatError,
+//     InvalidGrantError,
+//     InvalidRequestError,
+// } from '@extrahorizon/javascript-sdk'
+// import exh from '../../Auth'
+import { MemoryRouter } from 'react-router-dom'
+import { useAuth } from '../../contexts/AuthProvider'
 
 // mock the Extra Horizon SDK before importing the client
-vi.mock('@extrahorizon/javascript-sdk', async (importOriginal) => {
-    const actual = (await importOriginal()) as object
+// vi.mock('@extrahorizon/javascript-sdk', async (importOriginal) => {
+//     const actual = (await importOriginal()) as object
+//     return {
+//         ...actual, // Preserve original exports
+//         createOAuth2Client: vi.fn(() => ({
+//             auth: {
+//                 authenticate: vi.fn(),
+//             },
+//             users: {
+//                 requestPasswordReset: vi.fn(),
+//             },
+//         })),
+//         FieldFormatError: class FieldFormatError extends Error {},
+//     }
+// })
+
+vi.mock('react-router-dom', () => {
+    const navigate = vi.fn()
     return {
-        ...actual, // Preserve original exports
-        createOAuth2Client: vi.fn(() => ({
-            auth: {
-                authenticate: vi.fn(),
-            },
-            users: {
-                requestPasswordReset: vi.fn(),
-            },
-        })),
-        FieldFormatError: class FieldFormatError extends Error {},
+        ...vi.importActual('react-router-dom'),
+        useNavigate: () => navigate,
+        MemoryRouter: ({ children }: { children: React.ReactNode }) => (
+            <div>{children}</div>
+        ),
     }
 })
 
+// Mock AuthProvider
+vi.mock('../../contexts/AuthProvider')
+
 describe('login success', () => {
     beforeEach(() => {
-        render(<LoginForm setAccessToken={vi.fn()} setRefreshToken={vi.fn()} />)
+        render(
+            <MemoryRouter>
+                <LoginForm />
+            </MemoryRouter>
+        )
     })
 
     it('login successfully', async () => {
-        const mockUser = {
-            accessToken: 'test-access-token',
-            refreshToken: 'test-refresh-token',
-        }
-
-        ;(exh.auth.authenticate as Mock).mockResolvedValue(mockUser)
+        const { handleLogin } = useAuth()
 
         const loginButton = screen.getByTestId('login-button')
         const emailInput = screen.getByTestId('email')
@@ -50,16 +65,16 @@ describe('login success', () => {
 
         await userEvent.click(loginButton)
 
-        expect(exh.auth.authenticate).toHaveBeenCalledWith({
-            username: 'correct-email@gmail.com',
-            password: 'correct-password',
-        })
+        expect(handleLogin).toHaveBeenCalledWith(
+            'correct-email@gmail.com',
+            'correct-password'
+        )
     })
 })
 
 describe('login fail', () => {
     beforeEach(() => {
-        render(<LoginForm setAccessToken={vi.fn()} setRefreshToken={vi.fn()} />)
+        render(<LoginForm />)
     })
 
     it('empty inputs', async () => {
@@ -91,36 +106,26 @@ describe('login fail', () => {
     })
 
     it('incorrect email', async () => {
-        ;(exh.auth.authenticate as Mock).mockRejectedValue(
-            new InvalidGrantError({
-                message: 'Invalid email or password',
-                name: 'INVALID_GRANT',
-            })
-        )
+        const { handleLogin } = useAuth()
         const loginButton = screen.getByTestId('login-button')
         const emailInput = screen.getByTestId('email')
         const passwordInput = screen.getByTestId('password')
 
         await userEvent.type(emailInput, 'incorrect-email@gmail.com')
-        await userEvent.type(passwordInput, 'correct-password')
+        await userEvent.type(passwordInput, 'incorrect-password')
         await userEvent.click(loginButton)
 
-        expect(exh.auth.authenticate).toHaveBeenCalledWith({
-            username: 'incorrect-email@gmail.com',
-            password: 'correct-password',
-        })
+        expect(handleLogin).toHaveBeenCalledWith(
+            'incorrect-email@gmail.com',
+            'incorrect-password'
+        )
         expect(
             screen.getByText('Email or password is incorrect')
         ).toBeInTheDocument()
     })
 
     it('incorrect password', async () => {
-        ;(exh.auth.authenticate as Mock).mockRejectedValue(
-            new InvalidGrantError({
-                message: 'Invalid email or password',
-                name: 'INVALID_GRANT',
-            })
-        )
+        const { handleLogin } = useAuth()
         const loginButton = screen.getByTestId('login-button')
         const emailInput = screen.getByTestId('email')
         const passwordInput = screen.getByTestId('password')
@@ -129,22 +134,17 @@ describe('login fail', () => {
         await userEvent.type(passwordInput, 'incorrect-password')
         await userEvent.click(loginButton)
 
-        expect(exh.auth.authenticate).toHaveBeenCalledWith({
-            username: 'correct-email@gmail.com',
-            password: 'incorrect-password',
-        })
+        expect(handleLogin).toHaveBeenCalledWith(
+            'correct-email@gmail.com',
+            'incorrect-password'
+        )
         expect(
             screen.getByText('Email or password is incorrect')
         ).toBeInTheDocument()
     })
 
     it('invalid email format', async () => {
-        ;(exh.auth.authenticate as Mock).mockRejectedValue(
-            new InvalidRequestError({
-                message: 'Invalid format',
-                name: 'INVALID_REQUEST',
-            })
-        )
+        const { handleLogin } = useAuth()
         const loginButton = screen.getByTestId('login-button')
         const emailInput = screen.getByTestId('email')
         const passwordInput = screen.getByTestId('password')
@@ -153,22 +153,19 @@ describe('login fail', () => {
         await userEvent.type(passwordInput, 'correct-password')
         await userEvent.click(loginButton)
 
-        expect(exh.auth.authenticate).toHaveBeenCalledWith({
-            username: 'correct-email@gmail',
-            password: 'correct-password',
-        })
+        expect(handleLogin).toHaveBeenCalledWith(
+            'correct-email@gmail',
+            'correct-password'
+        )
         expect(screen.getByText('Invalid format')).toBeInTheDocument()
     })
 
     it('unknown error', async () => {
-        ;(exh.auth.authenticate as Mock).mockRejectedValue(
-            new Error('Unknown error')
-        )
         const loginButton = screen.getByTestId('login-button')
         const emailInput = screen.getByTestId('email')
         const passwordInput = screen.getByTestId('password')
 
-        await userEvent.type(emailInput, 'correct@gmail.com')
+        await userEvent.type(emailInput, 'unknown-error@test.com')
         await userEvent.type(passwordInput, 'correct-password')
         await userEvent.click(loginButton)
 
@@ -183,7 +180,7 @@ describe('forgot password success', () => {
     beforeEach(async () => {
         vi.useFakeTimers({ shouldAdvanceTime: true })
         // render the login form and navigate to forgot password
-        render(<LoginForm setAccessToken={vi.fn()} setRefreshToken={vi.fn()} />)
+        render(<LoginForm />)
         await userEvent.click(screen.getByTestId('forgot-password'))
     })
 
@@ -194,6 +191,8 @@ describe('forgot password success', () => {
 
     // test for successful forgot password
     it('successful forgot password', async () => {
+        const { handleForgotPassword } = useAuth()
+
         // mock a successful requestPasswordReset call
         const resetPasswordButton = screen.getByTestId('reset-password-button')
         await userEvent.type(
@@ -207,7 +206,7 @@ describe('forgot password success', () => {
             screen.getByText('Password reset email sent')
         ).toBeInTheDocument()
         expect(resetPasswordButton).toBeDisabled()
-        expect(exh.users.requestPasswordReset).toHaveBeenCalledWith(
+        expect(handleForgotPassword).toHaveBeenCalledWith(
             'correct-email@test.com'
         )
         expect(resetPasswordButton).toHaveTextContent(/Try again in \d+s/i)
@@ -227,7 +226,7 @@ describe('forgot password success', () => {
 describe('forgot password fail', () => {
     // renders login form and navigates to forgot password before each test
     beforeEach(async () => {
-        render(<LoginForm setAccessToken={vi.fn()} setRefreshToken={vi.fn()} />)
+        render(<LoginForm />)
         await userEvent.click(screen.getByTestId('forgot-password'))
     })
 
@@ -249,31 +248,19 @@ describe('forgot password fail', () => {
 
     // test for invalid email format
     it('invalid email', async () => {
-        ;(exh.users.requestPasswordReset as Mock).mockRejectedValue(
-            new FieldFormatError({
-                message: 'Invalid email format',
-                name: 'INVALID_EMAIL',
-            })
-        )
+        const { handleForgotPassword } = useAuth()
         const emailInput = screen.getByTestId('email')
         const resetPasswordButton = screen.getByTestId('reset-password-button')
 
         await userEvent.type(emailInput, 'invalid-email@gmail')
+
         await userEvent.click(resetPasswordButton)
 
-        expect(exh.users.requestPasswordReset).toHaveBeenCalledWith(
-            'invalid-email@gmail'
-        )
-        expect(screen.getByText('Invalid email format')).toBeInTheDocument()
+        expect(handleForgotPassword).toHaveBeenCalledWith('invalid-email@gmail')
+        expect(screen.getByText(/Invalid email format/i)).toBeInTheDocument()
     })
 
     it('unknown email error', async () => {
-        ;(exh.auth.authenticate as Mock).mockRejectedValue(
-            new EmailUnknownError({
-                message: 'Email unknown',
-                name: 'EMAIL_UNKNOWN',
-            })
-        )
         const loginButton = screen.getByTestId('reset-password-button')
         const emailInput = screen.getByTestId('email')
 
@@ -289,15 +276,7 @@ describe('forgot password fail', () => {
 // test for 'back to login' button
 describe('swapping to login', () => {
     beforeEach(async () => {
-        const setAccessTokenMock = vi.fn()
-        const setRefreshTokenMock = vi.fn()
-
-        render(
-            <LoginForm
-                setAccessToken={setAccessTokenMock}
-                setRefreshToken={setRefreshTokenMock}
-            />
-        )
+        render(<LoginForm />)
         await userEvent.click(screen.getByTestId('forgot-password'))
     })
 

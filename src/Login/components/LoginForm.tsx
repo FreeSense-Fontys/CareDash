@@ -1,26 +1,22 @@
 import { useState } from 'react'
-import Cookies from 'js-cookie'
-import exh from '../../Auth'
 import {
     FieldFormatError,
     InvalidGrantError,
     InvalidRequestError,
     EmailUnknownError,
 } from '@extrahorizon/javascript-sdk'
-import Const from '../../Auth/const'
 import { GoAlertFill } from 'react-icons/go'
 import { toast, ToastContainer, Bounce } from 'react-toastify'
+import { useAuth } from '../../contexts/AuthProvider'
+import { useNavigate } from 'react-router-dom'
 
-interface LoginProps {
-    setAccessToken: (token: string) => void
-    setRefreshToken: (token: string) => void
-}
-
-function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
+function LoginForm() {
     const [formData, setFormData] = useState({
         email: '',
         password: '',
     })
+    const navigate = useNavigate()
+    const { handleLogin, handleForgotPassword } = useAuth()
     // Add this near your other state declarations
     const [resetCooldown, setResetCooldown] = useState(0)
     const [isLoading, setIsLoading] = useState(false)
@@ -87,13 +83,13 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
             if (isLogin) {
                 await UserLogin()
             } else {
-                await handleForgotPassword()
+                await forgotPassword()
             }
         }
     }
 
     // handles forgot password: validates inputs and, if inputs valid, sends password reset email
-    const handleForgotPassword = async () => {
+    const forgotPassword = async () => {
         if (validateInputs()) {
             try {
                 setIsLoading(true)
@@ -101,7 +97,7 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                     email: '',
                     password: '',
                 })
-                await exh.users.requestPasswordReset(formData.email)
+                await handleForgotPassword(formData.email)
                 toast.success('Password reset email sent')
             } catch (error) {
                 if (error instanceof FieldFormatError)
@@ -133,14 +129,8 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
     async function UserLogin() {
         try {
             setIsLoading(true)
-            const user = await exh.auth.authenticate({
-                username: formData.email,
-                password: formData.password,
-            })
-            Cookies.set(Const.ACCESS_TOKEN, user.accessToken)
-            setAccessToken(user.accessToken)
-            Cookies.set(Const.REFRESH_TOKEN, user.refreshToken)
-            setRefreshToken(user.refreshToken)
+            await handleLogin(formData.email, formData.password)
+            navigate('/')
         } catch (error) {
             if (error instanceof InvalidGrantError)
                 toast.error('Email or password is incorrect')
