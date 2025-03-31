@@ -8,16 +8,21 @@ const mock_patient_data = [
             {
                 carepath: "COPD",
                 HR: "120",
-                BP: "128/80",
+                BP: "128 /80",
                 SPO2: "80",
-                ACT: "20"
+                RR: "",
+                ACT: "20",
+                T: ""
             },
-            {
-                carepath: "Diabetes",
-                HR: "120",
-                SPO2: "80",
-                RR: "15"
-            }
+            // {
+            //     carepath: "Diabetes",
+            //     HR: "120",
+            //     BP: "",
+            //     SPO2: "80",
+            //     RR: "15",
+            //     ACT: "",
+            //     T: ""
+            // }
         ]
     },
     {
@@ -28,6 +33,8 @@ const mock_patient_data = [
         carepaths: [
             {
                 carepath: "Diabetes",
+                HR: "",
+                BP: "",
                 SPO2: "95",
                 RR: "15",
                 ACT: "20",
@@ -44,7 +51,11 @@ const mock_patient_data = [
             {
                 carepath: "Heart failure",
                 HR: "92",
+                BP: "",
                 SPO2: "98",
+                RR: "",
+                ACT: "",
+                T: ""
             }
         ]
     },
@@ -57,8 +68,9 @@ const mock_patient_data = [
             {
                 carepath: "Tia",
                 HR: "110",
-                BP: "109/65",
+                BP: "109 /65",
                 SPO2: "97",
+                RR: "",
                 ACT: "12",
                 T: "37,7"            
             }
@@ -73,8 +85,11 @@ const mock_patient_data = [
             {
                 carepath: "Hypertension",
                 HR: "98",
-                BP: "120/70",
+                BP: "120 /70",
+                SPO2: "",
+                RR:"",
                 ACT: "18",
+                T: ""
             }
         ]
     }
