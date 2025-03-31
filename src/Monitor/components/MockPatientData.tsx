@@ -14,15 +14,15 @@ const mock_patient_data = [
                 ACT: "20",
                 T: ""
             },
-            // {
-            //     carepath: "Diabetes",
-            //     HR: "120",
-            //     BP: "",
-            //     SPO2: "80",
-            //     RR: "15",
-            //     ACT: "",
-            //     T: ""
-            // }
+            {
+                carepath: "Diabetes",
+                HR: "120",
+                BP: "",
+                SPO2: "80",
+                RR: "15",
+                ACT: "",
+                T: ""
+            }
         ]
     },
     {
