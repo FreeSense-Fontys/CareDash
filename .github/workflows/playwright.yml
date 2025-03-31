@@ -21,11 +21,31 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
+
             - uses: actions/setup-node@v4
               with:
                   node-version: lts/*
+
             - name: Install dependencies
-              run: npm i
+              run: npm install
+
+            - name: Build frontend Docker image
+              run: docker build -t my-frontend .
+
+            - name: Run frontend container
+              run: docker run -d -p 3000:3000 --name frontend my-frontend
+
+            - name: Wait for frontend to be ready
+              run: |
+                  echo "Waiting for frontend to start..."
+                  for i in {1..20}; do
+                    if curl -s http://localhost:3000 > /dev/null; then
+                      echo "Frontend is up!"
+                      break
+                    fi
+                    echo "Still waiting..."
+                    sleep 3
+                  done
 
             - name: Install Playwright Browsers
               run: npx playwright install --with-deps
