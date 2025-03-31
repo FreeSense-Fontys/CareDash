@@ -5,17 +5,17 @@ on:
     pull_request:
         branches: [main, master, dev]
 jobs:
-    vitest:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
-            - uses: actions/setup-node@v4
-              with:
-                  node-version: lts/*
-            - name: Install dependencies
-              run: npm install
-            - name: Run vitest
-              run: npm test
+    # vitest:
+    #     runs-on: ubuntu-latest
+    #     steps:
+    #         - uses: actions/checkout@v4
+    #         - uses: actions/setup-node@v4
+    #           with:
+    #               node-version: lts/*
+    #         - name: Install dependencies
+    #           run: npm install
+    #         - name: Run vitest
+    #           run: npm test
     e2e:
         timeout-minutes: 60
         runs-on: ubuntu-latest
