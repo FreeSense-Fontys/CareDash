@@ -1,8 +1,8 @@
+import PatientListForm from '../Monitor/components/PatientListForm'
+
 const Home = () => {
     return (
-        <div>
-            <h1>Home Page</h1>
-        </div>
+        <PatientListForm />
     )
 }
 
