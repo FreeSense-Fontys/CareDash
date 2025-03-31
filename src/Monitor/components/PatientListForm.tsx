@@ -8,21 +8,34 @@ const PatientListForm = () => {
     return (
         <body className="bg-gray-100 p-6 ">
             <div className="max-w-5xl mx-auto bg-white p-4 rounded-lg shadow">
-                {/* Search, sort and filter */}
                 <div className="flex justify-between items-center mb-4">
-                    <input type="text" placeholder="Search..." className="p-2 border rounded w-1/3" />
-                    <div className="flex gap-4">
-                        <select className="p-2 border rounded">
-                            <option>Sort by Priority</option>
-                        </select>
-                        <select className="p-2 border rounded">
-                            <option>Filter by Illness</option>
-                        </select>
+                    {/* Search */}
+                    <div className='justify-center items-center'> 
+                        <div className='text-white'>.....</div>
+                        <input type="text" placeholder="Search..." className="p-2 border rounded w-80" />
                     </div>
+
+                    <div className="flex gap-4">
+                    {/* Sort */}
+                        <div className='justify-center items-center'>
+                            <div>Sort by</div>
+                            <select className="p-2 border rounded w-25">
+                                <option>Priority</option>
+                            </select>
+                        </div>
+                    {/* Filter */}
+                        <div>
+                            <div>Filter by</div>
+                            <select className="p-2 border rounded w-25">
+                                <option>Illness</option>
+                            </select>
+                        </div>
+                    </div>
+                    {/* Calendar */}
                     <div className="flex items-center bg-background">
-                        <button className="bg-accent text-white px-3 py-1 rounded">&#60;</button>
-                        <span className=" font-semibold "> 25 Feb, 2025 </span>
-                        <button className="bg-accent text-white px-3 py-1 rounded">&#62;</button>
+                        <button className="bg-accent text-white px-3 py-1 rounded rounded-l-lg">&#60;</button>
+                        <span className=" font-semibold m-1"> 25 Feb, 2025 </span>
+                        <button className="bg-accent text-white px-3 py-1 rounded rounded-r-lg">&#62;</button>
                     </div>
                 </div>
 
@@ -65,12 +78,42 @@ const PatientListForm = () => {
                                     </div >
 
                                     <div className="flex justify-around gap-5">
-                                        <div className="flex justify-center items-center"><div className="text-center border size-12 rounded-lg justify-center items-center flex">120</div></div>
-                                        <div className="flex justify-center items-center"><div className="text-center size-12 bg-red-500 text-white p-2 rounded-lg justify-center items-center flex leading-tight">128 /80</div></div>
-                                        <div className="flex justify-center items-center"><div className="text-center size-12 bg-red-500 text-white p-2 rounded-lg justify-center items-center flex">80</div></div>
-                                        <div className="flex justify-center items-center"><div className="text-center size-12 rounded-lg justify-center items-center flex"></div></div>
-                                        <div className="flex justify-center items-center"><div className="text-center border size-12 rounded-lg justify-center items-center flex">20</div></div>
-                                        <div className="flex justify-center items-center"><div className="text-center size-12 rounded-lg justify-center items-center flex"></div></div>
+                                        {/* HR */}
+                                        {carepath.HR == "" || carepath.HR == null ? (
+                                            <div className="flex justify-center items-center"><div className="text-center size-12 rounded-lg justify-center items-center flex"></div></div>
+                                        ) : (
+                                            <div className="flex justify-center items-center"><div className="text-center border size-12 rounded-lg justify-center items-center flex leading-tight">{carepath.HR}</div></div>
+                                        )}
+                                        {/* BP */}
+                                        {carepath.BP == "" || carepath.BP == null ? (
+                                            <div className="flex justify-center items-center"><div className="text-center size-12 rounded-lg justify-center items-center flex"></div></div>
+                                        ) : (
+                                            <div className="flex justify-center items-center"><div className="text-center border size-12 p-2 rounded-lg justify-center items-center flex leading-tight">{carepath.BP}</div></div>)
+                                        }
+                                        {/* SPO2 */}
+                                        {carepath.SPO2 == "" || carepath.SPO2 == null ? (
+                                            <div className="flex justify-center items-center"><div className="text-center size-12 rounded-lg justify-center items-center flex"></div></div>
+                                        ) : (
+                                            <div className="flex justify-center items-center"><div className="text-center border size-12 p-2 rounded-lg justify-center items-center flex leading-tight">{carepath.SPO2}</div></div>)
+                                        }
+                                        {/* RR */}
+                                        {carepath.RR == "" || carepath.RR == null ? (
+                                            <div className="flex justify-center items-center"><div className="text-center size-12 rounded-lg justify-center items-center flex"></div></div>
+                                        ) : (
+                                            <div className="flex justify-center items-center"><div className="text-center border size-12 rounded-lg justify-center items-center flex leading-tight">{carepath.RR}</div></div>
+                                        )}
+                                        {/* ACT */}
+                                        {carepath.ACT == "" || carepath.ACT == null ? (
+                                            <div className="flex justify-center items-center"><div className="text-center size-12 rounded-lg justify-center items-center flex"></div></div>
+                                        ) : (
+                                            <div className="flex justify-center items-center"><div className="text-center border size-12 rounded-lg justify-center items-center flex leading-tight">{carepath.ACT}</div></div>
+                                        )}
+                                        {/* T */}
+                                        {carepath.T == "" || carepath.T == null ? (
+                                            <div className="flex justify-center items-center"><div className="text-center size-12 rounded-lg justify-center items-center flex"></div></div>
+                                        ) : (
+                                            <div className="flex justify-center items-center"><div className="text-center border size-12 rounded-lg justify-center items-center flex leading-tight">{carepath.T}</div></div>
+                                        )}
                                     </div>
                                     <div className="flex justify-around">
                                         <input type="checkbox" className="w-6 h-6 rounded border-gray-300 focus:ring-blue-500 mr-5 " />
@@ -80,27 +123,56 @@ const PatientListForm = () => {
 
                             {index === 1 && patient.carepaths.length > 1 ? (
                                 <div className=" p-3 rounded-xsm relative" >
-                                <div className="flex items-center justify-between p-3 bg-background rounded-xsm relative ml-40">
-                                    <div className="gap-5 w-50 ml-4">
-                                        <span className={`w-3 h-3 `}></span>
-                                        <span className="font-medium"></span>
-                                    </div>
-                                    <div className="flex justify-center items-center gap-2 w-22">
-                                        <span className="italic text-gray-600">{carepath.carepath}</span>
-                                    </div >
+                                    <div className="flex items-center justify-between p-3 bg-background rounded-xsm relative ml-40">
+                                        <div className="gap-5 w-50 ml-4">
+                                            <span className={`w-3 h-3 `}></span>
+                                            <span className="font-medium"></span>
+                                        </div>
+                                        <div className="flex justify-center items-center gap-2 w-22">
+                                            <span className="italic text-gray-600">{carepath.carepath}</span>
+                                        </div >
 
-                                    <div className="flex justify-around gap-5">
-                                        <div className="flex justify-center items-center"><div className="text-center border size-12 rounded-lg justify-center items-center flex">120</div></div>
-                                        <div className="flex justify-center items-center"><div className="text-center size-12 bg-red-500 text-white p-2 rounded-lg justify-center items-center flex leading-tight">128 /80</div></div>
-                                        <div className="flex justify-center items-center"><div className="text-center size-12 bg-red-500 text-white p-2 rounded-lg justify-center items-center flex">80</div></div>
-                                        <div className="flex justify-center items-center"><div className="text-center size-12 rounded-lg justify-center items-center flex"></div></div>
-                                        <div className="flex justify-center items-center"><div className="text-center border size-12 rounded-lg justify-center items-center flex">20</div></div>
-                                        <div className="flex justify-center items-center"><div className="text-center size-12 rounded-lg justify-center items-center flex"></div></div>
+                                        <div className="flex justify-around gap-5">
+                                            {/* HR */}
+                                            {carepath.HR == "" || carepath.HR == null ? (
+                                                <div className="flex justify-center items-center"><div className="text-center size-12 rounded-lg justify-center items-center flex"></div></div>
+                                            ) : (
+                                                <div className="flex justify-center items-center"><div className="text-center border size-12 rounded-lg justify-center items-center flex leading-tight">{carepath.HR}</div></div>
+                                            )}
+                                            {/* BP */}
+                                            {carepath.BP == "" || carepath.BP == null ? (
+                                                <div className="flex justify-center items-center"><div className="text-center size-12 rounded-lg justify-center items-center flex"></div></div>
+                                            ) : (
+                                                <div className="flex justify-center items-center"><div className="text-center border size-12 p-2 rounded-lg justify-center items-center flex leading-tight">{carepath.BP}</div></div>)
+                                            }
+                                            {/* SPO2 */}
+                                            {carepath.SPO2 == "" || carepath.SPO2 == null ? (
+                                                <div className="flex justify-center items-center"><div className="text-center size-12 rounded-lg justify-center items-center flex"></div></div>
+                                            ) : (
+                                                <div className="flex justify-center items-center"><div className="text-center border size-12 p-2 rounded-lg justify-center items-center flex leading-tight">{carepath.SPO2}</div></div>)
+                                            }
+                                            {/* RR */}
+                                            {carepath.RR == "" || carepath.RR == null ? (
+                                                <div className="flex justify-center items-center"><div className="text-center size-12 rounded-lg justify-center items-center flex"></div></div>
+                                            ) : (
+                                                <div className="flex justify-center items-center"><div className="text-center border size-12 rounded-lg justify-center items-center flex leading-tight">{carepath.RR}</div></div>
+                                            )}
+                                            {/* ACT */}
+                                            {carepath.ACT == "" || carepath.ACT == null ? (
+                                                <div className="flex justify-center items-center"><div className="text-center size-12 rounded-lg justify-center items-center flex"></div></div>
+                                            ) : (
+                                                <div className="flex justify-center items-center"><div className="text-center border size-12 rounded-lg justify-center items-center flex leading-tight">{carepath.ACT}</div></div>
+                                            )}
+                                            {/* T */}
+                                            {carepath.T == "" || carepath.T == null ? (
+                                                <div className="flex justify-center items-center"><div className="text-center size-12 rounded-lg justify-center items-center flex"></div></div>
+                                            ) : (
+                                                <div className="flex justify-center items-center"><div className="text-center border size-12 rounded-lg justify-center items-center flex leading-tight">{carepath.T}</div></div>
+                                            )}                                        </div>
+                                        <div className="flex justify-around">
+                                            <input type="checkbox" className="w-6 h-6 rounded border-gray-300 focus:ring-blue-500 mr-5 " />
+                                        </div>
                                     </div>
-                                    <div className="flex justify-around">
-                                        <input type="checkbox" className="w-6 h-6 rounded  mr-5 " />
-                                    </div>
-                                </div>
                                 </div>
                             ) : null}
 
