@@ -30,6 +30,8 @@ dist-ssr
 *.env.*
 *package-lock*
 
+.vite/deps
+
 # test coverage
 coverage
 test-results

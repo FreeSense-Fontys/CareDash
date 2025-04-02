@@ -137,9 +137,15 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                 username: formData.email,
                 password: formData.password,
             })
-            Cookies.set(Const.ACCESS_TOKEN, user.accessToken)
+            Cookies.set(Const.ACCESS_TOKEN, user.accessToken, {
+                path: '/',
+                sameSite: 'Lax', // or 'Strict'
+            })
             setAccessToken(user.accessToken)
-            Cookies.set(Const.REFRESH_TOKEN, user.refreshToken)
+            Cookies.set(Const.REFRESH_TOKEN, user.refreshToken, {
+                path: '/',
+                sameSite: 'Lax', // or 'Strict'
+            })
             setRefreshToken(user.refreshToken)
         } catch (error) {
             if (error instanceof InvalidGrantError)
@@ -219,7 +225,7 @@ function LoginForm({ setAccessToken, setRefreshToken }: LoginProps) {
                                 <div className="flex flex-row">
                                     Password
                                     {inputErrors.password !== '' && (
-                                        <p className="text-red-500 pl-2">
+                                        <p className="text-red-500 pl-2" data-testid="password-empty-icon">
                                             <GoAlertFill size={20} />
                                         </p>
                                     )}
