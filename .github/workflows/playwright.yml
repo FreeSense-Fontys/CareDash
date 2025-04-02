@@ -28,7 +28,7 @@ jobs:
 
             - name: Send POST request with curl
               run: |
-                  curl -X POST https://api.example.com/endpoint \
+                  curl -X POST https://api.dev.exh-sandbox.extrahorizon.io/auth/v2/oauth2/tokens \
                     -H "Content-Type: application/json" \
                     -H "Authorization: Bearer ${{ secrets.PIPELINE_BEARER }}" \
                     -d '{"client_id": ${{secrets.PIPELINE_client_id}}, "client_secret": ${{secrets.PIPELINE_client_secret}}, "grant_type": ${{secrets.PIPELINE_grant_type}}, "password": ${{secrets.PIPELINE_password}}, "username": ${{secrets.PIPELINE_username}}}'
