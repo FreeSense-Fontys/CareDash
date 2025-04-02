@@ -13,8 +13,13 @@
         "codegen": "playwright codegen http://localhost:3000"
     },
     "dependencies": {
+        "@emotion/react": "^11.14.0",
+        "@emotion/styled": "^11.14.0",
         "@extrahorizon/javascript-sdk": "^8.5.0",
+        "@mui/material": "^7.0.1",
+        "@mui/x-date-pickers": "^7.28.2",
         "@tailwindcss/vite": "^4.0.14",
+        "dayjs": "^1.11.13",
         "js-cookie": "^3.0.5",
         "react": "^19.0.0",
         "react-dom": "^19.0.0",
