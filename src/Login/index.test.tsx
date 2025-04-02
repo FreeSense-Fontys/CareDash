@@ -5,7 +5,7 @@ import LoginPage from './index'
 import { MemoryRouter } from 'react-router-dom'
 import { AuthProvider } from '../contexts/AuthProvider'
 
-// mock the Extra Horizon SDK before importing the client
+// // mock the Extra Horizon SDK before importing the client
 vi.mock('@extrahorizon/javascript-sdk', async (importOriginal) => {
     const actual = (await importOriginal()) as object
     return {

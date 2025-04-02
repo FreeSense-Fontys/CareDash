@@ -3,32 +3,8 @@ import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import '@testing-library/jest-dom'
 import LoginForm from './LoginForm'
-import {
-    EmailUnknownError,
-    FieldFormatError,
-    InvalidGrantError,
-    InvalidRequestError,
-} from '@extrahorizon/javascript-sdk'
-// import exh from '../../Auth'
 import { MemoryRouter } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthProvider'
-
-// mock the Extra Horizon SDK before importing the client
-// vi.mock('@extrahorizon/javascript-sdk', async (importOriginal) => {
-//     const actual = (await importOriginal()) as object
-//     return {
-//         ...actual, // Preserve original exports
-//         createOAuth2Client: vi.fn(() => ({
-//             auth: {
-//                 authenticate: vi.fn(),
-//             },
-//             users: {
-//                 requestPasswordReset: vi.fn(),
-//             },
-//         })),
-//         FieldFormatError: class FieldFormatError extends Error {},
-//     }
-// })
 
 vi.mock('react-router-dom', () => {
     const navigate = vi.fn()
