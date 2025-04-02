@@ -6,13 +6,15 @@ const exh = createOAuth2Client({
     clientId: Credentials.EXH_CLIENT_ID || '',
     clientSecret: Credentials.EXH_CLIENT_SECRET || '',
 })
-async function authenticate() {
-    await exh.auth.authenticate({
-        username: Credentials.EXH_CLIENT_USERNAME || '',
-        password: Credentials.EXH_CLIENT_PASSWORD || '',
-    })
-}
 
-authenticate()
+// this created bug where it was logging into fontys each time exh instance is created
+// async function authenticate() {
+//     await exh.auth.authenticate({
+//         username: Credentials.EXH_CLIENT_USERNAME || '',
+//         password: Credentials.EXH_CLIENT_PASSWORD || '',
+//     })
+// }
+
+// authenticate()
 
 export default exh

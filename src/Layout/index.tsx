@@ -1,14 +1,14 @@
 import { Outlet } from 'react-router'
+import { useAuth } from '../contexts/AuthProvider'
 
-interface LogoutProps {
-    Logout: () => void;
-}
-
-const Layout = ({ Logout }: LogoutProps) => {
+const Layout = () => {
+    const { handleLogout } = useAuth()
     return (
         <div>
             <h1>Layout</h1>
-            <button onClick={Logout} data-testid="logout-button">Logout</button>
+            <button onClick={handleLogout} data-testid="logout-button">
+                Logout
+            </button>
             <Outlet />
         </div>
     )
