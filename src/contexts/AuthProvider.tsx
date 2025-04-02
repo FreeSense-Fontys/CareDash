@@ -29,17 +29,32 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             try {
                 // if refresh token is available, authenticate with it
                 if (refreshToken) {
-                    await exh.auth.authenticate({
+                    const authenticatedUser = await exh.auth.authenticate({
                         refreshToken: refreshToken,
                     })
+                    // setting access and refresh tokens in cookies
+                    if (authenticatedUser) {
+                        Cookies.set(
+                            Consts.ACCESS_TOKEN,
+                            authenticatedUser.accessToken
+                        )
+                        Cookies.set(
+                            Consts.REFRESH_TOKEN,
+                            authenticatedUser.refreshToken
+                        )
+                    }
                 }
                 // getting current user
                 const currentUser = await exh.users.me()
+                // setting user in state for access throughout the app
                 if (currentUser) {
                     setUser(currentUser)
                 }
             } catch {
+                // if authentication fails, remove tokens from cookies
                 setUser(undefined)
+                Cookies.remove(Consts.ACCESS_TOKEN)
+                Cookies.remove(Consts.REFRESH_TOKEN)
             } finally {
                 setLoading(false)
             }
@@ -48,6 +63,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         fetchUser()
     }, [])
 
+    // login function
     const handleLogin = async (email: string, password: string) => {
         const user = await exh.auth.authenticate({
             username: email,
