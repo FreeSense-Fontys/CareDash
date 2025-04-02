@@ -209,7 +209,7 @@ function LoginForm() {
                                 <div className="flex flex-row">
                                     Password
                                     {inputErrors.password !== '' && (
-                                        <p className="text-red-500 pl-2">
+                                        <p className="text-red-500 pl-2" data-testid="password-empty-icon">
                                             <GoAlertFill size={20} />
                                         </p>
                                     )}
