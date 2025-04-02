@@ -1,5 +1,5 @@
 function ConfigurationPage() {
-    return <div>Configuration</div>
+    return <div>Configuration Page</div>
 }
 
 export default ConfigurationPage

@@ -1,5 +1,5 @@
 function PresetsPage() {
-    return <div>Presets</div>
+    return <div>Presets Page</div>
 }
 
 export default PresetsPage

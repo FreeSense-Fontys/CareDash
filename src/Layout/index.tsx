@@ -29,6 +29,7 @@ const Layout = () => {
                             className={`text-3xl truncate text-center w-5/6 p-2 ${
                                 isActive('/') && activeStyling
                             }`}
+                            data-testid="monitor-link"
                         >
                             Monitor
                         </Link>
@@ -37,6 +38,7 @@ const Layout = () => {
                             className={`text-3xl truncate text-center w-5/6 p-2 ${
                                 isActive('/configuration') && activeStyling
                             }`}
+                            data-testid="configuration-link"
                         >
                             Configuration
                         </Link>
@@ -45,6 +47,7 @@ const Layout = () => {
                             className={`text-3xl truncate text-center w-5/6 p-2 ${
                                 isActive('/presets') && activeStyling
                             }`}
+                            data-testid="presets-link"
                         >
                             Presets
                         </Link>

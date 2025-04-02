@@ -20,8 +20,22 @@ function App() {
                         </ProtectedRoute>
                     }
                 />
-                <Route path="/configuration" element={<Configuration />} />
-                <Route path="/presets" element={<Presets />} />
+                <Route
+                    path="/configuration"
+                    element={
+                        <ProtectedRoute>
+                            <Configuration />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/presets"
+                    element={
+                        <ProtectedRoute>
+                            <Presets />
+                        </ProtectedRoute>
+                    }
+                />
             </Route>
         </Routes>
     )
