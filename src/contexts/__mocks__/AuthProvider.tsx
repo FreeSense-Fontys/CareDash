@@ -49,7 +49,7 @@ export const mockAuthValues = {
     handleLogin: handleLoginMock,
     handleForgotPassword: handleForgotPasswordMock,
     handleLogout: vi.fn().mockResolvedValue(undefined),
-    user: undefined,
+    user: { id: 1, firstName: 'John', lastName: 'Doe' },
     loading: false,
 }
 
