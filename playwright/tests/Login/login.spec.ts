@@ -1,5 +1,16 @@
 import { test } from '@playwright/test';
 
+test("Expect to fail on CORS", async ({page}) => {
+    await page.goto('http://localhost:3000/');
+    await page.getByTestId('email').click();
+    await page.getByTestId('email').fill('john.doe@example.com');
+    await page.getByTestId('email').press('Tab');
+    await page.getByTestId('password').fill('Secret1234');
+    await page.getByTestId('login-button').click();
+    //Expect to fail and show a toast message
+    await page.getByText('An unknown error has occurred').click();
+});
+
 test('Login with tabs', async ({ page }) => {
     // Login
     await page.goto('http://localhost:3000/');
