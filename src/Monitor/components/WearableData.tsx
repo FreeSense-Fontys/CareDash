@@ -5,11 +5,12 @@ import { Patient } from '@extrahorizon/javascript-sdk'
 interface wearableDataProps {
     patients: Patient[]
     indexPatient: number
+    selectedDate: string
 }
 
 const allVitals = ['HR', 'BP', 'SBP', 'DBP', 'ACT', 'T']
 
-const WearableData = ({ patients, indexPatient }: wearableDataProps) => {
+const WearableData = ({ patients, indexPatient, selectedDate }: wearableDataProps) => {
     const [wearables, setWearableData] = useState<any>([])
     const test = async () => {
         const fontysPermissions = (await exh.users.me()).roles[0].permissions
@@ -40,11 +41,12 @@ const WearableData = ({ patients, indexPatient }: wearableDataProps) => {
             const wearableID =
                 patients[indexPatient]?.data?.coupledWearables[0]?.wearableId
             // console.log("ID ", wearableID)
-            const date = '2025-04-02'
+            // const date = '2025-04-10'
+            console.log(selectedDate)
             await exh.tasks.api
                 .get(
                     'get-observations-by-day',
-                    '?wearableId=' + wearableID + '&date=' + date,
+                    '?wearableId=' + wearableID + '&date=' + selectedDate,
                     {}
                 )
                 .then((result) => {
@@ -52,7 +54,7 @@ const WearableData = ({ patients, indexPatient }: wearableDataProps) => {
                 })
         }
         getWearable(indexPatient)
-    }, [])
+    }, [selectedDate])
 
     return (
         <>

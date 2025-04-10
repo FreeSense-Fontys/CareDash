@@ -3,7 +3,11 @@ import { useState, useEffect } from 'react'
 import exh from '../../Auth'
 import WearableData from './WearableData'
 
-const PatientList = () => {
+interface PatientListProps {
+    selectedDate: string
+}
+
+const PatientList = ({ selectedDate }: PatientListProps) => {
     // Patient data
     const [patients, setPatients] = useState<Patient[]>([])
 
@@ -11,7 +15,8 @@ const PatientList = () => {
         await exh.data.documents.findAll<Patient>('patient').then((result) => {
             // console.log('Result ', result)
 
-            const updatedPatients = result.map((patient) => ({
+            // TODO Remove the slice(0,4)
+            const updatedPatients = result.slice(0,4).map((patient) => ({
                 ...patient,
                 carepaths: [{ name: 'COPD' }],
             }))
@@ -69,6 +74,7 @@ const PatientList = () => {
                                 <WearableData
                                     patients={patients}
                                     indexPatient={indexPatient}
+                                    selectedDate={selectedDate}
                                 />
                             </div>
                         </div>

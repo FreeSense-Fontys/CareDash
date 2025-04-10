@@ -68,7 +68,7 @@ const PatientListForm = () => {
                 </div>
 
                 {/* Patient List */}
-                <PatientList />
+                <PatientList selectedDate={selectedDate.format("YYYY-MM-DD")}/>
 
                 <button onClick={() => MockVitals()} className="bg-accent text-white px-3 py-2 rounded hover:bg-blue-600 center">
                     Add mock vitals
