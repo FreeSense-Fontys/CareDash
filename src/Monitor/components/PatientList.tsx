@@ -13,8 +13,9 @@ const PatientList = () => {
 
             const updatedPatients = result.map((patient) => ({
                 ...patient,
-                carepaths: [{ name: 'COPD' }, { name: 'Diabetes' }],
+                carepaths: [{ name: 'COPD' }],
             }))
+            updatedPatients[0].carepaths.push({ name: 'Diabetes' })
             setPatients(updatedPatients)
         })
     }

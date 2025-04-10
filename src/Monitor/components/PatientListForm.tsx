@@ -13,8 +13,6 @@ const PatientListForm = () => {
     const handlePrevDay = () =>
         setSelectedDate((prev) => prev.subtract(1, 'day'))
     const handleNextDay = () => setSelectedDate((prev) => prev.add(1, 'day'))
-    console.log(selectedDate.format('YYYY-MM-DD'))
-    console.log(open)
 
     function MockVitals() {
         // Add mock vitals to all patients if needed
