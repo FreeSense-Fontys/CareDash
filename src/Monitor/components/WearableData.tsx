@@ -42,7 +42,6 @@ const WearableData = ({ patients, indexPatient, selectedDate }: wearableDataProp
                 patients[indexPatient]?.data?.coupledWearables[0]?.wearableId
             // console.log("ID ", wearableID)
             // const date = '2025-04-10'
-            console.log(selectedDate)
             await exh.tasks.api
                 .get(
                     'get-observations-by-day',
