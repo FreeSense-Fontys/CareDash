@@ -35,7 +35,7 @@ const PatientList = () => {
                 <div key={patient.id}>
                     {patient.carepaths.map((carepath, index) => (
                         <div
-                            className={`flex items-center p-3 bg-background rounded-xsm relative mb-2 overflow-auto`}
+                            className={`flex items-center p-3 bg-background rounded-xsm relative mb-2`}
                             key={`${patient.id}-${index}`}
                         >
                             {/* Always left-aligned Patient name (only show once) */}
@@ -64,7 +64,7 @@ const PatientList = () => {
                             </div>
 
                             {/* Right-aligned WearableData */}
-                            <div className="flex justify-end pr-15">
+                            <div className="w-full flex justify-end pr-15">
                                 <WearableData
                                     patients={patients}
                                     indexPatient={indexPatient}

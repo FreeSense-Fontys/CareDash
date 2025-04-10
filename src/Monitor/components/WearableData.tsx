@@ -11,14 +11,28 @@ const allVitals = ['HR', 'BP', 'SBP', 'DBP', 'ACT', 'T']
 
 const WearableData = ({ patients, indexPatient }: wearableDataProps) => {
     const [wearables, setWearableData] = useState<any>([])
-    // const test = async () => {
-    //     console.log('FONTYS: ', (await exh.users.me()).roles[0].permissions)
-    //     await exh.auth.authenticate({
-    //         username: 'henry@freesense-solutions.com',
-    //         password: 'Henry1234',
-    //     })
-    //     console.log('HENRY: ', (await exh.users.me()).roles[0].permissions)
-    // }
+    const test = async () => {
+        const fontysPermissions = (await exh.users.me()).roles[0].permissions
+        await exh.auth.authenticate({
+            username: 'henry@freesense-solutions.com',
+            password: 'Henry1234',
+        })
+        const henryPermissions = (await exh.users.me()).roles[0].permissions
+        // const filteredArray = fontysPermissions.filter((value) =>
+        //     henryPermissions.includes(value)
+        // )
+        // console.log('Fontys Permissions: ', fontysPermissions)
+        // console.log('Henry Permissions: ', henryPermissions)
+        fontysPermissions?.forEach((permission) => {
+            if (
+                permission.description ==
+                'EXECUTE_API_FUNCTION:get-observations-by-day'
+            ) {
+                console.log('Permission found: ', permission)
+            }
+        })
+        // console.log('Filtered Permissions: ', filteredArray)
+    }
     // test()
 
     useEffect(() => {
