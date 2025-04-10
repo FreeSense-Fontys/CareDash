@@ -7,11 +7,18 @@ interface wearableDataProps {
     indexPatient: number
 }
 
+const allVitals = ['HR', 'BP', 'SBP', 'DBP', 'ACT', 'T']
+
 const WearableData = ({ patients, indexPatient }: wearableDataProps) => {
     const [wearables, setWearableData] = useState<any>([])
-    const test = async () => {
-        console.log(await exh.users.me())
-    }
+    // const test = async () => {
+    //     console.log('FONTYS: ', (await exh.users.me()).roles[0].permissions)
+    //     await exh.auth.authenticate({
+    //         username: 'henry@freesense-solutions.com',
+    //         password: 'Henry1234',
+    //     })
+    //     console.log('HENRY: ', (await exh.users.me()).roles[0].permissions)
+    // }
     // test()
 
     useEffect(() => {
@@ -27,133 +34,43 @@ const WearableData = ({ patients, indexPatient }: wearableDataProps) => {
                     {}
                 )
                 .then((result) => {
-                    // console.log(result)
                     setWearableData([result])
                 })
         }
         getWearable(indexPatient)
     }, [])
 
-    // if (!wearables) {
-    //     return <></>
-    // }
-
     return (
         <>
             {wearables &&
-                wearables.map((wearable) =>
-                    wearable.vitals.map((vital, index) => {
-                        return (
-                            <div key={`${vital.name}-${index}`}>
-                                <div className="flex justify-around gap-5">
-                                    {/* HR */}
-                                    {vital.name == 'HR' ? (
-                                        <div className="flex justify-center items-center">
-                                            <div className="text-center border size-12 rounded-lg justify-center items-center flex leading-tight">
-                                                {
-                                                    vital.series[
-                                                        vital.series.length - 1
-                                                    ].value
-                                                }
-                                            </div>
+                wearables.map((wearable, wearableIndex) => (
+                    <div
+                        key={`wearable-${wearableIndex}`}
+                        className="flex justify-around gap-5"
+                    >
+                        {allVitals.map((vitalName) => {
+                            const vital = wearable.vitals.find(
+                                (v: any) => v.name === vitalName
+                            )
+                            return (
+                                <div
+                                    key={vitalName}
+                                    className="flex justify-center items-center"
+                                >
+                                    {vital ? (
+                                        <div className="text-center border size-12 rounded-lg justify-center items-center flex leading-tight">
+                                            {
+                                                vital.series[0].value // vital.series.length - 1
+                                            }
                                         </div>
                                     ) : (
-                                        <div className="flex justify-center items-center">
-                                            <div className="text-center size-12 rounded-lg justify-center items-center flex"></div>
-                                        </div>
-                                    )}
-                                    {/* BP */}
-                                    {vital.name == 'BP' ? (
-                                        <div className="flex justify-center items-center">
-                                            <div className="text-center border size-12 rounded-lg justify-center items-center flex leading-tight">
-                                                {
-                                                    vital.series[
-                                                        vital.series.length - 1
-                                                    ].value
-                                                }
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="flex justify-center items-center">
-                                            <div className="text-center size-12 rounded-lg justify-center items-center flex"></div>
-                                        </div>
-                                    )}
-                                    {/* SBP */}
-                                    {vital.name == 'SBP' ? (
-                                        <div className="flex justify-center items-center">
-                                            <div className="text-center border size-12 rounded-lg justify-center items-center flex leading-tight">
-                                                {
-                                                    vital.series[
-                                                        vital.series.length - 1
-                                                    ].value
-                                                }
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="flex justify-center items-center">
-                                            <div className="text-center size-12 rounded-lg justify-center items-center flex"></div>
-                                        </div>
-                                    )}
-                                    {/* DBP */}
-                                    {vital.name == 'DBP' ? (
-                                        <div className="flex justify-center items-center">
-                                            <div className="text-center border size-12 rounded-lg justify-center items-center flex leading-tight">
-                                                {
-                                                    vital.series[
-                                                        vital.series.length - 1
-                                                    ].value
-                                                }
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="flex justify-center items-center">
-                                            <div className="text-center size-12 rounded-lg justify-center items-center flex"></div>
-                                        </div>
-                                    )}
-                                    {/* ACT */}
-                                    {vital.name == 'ACT' ? (
-                                        <div className="flex justify-center items-center">
-                                            <div className="text-center border size-12 rounded-lg justify-center items-center flex leading-tight">
-                                                {
-                                                    vital.series[
-                                                        vital.series.length - 1
-                                                    ].value
-                                                }
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="flex justify-center items-center">
-                                            <div className="text-center size-12 rounded-lg justify-center items-center flex"></div>
-                                        </div>
-                                    )}
-                                    {/* T */}
-                                    {vital.name == 'T' ? (
-                                        <div className="flex justify-center items-center">
-                                            <div className="text-center border size-12 rounded-lg justify-center items-center flex leading-tight">
-                                                {
-                                                    vital.series[
-                                                        vital.series.length - 1
-                                                    ].value
-                                                }
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="flex justify-center items-center">
-                                            <div className="text-center size-12 rounded-lg justify-center items-center flex"></div>
-                                        </div>
+                                        <div className="text-center size-12 rounded-lg justify-center items-center flex leading-tight"></div>
                                     )}
                                 </div>
-                                {/* Checkbox */}
-                                {/* <div className="flex justify-around">
-                                    <input
-                                        type="checkbox"
-                                        className="w-6 h-6 rounded border-gray-300 focus:ring-blue-500 mr-5 "
-                                    />
-                                </div> */}
-                            </div>
-                        )
-                    })
-                )}
+                            )
+                        })}
+                    </div>
+                ))}
         </>
     )
 }

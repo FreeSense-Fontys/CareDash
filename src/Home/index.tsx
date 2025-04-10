@@ -2,7 +2,9 @@ import PatientListForm from '../Monitor/components/PatientListForm'
 
 const Home = () => {
     return (
-        <PatientListForm />
+        <div className="w-full">
+            <PatientListForm />
+        </div>
     )
 }
 

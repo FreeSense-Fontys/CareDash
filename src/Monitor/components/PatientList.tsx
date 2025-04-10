@@ -35,17 +35,13 @@ const PatientList = () => {
                 <div key={patient.id}>
                     {patient.carepaths.map((carepath, index) => (
                         <div
+                            className={`flex items-center p-3 bg-background rounded-xsm relative mb-2 overflow-auto`}
                             key={`${patient.id}-${index}`}
-                            className="space-y-4 mt-2"
                         >
-                            <div
-                                className={`flex items-center ${
-                                    index > 0 ? 'ml-73' : ''
-                                } justify-between p-3 bg-background rounded-xsm relative`}
-                            >
-                                {/* Patient name and online status */}
-                                {index == 0 ? (
-                                    <div className="flex justify-left items-center gap-5 w-50 ml-4">
+                            {/* Always left-aligned Patient name (only show once) */}
+                            <div className="w-[200px]">
+                                {index === 0 && (
+                                    <div className="flex items-center gap-2">
                                         <span
                                             className={`w-3 h-3 ${
                                                 patient.status
@@ -53,21 +49,22 @@ const PatientList = () => {
                                                     : 'bg-gray-500'
                                             } rounded-full`}
                                         ></span>
-                                        <span className="font-medium">
+                                        <span className="font-medium truncate">
                                             {patient.data.name}
                                         </span>
                                     </div>
-                                ) : (
-                                    ''
                                 )}
+                            </div>
 
-                                {/* Carepath */}
-                                <div className="flex justify-center items-center gap-2 w-22">
-                                    <span className="italic text-gray-600">
-                                        {carepath.name}
-                                    </span>
-                                </div>
+                            {/* Centered carepath */}
+                            <div className="w-1/5 flex justify-center">
+                                <span className="italic text-gray-600">
+                                    {carepath.name}
+                                </span>
+                            </div>
 
+                            {/* Right-aligned WearableData */}
+                            <div className="flex justify-end pr-15">
                                 <WearableData
                                     patients={patients}
                                     indexPatient={indexPatient}
