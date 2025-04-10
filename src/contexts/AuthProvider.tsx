@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     useEffect(() => {
         // getting refresh token from cookies
         const refreshToken = Cookies.get(Consts.REFRESH_TOKEN)
-
+        
         const fetchUser = async () => {
             try {
                 // if refresh token is available, authenticate with it
