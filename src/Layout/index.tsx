@@ -26,7 +26,7 @@ const Layout = () => {
                     <div className="flex flex-col items-center justify-center space-y-4 pt-14 w-full">
                         <Link
                             to="/"
-                            className={`text-3xl truncate text-center w-5/6 p-2 ${
+                            className={`text-xl truncate text-center w-5/6 p-2 ${
                                 isActive('/') && activeStyling
                             }`}
                             data-testid="monitor-link"
@@ -35,7 +35,7 @@ const Layout = () => {
                         </Link>
                         <Link
                             to="/configuration"
-                            className={`text-3xl truncate text-center w-5/6 p-2 ${
+                            className={`text-xl truncate text-center w-5/6 p-2 ${
                                 isActive('/configuration') && activeStyling
                             }`}
                             data-testid="configuration-link"
@@ -44,7 +44,7 @@ const Layout = () => {
                         </Link>
                         <Link
                             to="/presets"
-                            className={`text-3xl truncate text-center w-5/6 p-2 ${
+                            className={`text-xl truncate text-center w-5/6 p-2 ${
                                 isActive('/presets') && activeStyling
                             }`}
                             data-testid="presets-link"
@@ -64,7 +64,7 @@ const Layout = () => {
                             navigate('/login')
                         }}
                         data-testid="logout-button"
-                        className="text-3xl truncate bg-neutral-600 w-9/10 rounded-xsm m-2 p-2 cursor-pointer"
+                        className="text-xl truncate bg-neutral-600 w-9/10 rounded-xsm m-2 p-2 cursor-pointer"
                     >
                         Logout
                     </button>

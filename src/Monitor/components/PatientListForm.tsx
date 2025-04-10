@@ -20,8 +20,8 @@ const PatientListForm = () => {
     }
 
     return (
-        <div className="bg-gray-100 p-6 ">
-            <div className="max-w-5xl mx-auto bg-white p-4 rounded-lg shadow">
+        <div className="bg-gray-100 p-6 h-full">
+            <div className=" mx-auto bg-white p-4 rounded-lg shadow">
                 <SearchOptions 
                     selectedDate={selectedDate} 
                     setSelectedDate={setSelectedDate}
@@ -31,37 +31,37 @@ const PatientListForm = () => {
                     handleNextDay={handleNextDay}/>
 
                 {/* Vitals Header */}
-                <div className="flex justify-end gap-5 text-center font-semibold text-white p-2 rounded pr-18">
+                <div className="flex justify-end gap-5 text-center font-semibold text-white p-2 rounded pr-18 text-lg">
                     {/* Actual Vitals */}
                     <div className="flex justify-around gap-5">
                         <div className="flex justify-center items-center">
                             <div className="text-center border size-12 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">
-                                HR<p className="text-[11px]">[/min]</p>
+                                HR<p className="text-[14px]">[/min]</p>
                             </div>
                         </div>
                         <div className="flex justify-center items-center">
                             <div className="text-center border size-12 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">
-                                BP<p className="text-[11px]">[mmHg]</p>
+                                BP<p className="text-[14px]">[mmHg]</p>
                             </div>
                         </div>
                         <div className="flex justify-center items-center">
                             <div className="text-center border size-12 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">
-                                SPO2<p className="text-[11px]">[%]</p>
+                                SPO2<p className="text-[14px]">[%]</p>
                             </div>
                         </div>
                         <div className="flex justify-center items-center">
                             <div className="text-center border size-12 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">
-                                RR<p className="text-[11px]">[/min]</p>
+                                RR<p className="text-[14px]">[/min]</p>
                             </div>
                         </div>
                         <div className="flex justify-center items-center">
                             <div className="text-center border size-12 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">
-                                ACT<p className="text-[11px]">[min]</p>
+                                ACT<p className="text-[14px]">[min]</p>
                             </div>
                         </div>
                         <div className="flex justify-center items-center">
                             <div className="text-center border size-12 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">
-                                T<p className="text-[11px]">[°C]</p>
+                                T<p className="text-[14px]">[°C]</p>
                             </div>
                         </div>
                     </div>

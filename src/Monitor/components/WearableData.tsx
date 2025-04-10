@@ -60,7 +60,7 @@ const WearableData = ({ patients, indexPatient }: wearableDataProps) => {
                 wearables.map((wearable, wearableIndex) => (
                     <div
                         key={`wearable-${wearableIndex}`}
-                        className="flex justify-around gap-5"
+                        className="flex justify-around gap-5 text-lg"
                     >
                         {allVitals.map((vitalName) => {
                             const vital = wearable.vitals.find(
@@ -83,7 +83,9 @@ const WearableData = ({ patients, indexPatient }: wearableDataProps) => {
                                 </div>
                             )
                         })}
+
                     </div>
+
                 ))}
         </>
     )

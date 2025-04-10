@@ -21,7 +21,7 @@ const SearchOptions = ({
     const buttonRef = useRef<HTMLButtonElement | null>(null)
     
     return (
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between items-center mb-4 text-lg">
             {/* Search */}
             <div className="justify-center items-center">
                 <input

@@ -40,9 +40,9 @@ const PatientList = () => {
                             key={`${patient.id}-${index}`}
                         >
                             {/* Always left-aligned Patient name (only show once) */}
-                            <div className="w-[200px]">
-                                {index === 0 && (
-                                    <div className="flex items-center gap-2">
+                            <div className={`flex items-center ${index > 0 ? "ml-73" : ""} justify-between p-3 bg-background rounded-xsm relative text-lg`}>
+                                {index == 0 ? 
+                                    <div className="flex justify-left items-center gap-5 w-50 ml-4 ">
                                         <span
                                             className={`w-3 h-3 ${
                                                 patient.status
@@ -53,12 +53,12 @@ const PatientList = () => {
                                         <span className="font-medium truncate">
                                             {patient.data.name}
                                         </span>
-                                    </div>
-                                )}
+                                    </div> : ""
+                                }
                             </div>
 
                             {/* Centered carepath */}
-                            <div className="w-1/5 flex justify-center">
+                            <div className="w-22 flex justify-center items-center gap-2">
                                 <span className="italic text-gray-600">
                                     {carepath.name}
                                 </span>
