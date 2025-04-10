@@ -8,7 +8,7 @@ interface wearableDataProps {
     selectedDate: string
 }
 
-const allVitals = ['HR', 'BP', 'SBP', 'DBP', 'ACT', 'T']
+const allVitals = ['HR', 'SBP', 'DBP', 'SPO2', 'T']
 
 const WearableData = ({ patients, indexPatient, selectedDate }: wearableDataProps) => {
     const [wearables, setWearableData] = useState<any>([])
@@ -65,6 +65,7 @@ const WearableData = ({ patients, indexPatient, selectedDate }: wearableDataProp
                         className="flex justify-around gap-5 text-lg"
                     >
                         {allVitals.map((vitalName) => {
+                            console.log(wearable.vitals)
                             const vital = wearable.vitals.find(
                                 (v: any) => v.name === vitalName
                             )
@@ -76,7 +77,9 @@ const WearableData = ({ patients, indexPatient, selectedDate }: wearableDataProp
                                     {vital ? (
                                         <div className="text-center border size-12 rounded-lg justify-center items-center flex leading-tight">
                                             {
-                                                vital.series[0].value // vital.series.length - 1
+                                                Number((vital.series[vital.series.length - 1].value).toFixed(
+                                                    vitalName === "T" ? 1 : 0
+                                                ))
                                             }
                                         </div>
                                     ) : (
