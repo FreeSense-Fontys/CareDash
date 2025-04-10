@@ -41,11 +41,11 @@ const PatientList = ({ selectedDate }: PatientListProps) => {
                 <div key={patient.id}>
                     {patient.carepaths.map((carepath, index) => (
                         <div
-                            className={`flex items-center p-3 bg-background rounded-xsm relative mb-2`}
+                            className={`flex items-center  ${index > 0 ? "ml-52" : ""}  p-3 bg-background rounded-xsm relative mb-2`}
                             key={`${patient.id}-${index}`}
                         >
                             {/* Always left-aligned Patient name (only show once) */}
-                            <div className={`flex items-center ${index > 0 ? "ml-73" : ""} justify-between p-3 bg-background rounded-xsm relative text-lg`}>
+                            <div className={`flex items-center justify-between p-3 bg-background rounded-xsm relative text-lg`}>
                                 {index == 0 ? 
                                     <div className="flex justify-left items-center gap-5 w-50 ml-4 ">
                                         <span
