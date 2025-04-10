@@ -3,6 +3,7 @@ import { useState, useRef } from 'react'
 import dayjs from 'dayjs'
 import PatientList from './PatientList'
 import SearchOptions from './SearchOptions'
+import AddMockVitals from './AddMockVitals'
 
 const PatientListForm = () => {
     // Date
@@ -14,6 +15,11 @@ const PatientListForm = () => {
     const handleNextDay = () => setSelectedDate((prev) => prev.add(1, 'day'))
     console.log(selectedDate.format('YYYY-MM-DD'))
     console.log(open)
+
+    function MockVitals() {
+        // Add mock vitals to all patients if needed
+        AddMockVitals.AddMockVitals()
+    }
 
     return (
         <div className="bg-gray-100 p-6 ">
@@ -65,6 +71,10 @@ const PatientListForm = () => {
 
                 {/* Patient List */}
                 <PatientList />
+
+                <button onClick={() => MockVitals()} className="bg-accent text-white px-3 py-2 rounded hover:bg-blue-600 center">
+                    Add mock vitals
+                </button>
             </div>
         </div>
     )
