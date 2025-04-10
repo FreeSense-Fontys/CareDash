@@ -44,11 +44,8 @@ const WearableData = ({ patients, indexPatient }: wearableDataProps) => {
                 wearables.map((wearable) =>
                     wearable.vitals.map((vital, index) => {
                         return (
-                            <>
-                                <div
-                                    key={`${vital.name}-${index}`}
-                                    className="flex justify-around gap-5"
-                                >
+                            <div key={`${vital.name}-${index}`}>
+                                <div className="flex justify-around gap-5">
                                     {/* HR */}
                                     {vital.name == 'HR' ? (
                                         <div className="flex justify-center items-center">
@@ -153,7 +150,7 @@ const WearableData = ({ patients, indexPatient }: wearableDataProps) => {
                                         className="w-6 h-6 rounded border-gray-300 focus:ring-blue-500 mr-5 "
                                     />
                                 </div> */}
-                            </>
+                            </div>
                         )
                     })
                 )}
