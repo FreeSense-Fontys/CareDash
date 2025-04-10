@@ -1,23 +1,25 @@
 import '../../App.css'
 import { useState, useRef } from 'react'
-import mock_patient_data from './MockPatientData'
 import dayjs from 'dayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
-
+import PatientList from './PatientList';
 
 
 const PatientListForm = () => {
 
+    // Date
     const [selectedDate, setSelectedDate] = useState(dayjs());
     const [open, setOpen] = useState(false);
     // Date picker opens bellow calendar
     const buttonRef = useRef<HTMLButtonElement | null>(null);
-
     const handlePrevDay = () => setSelectedDate((prev) => prev.subtract(1, "day"));
-
     const handleNextDay = () => setSelectedDate((prev) => prev.add(1, "day"));
+
+
+
+
 
 
 
@@ -27,7 +29,6 @@ const PatientListForm = () => {
                 <div className="flex justify-between items-center mb-4">
                     {/* Search */}
                     <div className='justify-center items-center'>
-                        <div className='text-white'>.....</div>
                         <input type="text" placeholder="Search..." className="p-2 border rounded-lg w-80 " />
                     </div>
 
@@ -46,26 +47,27 @@ const PatientListForm = () => {
                                 <option>Illness</option>
                             </select>
                         </div>
-                    </div>                      
+                    </div>
                     {/* Callendar */}
+
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <div className="flex items-center ">
                             <button
                                 onClick={handlePrevDay}
-                                className="bg-accent text-white px-3 py-1 rounded-l-lg hover:bg-blue-600"
+                                className="bg-accent text-white px-3 py-2 rounded-l-lg hover:bg-blue-600"
                             >
                                 &lt;
                             </button>
                             <button
                                 ref={buttonRef}
                                 onClick={() => setOpen(true)}
-                                className="text-black bg-background py-1 p-2"
+                                className="text-black bg-background py-2 p-2"
                             >
                                 {selectedDate.format("DD MMM, YYYY")}
                             </button>
                             <button
                                 onClick={handleNextDay}
-                                className="bg-accent text-white px-3 py-1 rounded-r-lg hover:bg-blue-600"
+                                className="bg-accent text-white px-3 py-2 rounded-r-lg hover:bg-blue-600"
                             >
                                 &gt;
                             </button>
@@ -112,74 +114,12 @@ const PatientListForm = () => {
                         <div className="flex justify-center items-center"><div className="text-center border size-12 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">T<p className="text-[11px]">[°C]</p></div></div>
                     </div>
                     <div className="flex justify-around">
-                        <input className="w-6 h-6 rounded border-gray-300 focus:ring-blue-500 mr-5 " />
+                        <div className="w-6 h-6 rounded border-gray-300 focus:ring-blue-500 mr-5 " />
                     </div>
                 </div>
 
                 {/* Patient List */}
-                {mock_patient_data.map((patient) =>
-                    patient.carepaths.map((carepath, index) => (
-                        <div key={`${patient.id}-${index}`} className="space-y-4 mt-2">
-                            <div className={`flex items-center ${index > 0 ? "ml-73" : ""} justify-between p-3 bg-background rounded-xsm relative`}>
-                                {/* Patient name and online status */}
-                                {index == 0 ?
-                                    <div className="flex justify-left items-center gap-5 w-50 ml-4">
-                                        <span className={`w-3 h-3 ${patient.online ? "bg-green-500" : "bg-gray-500"} rounded-full`}></span>
-                                        <span className="font-medium">{patient.name}</span>
-                                    </div> : ""
-                                }
-
-                                {/* Carepath */}
-                                <div className="flex justify-center items-center gap-2 w-22">
-                                    <span className="italic text-gray-600">{carepath.carepath}</span>
-                                </div >
-
-                                <div className="flex justify-around gap-5">
-                                    {/* HR */}
-                                    {carepath.HR == "" || carepath.HR == null ? (
-                                        <div className="flex justify-center items-center"><div className="text-center size-12 rounded-lg justify-center items-center flex"></div></div>
-                                    ) : (
-                                        <div className="flex justify-center items-center"><div className="text-center border size-12 rounded-lg justify-center items-center flex leading-tight">{carepath.HR}</div></div>
-                                    )}
-                                    {/* BP */}
-                                    {carepath.BP == "" || carepath.BP == null ? (
-                                        <div className="flex justify-center items-center"><div className="text-center size-12 rounded-lg justify-center items-center flex"></div></div>
-                                    ) : (
-                                        <div className="flex justify-center items-center"><div className="text-center border size-12 p-2 rounded-lg justify-center items-center flex leading-tight">{carepath.BP}</div></div>)
-                                    }
-                                    {/* SPO2 */}
-                                    {carepath.SPO2 == "" || carepath.SPO2 == null ? (
-                                        <div className="flex justify-center items-center"><div className="text-center size-12 rounded-lg justify-center items-center flex"></div></div>
-                                    ) : (
-                                        <div className="flex justify-center items-center"><div className="text-center border size-12 p-2 rounded-lg justify-center items-center flex leading-tight">{carepath.SPO2}</div></div>)
-                                    }
-                                    {/* RR */}
-                                    {carepath.RR == "" || carepath.RR == null ? (
-                                        <div className="flex justify-center items-center"><div className="text-center size-12 rounded-lg justify-center items-center flex"></div></div>
-                                    ) : (
-                                        <div className="flex justify-center items-center"><div className="text-center border size-12 rounded-lg justify-center items-center flex leading-tight">{carepath.RR}</div></div>
-                                    )}
-                                    {/* ACT */}
-                                    {carepath.ACT == "" || carepath.ACT == null ? (
-                                        <div className="flex justify-center items-center"><div className="text-center size-12 rounded-lg justify-center items-center flex"></div></div>
-                                    ) : (
-                                        <div className="flex justify-center items-center"><div className="text-center border size-12 rounded-lg justify-center items-center flex leading-tight">{carepath.ACT}</div></div>
-                                    )}
-                                    {/* T */}
-                                    {carepath.T == "" || carepath.T == null ? (
-                                        <div className="flex justify-center items-center"><div className="text-center size-12 rounded-lg justify-center items-center flex"></div></div>
-                                    ) : (
-                                        <div className="flex justify-center items-center"><div className="text-center border size-12 rounded-lg justify-center items-center flex leading-tight">{carepath.T}</div></div>
-                                    )}
-                                </div>
-
-                                {/* Checkbox */}
-                                <div className="flex justify-around">
-                                    <input type="checkbox" className="w-6 h-6 rounded border-gray-300 focus:ring-blue-500 mr-5 " />
-                                </div>
-                            </div>
-                        </div>
-                    )))}
+                <PatientList />
             </div>
         </div>
     )
