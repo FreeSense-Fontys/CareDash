@@ -36,32 +36,27 @@ const PatientListForm = () => {
                     <div className="flex justify-around gap-5">
                         <div className="flex justify-center items-center">
                             <div className="text-center border size-12 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">
-                                HR<p className="text-[14px]">[/min]</p>
+                                HR<p className="text-[12px]">[/min]</p>
                             </div>
                         </div>
                         <div className="flex justify-center items-center">
                             <div className="text-center border size-12 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">
-                                BP<p className="text-[14px]">[mmHg]</p>
+                                SBP<p className="text-[12px]">[mmHg]</p>
                             </div>
                         </div>
                         <div className="flex justify-center items-center">
                             <div className="text-center border size-12 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">
-                                SPO2<p className="text-[14px]">[%]</p>
+                                DPB<p className="text-[12px]">[mmHg]</p>
                             </div>
                         </div>
                         <div className="flex justify-center items-center">
                             <div className="text-center border size-12 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">
-                                RR<p className="text-[14px]">[/min]</p>
+                                SPO2<p className="text-[12px]">[%]</p>
                             </div>
                         </div>
                         <div className="flex justify-center items-center">
                             <div className="text-center border size-12 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">
-                                ACT<p className="text-[14px]">[min]</p>
-                            </div>
-                        </div>
-                        <div className="flex justify-center items-center">
-                            <div className="text-center border size-12 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">
-                                T<p className="text-[14px]">[°C]</p>
+                                T<p className="text-[12px]">[°C]</p>
                             </div>
                         </div>
                     </div>
