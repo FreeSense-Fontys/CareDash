@@ -21,6 +21,8 @@ export default defineConfig({
                 'src/**/*.ts',
                 'src/App.{tsx, ts}',
                 'src/main.{tsx, ts}',
+                'src/Monitor/components/AddMockPatients.tsx',
+                'src/Monitor/components/AddMockVitals.tsx',
             ], // Specify which folders to exclude
             thresholds: {
                 statements: 80,
