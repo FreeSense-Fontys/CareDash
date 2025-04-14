@@ -29,11 +29,12 @@ const AddMockVitals = {
           // Add vital data if there is no data added yet
           if (vitalsData === undefined || vitalsData === 0 ){
             const email = patient.data.email;  
-            const password = email === "wearable1@freesense-solutions.com" ? "Wearable1" : "Secret1234"
+            const password = email === "alex@gmail.com" ? "Wearable1" : "Secret1234"
+            const username = email === "alex@gmail.com" ? "wearable1@freesense-solutions.com" : email
   
             // log in to patient
             await exh.auth.authenticate({
-              username: email,
+              username: username,
               password: password,
             })
   
@@ -42,17 +43,17 @@ const AddMockVitals = {
                 ["COPD", 5]
             ]);
             await defaultGenerator(currentdate, carepaths);
+
+            // Revert to the current user
+            const refreshtoken  = Cookies.get(credentials.REFRESH_TOKEN)
+            if (refreshtoken){
+              await exh.auth.authenticate({
+                refreshToken: refreshtoken,
+              })
+            }
           } else{
             console.log("Already added!")
           }
-        }
-
-        // Revert to the current user
-        const refreshtoken  = Cookies.get(credentials.REFRESH_TOKEN)
-        if (refreshtoken){
-          await exh.auth.authenticate({
-            refreshToken: refreshtoken,
-          })
         }
     }
 }
