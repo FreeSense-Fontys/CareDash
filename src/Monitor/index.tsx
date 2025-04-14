@@ -21,7 +21,7 @@ const PatientListForm = () => {
 
     return (
         <div className=" bg-gray-100 h-screen flex flex-col">
-            <div className=" mx-auto bg-white p-4 rounded-lg shadow flex flex-col flex-grow w-full">
+            <div className=" mx-auto bg-white p-4 rounded-lg shadow flex flex-col w-full">
                 <SearchOptions
                     selectedDate={selectedDate}
                     setSelectedDate={setSelectedDate}
@@ -79,11 +79,7 @@ const PatientListForm = () => {
                 </div>
 
                 {/* Patient List */}
-                <div>
-                    <PatientList
-                        selectedDate={selectedDate.format('YYYY-MM-DD')}
-                    />
-                </div>
+                <PatientList selectedDate={selectedDate.format('YYYY-MM-DD')} />
 
                 <button
                     onClick={() => MockVitals()}

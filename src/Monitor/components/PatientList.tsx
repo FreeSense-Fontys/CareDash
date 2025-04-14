@@ -36,7 +36,7 @@ const PatientList = ({ selectedDate }: PatientListProps) => {
     }
 
     return (
-        <div className="h-[calc(100%-35%)] overflow-y-auto">
+        <div className="h-[calc(50%)] overflow-y-auto">
             {patients?.map((patient, indexPatient) => (
                 <div key={patient.id}>
                     {patient.carepaths.map((carepath, index) => (
