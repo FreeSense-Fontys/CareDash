@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import exh from '../../Auth'
 import { Patient } from '@extrahorizon/javascript-sdk'
+import { Checkbox } from '@mui/material'
 
 interface wearableDataProps {
     patients: Patient[]
@@ -8,33 +9,14 @@ interface wearableDataProps {
     selectedDate: string
 }
 
-const allVitals = ['HR', 'SBP', 'DBP', 'SPO2', 'T']
+const allVitals = ['HR', 'SBP', 'DBP', 'SPO2', 'RR', 'ACT', 'T']
 
-const WearableData = ({ patients, indexPatient, selectedDate }: wearableDataProps) => {
+const WearableData = ({
+    patients,
+    indexPatient,
+    selectedDate,
+}: wearableDataProps) => {
     const [wearables, setWearableData] = useState<any>([])
-    const test = async () => {
-        const fontysPermissions = (await exh.users.me()).roles[0].permissions
-        await exh.auth.authenticate({
-            username: 'henry@freesense-solutions.com',
-            password: 'Henry1234',
-        })
-        const henryPermissions = (await exh.users.me()).roles[0].permissions
-        // const filteredArray = fontysPermissions.filter((value) =>
-        //     henryPermissions.includes(value)
-        // )
-        // console.log('Fontys Permissions: ', fontysPermissions)
-        // console.log('Henry Permissions: ', henryPermissions)
-        fontysPermissions?.forEach((permission) => {
-            if (
-                permission.description ==
-                'EXECUTE_API_FUNCTION:get-observations-by-day'
-            ) {
-                console.log('Permission found: ', permission)
-            }
-        })
-        // console.log('Filtered Permissions: ', filteredArray)
-    }
-    // test()
 
     useEffect(() => {
         const getWearable = async (indexPatient) => {
@@ -61,7 +43,7 @@ const WearableData = ({ patients, indexPatient, selectedDate }: wearableDataProp
                 wearables.map((wearable, wearableIndex) => (
                     <div
                         key={`wearable-${wearableIndex}`}
-                        className="flex justify-around gap-5 text-lg"
+                        className="flex justify-around gap-7 text-lg"
                     >
                         {allVitals.map((vitalName) => {
                             console.log(wearable.vitals)
@@ -75,11 +57,13 @@ const WearableData = ({ patients, indexPatient, selectedDate }: wearableDataProp
                                 >
                                     {vital ? (
                                         <div className="text-center border size-12 rounded-lg justify-center items-center flex leading-tight">
-                                            {
-                                                Number((vital.series[vital.series.length - 1].value).toFixed(
-                                                    vitalName === "T" ? 1 : 0
-                                                ))
-                                            }
+                                            {Number(
+                                                vital.series[
+                                                    vital.series.length - 1
+                                                ].value.toFixed(
+                                                    vitalName === 'T' ? 1 : 0
+                                                )
+                                            )}
                                         </div>
                                     ) : (
                                         <div className="text-center size-12 rounded-lg justify-center items-center flex leading-tight"></div>
@@ -87,9 +71,10 @@ const WearableData = ({ patients, indexPatient, selectedDate }: wearableDataProp
                                 </div>
                             )
                         })}
-
+                        <div className="flex items-center">
+                            <Checkbox color="success" size="small" />
+                        </div>
                     </div>
-
                 ))}
         </>
     )

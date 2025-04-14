@@ -3,10 +3,10 @@ import { useAuth } from '../contexts/AuthProvider'
 import { Link, useLocation } from 'react-router-dom'
 import img from '../assets/logo.webp'
 import { useNavigate } from 'react-router-dom'
-import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
-import { MdDisplaySettings } from "react-icons/md";
-import { LiaNotesMedicalSolid } from "react-icons/lia";
-import LogoutIcon from '@mui/icons-material/Logout';
+import MonitorHeartIcon from '@mui/icons-material/MonitorHeart'
+import { MdDisplaySettings } from 'react-icons/md'
+import { LiaNotesMedicalSolid } from 'react-icons/lia'
+import LogoutIcon from '@mui/icons-material/Logout'
 
 const Layout = () => {
     const { user, handleLogout } = useAuth()
@@ -35,7 +35,7 @@ const Layout = () => {
                             }`}
                             data-testid="monitor-link"
                         >
-                            <MonitorHeartIcon/> Monitor
+                            <MonitorHeartIcon /> Monitor
                         </Link>
                         <Link
                             to="/configuration"
@@ -44,7 +44,8 @@ const Layout = () => {
                             }`}
                             data-testid="configuration-link"
                         >
-                            <MdDisplaySettings/> Configuration
+                            <MdDisplaySettings />
+                            <p className="truncate">Configuration</p>
                         </Link>
                         <Link
                             to="/presets"
@@ -53,7 +54,7 @@ const Layout = () => {
                             }`}
                             data-testid="presets-link"
                         >
-                            <LiaNotesMedicalSolid/> Presets
+                            <LiaNotesMedicalSolid /> Presets
                         </Link>
                     </div>
                 </div>
@@ -70,7 +71,7 @@ const Layout = () => {
                         data-testid="logout-button"
                         className="flex text-xl truncate justify-center gap-2 items-center bg-neutral-600 w-9/10 rounded-xsm m-2 p-2 cursor-pointer"
                     >
-                        Logout <LogoutIcon/>
+                        Logout <LogoutIcon />
                     </button>
                 </div>
             </div>

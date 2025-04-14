@@ -16,7 +16,7 @@ const PatientList = ({ selectedDate }: PatientListProps) => {
             // console.log('Result ', result)
 
             // TODO Remove the slice(0,4)
-            const updatedPatients = result.slice(0,4).map((patient) => ({
+            const updatedPatients = result.map((patient) => ({
                 ...patient,
                 carepaths: [{ name: 'COPD' }],
             }))
@@ -36,17 +36,21 @@ const PatientList = ({ selectedDate }: PatientListProps) => {
     }
 
     return (
-        <>
+        <div className="h-[calc(100%-35%)] overflow-y-auto">
             {patients?.map((patient, indexPatient) => (
                 <div key={patient.id}>
                     {patient.carepaths.map((carepath, index) => (
                         <div
-                            className={`flex items-center  ${index > 0 ? "ml-52" : ""}  p-3 bg-background rounded-xsm relative mb-2`}
+                            className={`flex items-center  ${
+                                index > 0 ? 'ml-52' : ''
+                            }  p-3 bg-background rounded-xsm relative mb-2`}
                             key={`${patient.id}-${index}`}
                         >
                             {/* Always left-aligned Patient name (only show once) */}
-                            <div className={`flex items-center justify-between p-3 bg-background rounded-xsm relative text-lg`}>
-                                {index == 0 ? 
+                            <div
+                                className={`flex items-center justify-between p-3 bg-background rounded-xsm relative text-lg`}
+                            >
+                                {index == 0 ? (
                                     <div className="flex justify-left items-center gap-5 w-50 ml-4 ">
                                         <span
                                             className={`w-3 h-3 ${
@@ -58,8 +62,10 @@ const PatientList = ({ selectedDate }: PatientListProps) => {
                                         <span className="font-medium truncate">
                                             {patient.data.name}
                                         </span>
-                                    </div> : ""
-                                }
+                                    </div>
+                                ) : (
+                                    ''
+                                )}
                             </div>
 
                             {/* Centered carepath */}
@@ -70,7 +76,7 @@ const PatientList = ({ selectedDate }: PatientListProps) => {
                             </div>
 
                             {/* Right-aligned WearableData */}
-                            <div className="w-full flex justify-end pr-15">
+                            <div className="w-full flex justify-end pr-4">
                                 <WearableData
                                     patients={patients}
                                     indexPatient={indexPatient}
@@ -81,7 +87,7 @@ const PatientList = ({ selectedDate }: PatientListProps) => {
                     ))}
                 </div>
             ))}
-        </>
+        </div>
     )
 }
 export default PatientList
