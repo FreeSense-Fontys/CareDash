@@ -84,6 +84,7 @@ const PatientListForm = () => {
                 <button
                     onClick={() => MockVitals()}
                     className="bg-accent text-white px-3 py-2 rounded hover:opacity-80 cursor-pointer center"
+                    data-testid="mock_vitals"
                 >
                     Add mock vitals
                 </button>

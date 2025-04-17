@@ -54,6 +54,7 @@ const SearchOptions = ({
                     <button
                         onClick={handlePrevDay}
                         className="bg-accent text-white px-3 py-2 rounded-l-lg hover:bg-blue-600"
+                        data-testid="prev_day"
                     >
                         &lt;
                     </button>
@@ -66,6 +67,7 @@ const SearchOptions = ({
                     </button>
                     <button
                         onClick={handleNextDay}
+                        data-testid="next_day"
                         className="bg-accent text-white px-3 py-2 rounded-r-lg hover:bg-blue-600"
                     >
                         &gt;
