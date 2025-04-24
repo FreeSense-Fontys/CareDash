@@ -4,22 +4,24 @@ import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker'
 import { useRef } from 'react'
 
 interface wearableDataProps {
-    selectedDate: any,
+    selectedDate: any
     setSelectedDate: (date: any) => void
-    open: boolean,
+    open: boolean
     setOpen: (open: boolean) => void
     handlePrevDay: () => void
     handleNextDay: () => void
 }
 
 const SearchOptions = ({
-        selectedDate, setSelectedDate, 
-        open, setOpen, 
-        handlePrevDay, 
-        handleNextDay}:wearableDataProps) => {
-    
+    selectedDate,
+    setSelectedDate,
+    open,
+    setOpen,
+    handlePrevDay,
+    handleNextDay,
+}: wearableDataProps) => {
     const buttonRef = useRef<HTMLButtonElement | null>(null)
-    
+
     return (
         <div className="flex justify-between items-center mb-4 text-lg">
             {/* Search */}
@@ -97,4 +99,4 @@ const SearchOptions = ({
     )
 }
 
-export default SearchOptions;
+export default SearchOptions

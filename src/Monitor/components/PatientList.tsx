@@ -9,23 +9,21 @@ interface PatientListProps {
 
 const PatientList = ({ selectedDate }: PatientListProps) => {
     // Patient data
-    const [patients, setPatients] = useState<Patient[]>([])
+    const [patients, setPatients] = useState<Patient[] | null>(null)
 
     async function getPatientData() {
-        await exh.data.documents.findAll<Patient>('patient').then((result) => {
-            // console.log('Result ', result)
-
-            // TODO Remove the slice(0,4)
-            const updatedPatients = result.map((patient) => ({
-                ...patient,
-                carepaths: [{ name: 'COPD' }],
-            }))
-            updatedPatients[0].carepaths.push({ name: 'Diabetes' })
-            setPatients(updatedPatients)
-        })
+        const patients = await exh.data.documents.findAll<Patient>('patient')
+        if (!patients) {
+            return
+        }
+        // TODO Remove the slice(0,4)
+        const updatedPatients = patients.map((patient) => ({
+            ...patient,
+            carepaths: [{ name: 'COPD' }],
+        }))
+        updatedPatients[0].carepaths.push({ name: 'Diabetes' })
+        setPatients(updatedPatients)
     }
-
-    // console.log(patients);
 
     useEffect(() => {
         getPatientData()
@@ -36,7 +34,10 @@ const PatientList = ({ selectedDate }: PatientListProps) => {
     }
 
     return (
-        <div className="h-[calc(50%)] overflow-y-auto">
+        <div
+            className="h-[calc(50%)] overflow-y-auto"
+            data-testid="patient-list"
+        >
             {patients?.map((patient, indexPatient) => (
                 <div key={patient.id}>
                     {patient.carepaths.map((carepath, index) => (
@@ -53,6 +54,7 @@ const PatientList = ({ selectedDate }: PatientListProps) => {
                                 {index == 0 ? (
                                     <div className="flex justify-left items-center gap-5 w-50 ml-4 ">
                                         <span
+                                            data-testid="patient-status"
                                             className={`w-3 h-3 ${
                                                 patient.status
                                                     ? 'bg-green-500'

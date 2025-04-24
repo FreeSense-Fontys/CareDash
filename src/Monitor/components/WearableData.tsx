@@ -20,6 +20,11 @@ interface WearableDataProps {
     selectedDate: string
 }
 
+interface GetWearableResponse {
+    id?: string
+    vitals: Vital[]
+}
+
 const allVitals = ['HR', 'SBP', 'DBP', 'SPO2', 'RR', 'ACT', 'T']
 
 const WearableData = ({
@@ -30,11 +35,6 @@ const WearableData = ({
     const [wearables, setWearableData] = useState<any>([])
 
     useEffect(() => {
-        interface GetWearableResponse {
-            id?: string
-            vitals: Vital[]
-        }
-
         const getWearable = async (indexPatient: number): Promise<void> => {
             const wearableID: string | undefined = (
                 patients[indexPatient] as Patient & {
@@ -64,8 +64,7 @@ const WearableData = ({
                     className="flex justify-around gap-7 text-lg"
                 >
                     {allVitals.map((vitalName: string) => {
-                        console.log(wearable.vitals)
-                        const vital = wearable.vitals.find(
+                        const vital = wearable.vitals?.find(
                             (v: Vital) => v.name === vitalName
                         )
                         return (
@@ -89,7 +88,7 @@ const WearableData = ({
                             </div>
                         )
                     })}
-                    <div className="flex items-center">
+                    <div className="flex items-center" data-testid="checkbox">
                         <Checkbox color="success" size="small" />
                     </div>
                 </div>

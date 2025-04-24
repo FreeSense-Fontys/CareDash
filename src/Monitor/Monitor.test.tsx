@@ -19,7 +19,7 @@ vi.mock('react-router-dom', () => {
 describe('Patient list form', () => {
     vi.mock('../components/AddMockVitals', () => ({
         AddMockVitals: vi.fn(),
-      }))
+    }))
 
     beforeEach(async () => {
         render(<PatientListForm />)
