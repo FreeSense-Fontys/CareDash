@@ -10,6 +10,7 @@ export default defineConfig({
     },
     test: {
         environment: 'jsdom',
+        setupFiles: ['./vitest.setup.ts'],
         include: ['src/**/*.test.tsx'],
         globals: true,
         coverage: {
@@ -23,6 +24,7 @@ export default defineConfig({
                 'src/main.{tsx, ts}',
                 'src/Monitor/components/AddMockPatients.tsx',
                 'src/Monitor/components/AddMockVitals.tsx',
+                'src/Layout/components/SidebarLogo.tsx',
             ], // Specify which folders to exclude
             thresholds: {
                 statements: 80,
