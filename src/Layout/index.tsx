@@ -1,14 +1,10 @@
 import { Outlet } from 'react-router'
+import Sidebar from './components/Sidebar'
 
-interface LogoutProps {
-    Logout: () => void;
-}
-
-const Layout = ({ Logout }: LogoutProps) => {
+const Layout = () => {
     return (
-        <div>
-            <h1>Layout</h1>
-            <button onClick={Logout}>Logout</button>
+        <div className="flex flex-row ">
+            <Sidebar />
             <Outlet />
         </div>
     )

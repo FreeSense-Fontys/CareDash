@@ -1,7 +1,9 @@
+import PatientListForm from '../Monitor'
+
 const Home = () => {
     return (
-        <div>
-            <h1>Home</h1>
+        <div className="w-full overflow-hidden">
+            <PatientListForm />
         </div>
     )
 }
