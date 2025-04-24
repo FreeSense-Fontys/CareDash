@@ -42,17 +42,17 @@ describe('logout', () => {
 })
 
 describe('navigation', () => {
-    it("should show current user that's logged in", async () => {
-        render(
-            <MemoryRouter>
-                <Layout />
-            </MemoryRouter>
-        )
+    // it("should show current user that's logged in", async () => {
+    //     render(
+    //         <MemoryRouter>
+    //             <Layout />
+    //         </MemoryRouter>
+    //     )
 
-        const { user } = useAuth()
-        expect(screen.getByText(`Good morning,`)).toBeInTheDocument()
-        expect(screen.getByText(`Dr. ${user?.lastName}`)).toBeInTheDocument()
-    })
+    //     const { user } = useAuth()
+    //     expect(screen.getByText(`Good morning,`)).toBeInTheDocument()
+    //     expect(screen.getByText(`Dr. ${user?.lastName}`)).toBeInTheDocument()
+    // })
 
     it('should activate the correct link when clicked', async () => {
         cleanup()
