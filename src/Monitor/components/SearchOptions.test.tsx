@@ -6,6 +6,22 @@ import PatientListForm from '..'
 import SearchOptions from './SearchOptions'
 import dayjs, { Dayjs } from 'dayjs'
 
+// Mock any API services used by PatientListForm
+vi.mock('../../Auth', () => ({
+    default: {
+        data: {
+            documents: {
+                findAll: vi.fn(),
+            },
+        },
+        tasks: {
+            api: {
+                get: vi.fn(),
+            },
+        },
+    },
+}))
+
 describe('Calendar', () => {
     beforeEach(async () => {
         render(<PatientListForm />)

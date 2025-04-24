@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, Mock } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import PatientList from './components/PatientList'
-import exh from '../Auth'
+import PatientList from './PatientList'
+import exh from '../../Auth'
 
-vi.mock('../Auth', () => {
+vi.mock('../../Auth', () => {
     return {
         default: {
             data: {
