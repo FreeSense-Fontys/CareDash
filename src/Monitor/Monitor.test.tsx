@@ -28,7 +28,9 @@ vi.mock('./components/AddMockVitals', async (importOriginal) => {
     return {
         ...actual,
         default: {
-            AddMockVitals: vi.fn(),
+            AddMockVitals: {
+                AddMockVitals: vi.fn(),
+            },
         },
     }
 })
