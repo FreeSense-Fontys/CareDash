@@ -21,12 +21,12 @@ vi.mock('../../Auth', () => {
     }
 })
 
-describe('Patient list form', () => {
+describe('Patient list', () => {
     beforeEach(async () => {
         vi.clearAllMocks()
     })
 
-    it('renders the patient list form', async () => {
+    it('renders the patient list', async () => {
         ;(exh.data.documents.findAll as Mock).mockResolvedValue([
             {
                 id: 'test',

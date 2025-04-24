@@ -5,6 +5,23 @@ import PatientListForm from '.'
 import userEvent from '@testing-library/user-event'
 import AddMockVitals from './components/AddMockVitals'
 
+vi.mock('../../Auth', () => {
+    return {
+        default: {
+            data: {
+                documents: {
+                    findAll: vi.fn(),
+                },
+            },
+        },
+        tasks: {
+            api: {
+                get: vi.fn(),
+            },
+        },
+    }
+})
+
 vi.mock('react-router-dom', () => {
     const navigate = vi.fn()
     return {
