@@ -1,4 +1,3 @@
-// import '../../App.css'
 import { useState } from 'react'
 import dayjs from 'dayjs'
 import PatientList from './components/PatientList'

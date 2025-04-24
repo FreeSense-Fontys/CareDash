@@ -1,11 +1,9 @@
 import { describe, it, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import PatientListForm from '.'
-import userEvent from '@testing-library/user-event'
-import AddMockVitals from './components/AddMockVitals'
 
-vi.mock('../../Auth', () => {
+vi.mock('../Auth', () => {
     return {
         default: {
             data: {
@@ -17,19 +15,6 @@ vi.mock('../../Auth', () => {
         tasks: {
             api: {
                 get: vi.fn(),
-            },
-        },
-        authenticate: vi.fn(),
-    }
-})
-
-vi.mock('./components/AddMockVitals', async (importOriginal) => {
-    const actual = (await importOriginal()) as object
-    return {
-        ...actual,
-        default: {
-            AddMockVitals: {
-                AddMockVitals: vi.fn(),
             },
         },
     }

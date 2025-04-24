@@ -4,7 +4,7 @@ import '@testing-library/jest-dom'
 import HomePage from '.'
 
 // Mock any API services used by PatientListForm
-vi.mock('../../Auth', () => ({
+vi.mock('../Auth', () => ({
     default: {
         data: {
             documents: {
