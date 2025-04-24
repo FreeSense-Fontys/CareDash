@@ -19,25 +19,21 @@ vi.mock('../../Auth', () => {
                 get: vi.fn(),
             },
         },
+        authenticate: vi.fn(),
     }
 })
 
-vi.mock('react-router-dom', () => {
-    const navigate = vi.fn()
+vi.mock('./components/AddMockVitals', async (importOriginal) => {
+    const actual = (await importOriginal()) as object
     return {
-        ...vi.importActual('react-router-dom'),
-        useNavigate: () => navigate,
-        MemoryRouter: ({ children }: { children: React.ReactNode }) => (
-            <div>{children}</div>
-        ),
+        ...actual,
+        default: {
+            AddMockVitals: vi.fn(),
+        },
     }
 })
 
 describe('Patient list form', () => {
-    vi.mock('../components/AddMockVitals', () => ({
-        AddMockVitals: vi.fn(),
-    }))
-
     beforeEach(async () => {
         render(<PatientListForm />)
     })
@@ -51,7 +47,6 @@ describe('Patient list form', () => {
 
         await userEvent.click(mockButton)
 
-        vi.mock('./components/AddMockVitals')
         expect(AddMockVitals.AddMockVitals).toHaveBeenCalled()
     })
 })
