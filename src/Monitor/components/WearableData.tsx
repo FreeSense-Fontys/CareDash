@@ -37,33 +37,21 @@ const WearableData = ({
     useEffect(() => {
         const getWearable = async (indexPatient: number): Promise<void> => {
             const wearableID: string =
-                patients[indexPatient]?.data.coupledWearables[0].id
-            console.log(wearableID)
+                patients[indexPatient]?.data.coupledWearables[0].wearableId
             if (!wearableID) return
 
-            // await exh.tasks.api
-            //     .get<GetWearableResponse>(
-            //         'get-observations-by-day',
-            //         '?wearableId=' + wearableID + '&date=' + selectedDate,
-            //         {}
-            //     )
-            //     .then((result: GetWearableResponse) => {
-            //         // setWearableData([result])
-            //         console.log(result)
-            //     })
-            const patientId = patients[indexPatient].id
-            const patient = await exh.data.documents.findFirst(
+            const wearableData = await exh.data.documents.findFirst(
                 'wearable-observation',
                 {
-                    rql: rqlBuilder().sort('updateTimestamp').build(),
+                    rql: rqlBuilder()
+                        .sort('updateTimestamp')
+                        .eq('creatorId', wearableID)
+                        .build(),
                 }
             )
-            console.log(patient)
-            // const wearableObservation = await exh.data.documents.findById(
-            //     'wearable-observation',
-            //     wearableID
-            // )
-            // console.log(wearableObservation)
+            if (!wearableData) return
+            setWearableData([wearableData])
+            // console.log(wearableData)
         }
         getWearable(indexPatient)
     }, [selectedDate])
