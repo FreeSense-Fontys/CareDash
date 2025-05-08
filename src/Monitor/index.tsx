@@ -13,6 +13,9 @@ const PatientListForm = () => {
         setSelectedDate((prev) => prev.subtract(1, 'day'))
     const handleNextDay = () => setSelectedDate((prev) => prev.add(1, 'day'))
 
+    const [searchQuery, setSearchQuery] = useState('')
+
+
     // function MockVitals() {
     //     // Add mock vitals to all patients if needed
     //     AddMockVitals.AddMockVitals()
@@ -28,6 +31,8 @@ const PatientListForm = () => {
                     setOpen={setOpen}
                     handlePrevDay={handlePrevDay}
                     handleNextDay={handleNextDay}
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
                 />
 
                 {/* Vitals Header */}
@@ -78,7 +83,7 @@ const PatientListForm = () => {
                 </div>
 
                 {/* Patient List */}
-                <PatientList selectedDate={selectedDate.format('YYYY-MM-DD')} />
+                <PatientList selectedDate={selectedDate.format('YYYY-MM-DD')} searchQuery={searchQuery} />
                 {/* 
                 <button
                     onClick={() => MockVitals()}

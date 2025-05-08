@@ -10,6 +10,8 @@ interface wearableDataProps {
     setOpen: (open: boolean) => void
     handlePrevDay: () => void
     handleNextDay: () => void
+    searchQuery: string
+    setSearchQuery: (value: string) => void
 }
 
 const SearchOptions = ({
@@ -19,6 +21,8 @@ const SearchOptions = ({
     setOpen,
     handlePrevDay,
     handleNextDay,
+    searchQuery,
+    setSearchQuery
 }: wearableDataProps) => {
     const buttonRef = useRef<HTMLButtonElement | null>(null)
 
@@ -28,8 +32,10 @@ const SearchOptions = ({
             <div className="justify-center items-center">
                 <input
                     type="text"
-                    placeholder="Search..."
-                    className="p-2 border rounded-lg w-80 "
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search by patient name..."
+                    className="p-2 border rounded-lg w-80"
                 />
             </div>
 
