@@ -90,14 +90,17 @@ const PatientList = ({
     }
 
     return (
-        <div
-            className="h-[calc(50%)] overflow-y-auto"
-            data-testid="patient-list"
-        >
+        <div className="h-[70vh] overflow-y-auto" data-testid="patient-list">
             {filteredPatients?.map((patient, indexPatient) => (
-                <div key={patient.id} className="flex">
-                    <div className="flex flex-col w-full">
-                        {patient.carepaths.map((carepath, index) => (
+                <div key={patient.id}>
+                    {patient.carepaths.map((carepath, index) => (
+                        <div
+                            className={`flex items-center  ${
+                                index > 0 ? 'ml-52' : ''
+                            }  p-3 bg-background rounded-xsm relative mb-2`}
+                            key={`${patient.id}-${index}`}
+                        >
+                            {/* Always left-aligned Patient name (only show once) */}
                             <div
                                 className={`flex items-center  ${
                                     index > 0 ? 'ml-52' : ''
@@ -154,8 +157,8 @@ const PatientList = ({
                                     />
                                 </div>
                             </div>
-                        ))}
-                    </div>
+                        </div>
+                    ))}
                 </div>
             ))}
         </div>
