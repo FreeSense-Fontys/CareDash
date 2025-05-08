@@ -52,7 +52,7 @@ const PatientList = ({ selectedDate, searchQuery }: PatientListProps) => {
 
     if (!patients) return <></>
 
-    const normalizedQuery = searchQuery.trim().toLowerCase()
+    const normalizedQuery = (searchQuery ?? '').trim().toLowerCase()
 
     const filteredPatients = patients.filter((patient) => {
         const name = patient.data.name.toLowerCase()
