@@ -10,12 +10,8 @@ vi.mock('../../Auth', () => {
             data: {
                 documents: {
                     findAll: vi.fn(),
+                    findFirst: vi.fn(),
                 },
-            },
-        },
-        tasks: {
-            api: {
-                get: vi.fn(),
             },
         },
     }
