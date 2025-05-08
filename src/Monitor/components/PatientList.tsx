@@ -5,9 +5,10 @@ import WearableData from './WearableData'
 
 interface PatientListProps {
     selectedDate: string
+    searchQuery: string
 }
 
-const PatientList = ({ selectedDate }: PatientListProps) => {
+const PatientList = ({ selectedDate, searchQuery }: PatientListProps) => {
     // Patient data
     const [patients, setPatients] = useState<Patient[] | null>(null)
 
@@ -16,7 +17,6 @@ const PatientList = ({ selectedDate }: PatientListProps) => {
         if (!patients) {
             return
         }
-        // TODO Remove the slice(0,4)
         const updatedPatients = patients.map((patient) => ({
             ...patient,
             carepaths: [{ name: 'COPD' }],
@@ -32,22 +32,59 @@ const PatientList = ({ selectedDate }: PatientListProps) => {
         return () => clearInterval(interval)
     }, [])
 
-    if (!patients) {
-        return <></>
+    const highlightMatch = (text: string, query: string) => {
+        if (!query) return text
+        const lowerText = text.toLowerCase()
+        const lowerQuery = query.toLowerCase()
+        const matchIndex = lowerText.indexOf(lowerQuery)
+
+        if (matchIndex === -1) return text
+
+        const before = text.slice(0, matchIndex)
+        const match = text.slice(matchIndex, matchIndex + query.length)
+        const after = text.slice(matchIndex + query.length)
+
+        return (
+            <>
+                {before}
+                <span className="bg-blue-200 font-bold">{match}</span>
+                {after}
+            </>
+        )
     }
+
+    if (!patients) return <></>
+
+    const normalizedQuery = (searchQuery ?? '').trim().toLowerCase()
+
+    const filteredPatients = patients.filter((patient) => {
+        const name = patient.data.name.toLowerCase()
+        return name.includes(normalizedQuery)
+    })
+
+    if (filteredPatients.length === 0) {
+        return (
+            <div
+                className="h-[calc(50%)] overflow-y-auto text-center text-gray-500 p-4"
+                data-testid="patient-list"
+            >
+                No patients found matching your search.
+            </div>
+        )
+    }
+
 
     return (
         <div
             className="h-[calc(50%)] overflow-y-auto"
             data-testid="patient-list"
         >
-            {patients?.map((patient, indexPatient) => (
+            {filteredPatients?.map((patient, indexPatient) => (
                 <div key={patient.id}>
                     {patient.carepaths.map((carepath, index) => (
                         <div
-                            className={`flex items-center  ${
-                                index > 0 ? 'ml-52' : ''
-                            }  p-3 bg-background rounded-xsm relative mb-2`}
+                            className={`flex items-center  ${index > 0 ? 'ml-52' : ''
+                                }  p-3 bg-background rounded-xsm relative mb-2`}
                             key={`${patient.id}-${index}`}
                         >
                             {/* Always left-aligned Patient name (only show once) */}
@@ -58,14 +95,16 @@ const PatientList = ({ selectedDate }: PatientListProps) => {
                                     <div className="flex justify-left items-center gap-5 w-50 ml-4 ">
                                         <span
                                             data-testid="patient-status"
-                                            className={`w-3 h-3 ${
-                                                patient.status
+                                            className={`w-3 h-3 ${patient.status
                                                     ? 'bg-green-500'
                                                     : 'bg-gray-500'
-                                            } rounded-full`}
+                                                } rounded-full`}
                                         ></span>
                                         <span className="font-medium truncate">
-                                            {patient.data.name}
+                                            {highlightMatch(
+                                                patient.data.name,
+                                                searchQuery
+                                            )}
                                         </span>
                                     </div>
                                 ) : (
@@ -83,7 +122,7 @@ const PatientList = ({ selectedDate }: PatientListProps) => {
                             {/* Right-aligned WearableData */}
                             <div className="w-full flex justify-end pr-4">
                                 <WearableData
-                                    patients={patients}
+                                    patients={filteredPatients}
                                     indexPatient={indexPatient}
                                     selectedDate={selectedDate}
                                 />
