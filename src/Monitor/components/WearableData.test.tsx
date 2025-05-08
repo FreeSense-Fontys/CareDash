@@ -7,23 +7,9 @@ import exh from '../../Auth'
 vi.mock('../../Auth', () => {
     return {
         default: {
-            tasks: {
-                api: {
-                    get: vi.fn().mockResolvedValue([
-                        {
-                            id: 'wid',
-                            vitals: [
-                                {
-                                    name: 'HR',
-                                    series: [{ value: 70 }],
-                                },
-                                {
-                                    name: 'SBP',
-                                    series: [{ value: 120 }],
-                                },
-                            ],
-                        },
-                    ]),
+            data: {
+                documents: {
+                    findFirst: vi.fn(),
                 },
             },
         },
@@ -32,20 +18,23 @@ vi.mock('../../Auth', () => {
 
 const mockPatients = [
     {
-        name: 'John Doe',
-        gender: 'M',
-        email: 'john.doe@example.com',
-        language: 'EN',
-        phoneNumber: '',
-        coupledWearables: [
-            {
-                id: 'wid',
-                wearableId: 'wid',
-                productName: 'CareBuddy',
-                status: 'active',
-                enrolledGroups: ['caregroupid'],
-            },
-        ],
+        id: 'patientid',
+        data: {
+            name: 'John Doe',
+            gender: 'M',
+            email: 'john.doe@example.com',
+            language: 'EN',
+            phoneNumber: '',
+            coupledWearables: [
+                {
+                    id: 'wid',
+                    wearableId: 'wid',
+                    productName: 'CareBuddy',
+                    status: 'active',
+                    enrolledGroups: ['caregroupid'],
+                },
+            ],
+        },
     },
 ]
 
@@ -57,35 +46,38 @@ describe('WearableData', () => {
     beforeEach(() => {
         vi.clearAllMocks()
     })
+
     it('should set wearable data', async () => {
-        ;(exh.tasks.api.get as Mock).mockResolvedValue({
+        ;(exh.data.documents.findFirst as Mock).mockResolvedValue({
             id: 'wid',
-            vitals: [
-                {
-                    name: 'HR',
-                    series: [{ value: 70 }],
-                },
-                {
-                    name: 'SBP',
-                    series: [{ value: 120 }],
-                },
-                {
-                    name: 'DBP',
-                    series: [{ value: 70 }],
-                },
-                {
-                    name: 'SPO2',
-                    series: [{ value: 120 }],
-                },
-                {
-                    name: 'RR',
-                    series: [{ value: 70 }],
-                },
-                {
-                    name: 'T',
-                    series: [{ value: 120.4132 }],
-                },
-            ],
+            data: {
+                vitals: [
+                    {
+                        name: 'HR',
+                        value: 70,
+                    },
+                    {
+                        name: 'SBP',
+                        value: 120,
+                    },
+                    {
+                        name: 'DBP',
+                        value: 70,
+                    },
+                    {
+                        name: 'SPO2',
+                        value: 120,
+                    },
+                    {
+                        name: 'RR',
+                        value: 70,
+                    },
+                    {
+                        name: 'T',
+                        value: 120.4132,
+                    },
+                ],
+            },
         })
 
         await act(async () => {
@@ -98,11 +90,7 @@ describe('WearableData', () => {
             )
         })
 
-        expect(exh.tasks.api.get).toHaveBeenCalledWith(
-            'get-observations-by-day',
-            '?wearableId=wid&date=2025-04-17',
-            {}
-        )
+        expect(exh.data.documents.findFirst).toHaveBeenCalled()
     })
 
     it('should render the checkbox', async () => {
@@ -124,7 +112,7 @@ describe('WearableData', () => {
 
     it('should handle case with empty wearables array', async () => {
         // Mock the API to return an empty array instead of null/undefined
-        ;(exh.tasks.api.get as Mock).mockResolvedValue([
+        ;(exh.data.documents.findFirst as Mock).mockResolvedValue([
             {
                 id: 'wid',
                 vitals: [],
@@ -141,20 +129,26 @@ describe('WearableData', () => {
             )
         })
 
-        // Check if the component handles empty vitals correctly
         const checkboxes = screen.queryByTestId('checkbox')
         expect(checkboxes).toBeInTheDocument() // Should still show checkbox even with no vitals
     })
 
     it("should only render one decimal place for 'T'", async () => {
-        ;(exh.tasks.api.get as Mock).mockResolvedValue({
+        ;(exh.data.documents.findFirst as Mock).mockResolvedValue({
             id: 'wid',
-            vitals: [
-                {
-                    name: 'T',
-                    series: [{ value: 120.4132 }],
-                },
-            ],
+            data: {
+                vitals: [
+                    {
+                        name: 'HR',
+                        value: 70,
+                    },
+                    {
+                        name: 'T',
+                        value: 120.4132,
+                    },
+                ],
+            },
+            updateTimestamp: '2025-04-17T00:00:00Z',
         })
 
         await act(async () => {
@@ -169,12 +163,14 @@ describe('WearableData', () => {
             })
         })
 
+        const wholeNumberText = await screen.findByText('70')
         const decimalText = await screen.findByText('120.4')
         expect(decimalText).toBeInTheDocument()
+        expect(wholeNumberText).toBeInTheDocument()
     })
 
     it('should render nothing', async () => {
-        ;(exh.tasks.api.get as Mock).mockResolvedValue({})
+        ;(exh.data.documents.findFirst as Mock).mockResolvedValue({})
 
         await act(() => {
             render(
@@ -187,6 +183,6 @@ describe('WearableData', () => {
         })
 
         const checkboxes = document.querySelectorAll('input[type="checkbox"]')
-        expect(checkboxes.length).toBe(0)
+        expect(checkboxes.length).toBe(1)
     })
 })

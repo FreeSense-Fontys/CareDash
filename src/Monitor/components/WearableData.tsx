@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import exh from '../../Auth'
 import { Patient, rqlBuilder } from '@extrahorizon/javascript-sdk'
 import { Checkbox } from '@mui/material'
+import dayjs from 'dayjs'
 
 // Define the Wearable and Vital types
 interface Wearable {
@@ -20,11 +21,6 @@ interface WearableDataProps {
     selectedDate: string
 }
 
-interface GetWearableResponse {
-    id?: string
-    vitals: Vital[]
-}
-
 const allVitals = ['HR', 'SBP', 'DBP', 'SPO2', 'RR', 'ACT', 'T']
 
 const WearableData = ({
@@ -32,10 +28,11 @@ const WearableData = ({
     indexPatient,
     selectedDate,
 }: WearableDataProps) => {
-    const [wearables, setWearableData] = useState<any>([])
+    const [wearables, setWearableData] = useState<any[]>([])
 
     useEffect(() => {
         const getWearable = async (indexPatient: number): Promise<void> => {
+            // what if patient has multiple wearables? only taking the first one right now
             const wearableID: string =
                 patients[indexPatient]?.data.coupledWearables[0].wearableId
             if (!wearableID) return
@@ -50,21 +47,30 @@ const WearableData = ({
                 }
             )
             if (!wearableData) return
-            setWearableData([wearableData])
-            // console.log(wearableData)
+
+            // only set wearable data if the update timestamp is the same as the selected date
+            const wearableUpdateTime = dayjs(
+                wearableData.updateTimestamp
+            ).format('YYYY-MM-DD')
+            if (wearableUpdateTime != selectedDate) {
+                setWearableData([])
+            } else setWearableData([wearableData])
         }
+
         getWearable(indexPatient)
-    }, [selectedDate])
+    }, [selectedDate, indexPatient, patients])
+
+    // console.log('WearableData: ', wearables)
 
     return (
         <>
             {wearables?.map((wearable: Wearable, wearableIndex: number) => (
                 <div
                     key={wearable.id ?? `wearable-${wearableIndex}`}
-                    className="flex justify-around gap-7 text-lg"
+                    className="flex justify-around gap-7 text-lg pr-7"
                 >
                     {allVitals.map((vitalName: string) => {
-                        const vital = wearable.vitals?.find(
+                        const vital = wearable.data.vitals?.find(
                             (v: Vital) => v.name === vitalName
                         )
                         return (
@@ -74,12 +80,8 @@ const WearableData = ({
                             >
                                 {vital ? (
                                     <div className="text-center border size-12 rounded-lg justify-center items-center flex leading-tight">
-                                        {Number(
-                                            vital.series[
-                                                vital.series.length - 1
-                                            ].value.toFixed(
-                                                vitalName === 'T' ? 1 : 0
-                                            )
+                                        {vital.value.toFixed(
+                                            vitalName === 'T' ? 1 : 0
                                         )}
                                     </div>
                                 ) : (
@@ -88,11 +90,11 @@ const WearableData = ({
                             </div>
                         )
                     })}
-                    <div className="flex items-center" data-testid="checkbox">
-                        <Checkbox color="success" size="small" />
-                    </div>
                 </div>
             ))}
+            <div className="flex items-center" data-testid="checkbox">
+                <Checkbox color="success" size="small" />
+            </div>
         </>
     )
 }
