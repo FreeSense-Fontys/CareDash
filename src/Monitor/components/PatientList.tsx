@@ -27,6 +27,9 @@ const PatientList = ({ selectedDate }: PatientListProps) => {
 
     useEffect(() => {
         getPatientData()
+        const refreshtime = 60000 // 1 minutes
+        const interval = setInterval(() => getPatientData(), refreshtime)
+        return () => clearInterval(interval)
     }, [])
 
     if (!patients) {
