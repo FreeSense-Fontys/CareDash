@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import exh from '../../Auth'
-import { Patient } from '@extrahorizon/javascript-sdk'
+import { Patient, rqlBuilder } from '@extrahorizon/javascript-sdk'
 import { Checkbox } from '@mui/material'
 
 // Define the Wearable and Vital types
@@ -36,22 +36,34 @@ const WearableData = ({
 
     useEffect(() => {
         const getWearable = async (indexPatient: number): Promise<void> => {
-            const wearableID: string | undefined = (
-                patients[indexPatient] as Patient & {
-                    coupledWearables?: { wearableId: string }[]
-                }
-            )?.coupledWearables?.[0]?.wearableId
+            const wearableID: string =
+                patients[indexPatient]?.data.coupledWearables[0].id
+            console.log(wearableID)
             if (!wearableID) return
 
-            await exh.tasks.api
-                .get<GetWearableResponse>(
-                    'get-observations-by-day',
-                    '?wearableId=' + wearableID + '&date=' + selectedDate,
-                    {}
-                )
-                .then((result: GetWearableResponse) => {
-                    setWearableData([result])
-                })
+            // await exh.tasks.api
+            //     .get<GetWearableResponse>(
+            //         'get-observations-by-day',
+            //         '?wearableId=' + wearableID + '&date=' + selectedDate,
+            //         {}
+            //     )
+            //     .then((result: GetWearableResponse) => {
+            //         // setWearableData([result])
+            //         console.log(result)
+            //     })
+            const patientId = patients[indexPatient].id
+            const patient = await exh.data.documents.findFirst(
+                'wearable-observation',
+                {
+                    rql: rqlBuilder().sort('updateTimestamp').build(),
+                }
+            )
+            console.log(patient)
+            // const wearableObservation = await exh.data.documents.findById(
+            //     'wearable-observation',
+            //     wearableID
+            // )
+            // console.log(wearableObservation)
         }
         getWearable(indexPatient)
     }, [selectedDate])
