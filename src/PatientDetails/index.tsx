@@ -30,12 +30,20 @@ export default function DetailPage({
                 `?wearableId=${wearableId}&date=${'2025-04-17'}`,
                 {}
             )
-            console.log('Wearable data: ', data)
             setWearableData(data)
         }
         getPatientDetail()
     }, [wearableId])
 
+    console.log('WearableData: ', wearableData)
+
+    if (!wearableData) {
+        return <div>Loading...</div>
+    }
+
+    if (wearableData?.vitals.length == 0) {
+        return <div>No vitals data available</div>
+    }
     const bloodPreasureChartData = {
         labels: wearableData?.vitals
             .find((object: any) => object.name == 'SBP')
@@ -144,12 +152,13 @@ export default function DetailPage({
     }
 
     return (
-        <div className="App">
-            <span style={{ display: 'flex' }}>
+        <div>
+            <p>Wearable Id: {wearableId}</p>
+            <div className="flex">
                 <VitalGraph chartData={bloodPreasureChartData} />
                 <VitalGraph chartData={heartRateChartData} />
                 <VitalGraph chartData={tempratureChartData} />
-            </span>
+            </div>
         </div>
     )
 }
@@ -178,12 +187,7 @@ const dangerousBPM = (ctx: any, value: any) =>
         ? value
         : undefined
 const dangerousLowBPM = (ctx: any, value: any) =>
-    ctx.p0.parsed.y >= 90 ||
-    ctx.p1.parsed.y >= 90 ||
-    ctx.p0.parsed.y <= 60 ||
-    ctx.p1.parsed.y <= 60
-        ? value
-        : undefined
+    ctx.p0.parsed.y <= 82 || ctx.p1.parsed.y <= 82 ? value : undefined
 
 const missingData = (ctx: any, value: any) =>
     ctx.p0.skip || ctx.p1.skip ? value : undefined
