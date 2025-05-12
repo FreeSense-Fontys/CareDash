@@ -73,18 +73,15 @@ const PatientList = ({ selectedDate, searchQuery }: PatientListProps) => {
         )
     }
 
-
     return (
-        <div
-            className="h-[calc(50%)] overflow-y-auto"
-            data-testid="patient-list"
-        >
+        <div className="h-[70vh] overflow-y-auto" data-testid="patient-list">
             {filteredPatients?.map((patient, indexPatient) => (
                 <div key={patient.id}>
                     {patient.carepaths.map((carepath, index) => (
                         <div
-                            className={`flex items-center  ${index > 0 ? 'ml-52' : ''
-                                }  p-3 bg-background rounded-xsm relative mb-2`}
+                            className={`flex items-center  ${
+                                index > 0 ? 'ml-52' : ''
+                            }  p-3 bg-background rounded-xsm relative mb-2`}
                             key={`${patient.id}-${index}`}
                         >
                             {/* Always left-aligned Patient name (only show once) */}
@@ -95,13 +92,20 @@ const PatientList = ({ selectedDate, searchQuery }: PatientListProps) => {
                                     <div className="flex justify-left items-center gap-5 w-50 ml-4 ">
                                         <span
                                             data-testid="patient-status"
-                                            className={`w-3 h-3 ${patient.status
-                                                ? 'bg-green-500'
-                                                : 'bg-gray-500'
-                                                } rounded-full`}
+                                            className={`w-3 h-3 ${
+                                                patient.status
+                                                    ? 'bg-green-500'
+                                                    : 'bg-gray-500'
+                                            } rounded-full`}
                                         ></span>
-                                        <span className="font-medium truncate" data-testid={`patient-name-${patient.id}`}>
-                                            {highlightMatch(patient.data.name, searchQuery)}
+                                        <span
+                                            className="font-medium truncate"
+                                            data-testid={`patient-name-${patient.id}`}
+                                        >
+                                            {highlightMatch(
+                                                patient.data.name,
+                                                searchQuery
+                                            )}
                                         </span>
                                     </div>
                                 ) : (
