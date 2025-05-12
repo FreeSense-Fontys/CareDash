@@ -2,19 +2,24 @@ import { useState } from 'react'
 import dayjs from 'dayjs'
 import PatientList from './components/PatientList'
 import SearchOptions from './components/SearchOptions'
+import PatientDetails from '../PatientDetails'
 // import AddMockVitals from './components/AddMockVitals'
 
 const PatientListForm = () => {
     // Date
     const [selectedDate, setSelectedDate] = useState(dayjs())
     const [open, setOpen] = useState(false)
+    const [isDetailsOpen, setIsDetailsOpen] = useState(false)
+    const [isWearableSelected, setIsWearableSelected] = useState(false)
+    const [selectedWearableId, setSelectedWearableId] = useState<string | null>(
+        null
+    )
     // Date picker opens bellow calendar
     const handlePrevDay = () =>
         setSelectedDate((prev) => prev.subtract(1, 'day'))
     const handleNextDay = () => setSelectedDate((prev) => prev.add(1, 'day'))
 
     const [searchQuery, setSearchQuery] = useState('')
-
 
     // function MockVitals() {
     //     // Add mock vitals to all patients if needed
@@ -36,54 +41,73 @@ const PatientListForm = () => {
                 />
 
                 {/* Vitals Header */}
-                <div className="flex justify-end gap-5 text-center font-semibold text-white p-3 pr-[14px] rounded text-lg">
-                    {/* Actual Vitals */}
-                    <div className="flex justify-around gap-5">
-                        <div className="flex justify-center items-center">
-                            <div className="text-center border size-14 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">
-                                HR<p className="text-[12px]">[/min]</p>
+                <div className="flex justify-end gap-5 text-center font-semibold text-white p-3 pr-[14px] h-18 rounded text-lg">
+                    <div className="flex">
+                        {!isDetailsOpen && (
+                            <div className="flex gap-x-5">
+                                <div className="flex justify-center items-center">
+                                    <div className="text-center border size-14 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">
+                                        HR<p className="text-[12px]">[/min]</p>
+                                    </div>
+                                </div>
+                                <div className="flex justify-center items-center">
+                                    <div className="text-center border size-14 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">
+                                        SBP<p className="text-[12px]">[mmHg]</p>
+                                    </div>
+                                </div>
+                                <div className="flex justify-center items-center">
+                                    <div className="text-center border size-14 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">
+                                        DPB<p className="text-[12px]">[mmHg]</p>
+                                    </div>
+                                </div>
+                                <div className="flex justify-center items-center">
+                                    <div className="text-center border size-14 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">
+                                        SPO2<p className="text-[12px]">[%]</p>
+                                    </div>
+                                </div>
+                                <div className="flex justify-center items-center">
+                                    <div className="text-center border size-14 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">
+                                        RR<p className="text-[12px]">[/min]</p>
+                                    </div>
+                                </div>
+                                <div className="flex justify-center items-center">
+                                    <div className="text-center border size-14 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">
+                                        ACT<p className="text-[12px]"></p>
+                                    </div>
+                                </div>
+                                <div className="flex justify-center items-center">
+                                    <div className="text-center border size-14 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">
+                                        T<p className="text-[12px]">[°C]</p>
+                                    </div>
+                                </div>
+                                <div className="flex justify-center items-center">
+                                    <div className="text-center border size-14 rounded-lg justify-center items-center flex flex-col leading-tight"></div>
+                                </div>
                             </div>
-                        </div>
-                        <div className="flex justify-center items-center">
-                            <div className="text-center border size-14 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">
-                                SBP<p className="text-[12px]">[mmHg]</p>
-                            </div>
-                        </div>
-                        <div className="flex justify-center items-center">
-                            <div className="text-center border size-14 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">
-                                DPB<p className="text-[12px]">[mmHg]</p>
-                            </div>
-                        </div>
-                        <div className="flex justify-center items-center">
-                            <div className="text-center border size-14 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">
-                                SPO2<p className="text-[12px]">[%]</p>
-                            </div>
-                        </div>
-                        <div className="flex justify-center items-center">
-                            <div className="text-center border size-14 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">
-                                RR<p className="text-[12px]">[/min]</p>
-                            </div>
-                        </div>
-                        <div className="flex justify-center items-center">
-                            <div className="text-center border size-14 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">
-                                ACT<p className="text-[12px]"></p>
-                            </div>
-                        </div>
-                        <div className="flex justify-center items-center">
-                            <div className="text-center border size-14 rounded-lg justify-center bg-accent items-center flex flex-col leading-tight">
-                                T<p className="text-[12px]">[°C]</p>
-                            </div>
-                        </div>
-                        <div className="flex justify-center items-center">
-                            <div className="text-center border size-14 rounded-lg justify-center items-center flex flex-col leading-tight">
-                                {/* T<p className="text-[12px]">[°C]</p> */}
-                            </div>
-                        </div>
+                        )}
                     </div>
                 </div>
 
-                {/* Patient List */}
-                <PatientList selectedDate={selectedDate.format('YYYY-MM-DD')} searchQuery={searchQuery} />
+                <div className="flex">
+                    {/* Patient List */}
+                    <div className="w-full">
+                        <PatientList
+                            selectedDate={selectedDate.format('YYYY-MM-DD')}
+                            searchQuery={searchQuery}
+                            setIsDetailsOpen={setIsDetailsOpen}
+                            isDetailsOpen={isDetailsOpen}
+                            setIsWearableSelected={setIsWearableSelected}
+                            setSelectedWearableId={setSelectedWearableId}
+                        />
+                    </div>
+                    {isWearableSelected && (
+                        <PatientDetails
+                            wearableId={selectedWearableId}
+                            // patient={patient}
+                            currentDate={selectedDate.format('YYYY-MM-DD')}
+                        />
+                    )}
+                </div>
                 {/* 
                 <button
                     onClick={() => MockVitals()}
