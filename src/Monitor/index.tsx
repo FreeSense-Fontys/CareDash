@@ -15,7 +15,6 @@ const PatientListForm = () => {
 
     const [searchQuery, setSearchQuery] = useState('')
 
-
     // function MockVitals() {
     //     // Add mock vitals to all patients if needed
     //     AddMockVitals.AddMockVitals()
@@ -75,15 +74,16 @@ const PatientListForm = () => {
                             </div>
                         </div>
                         <div className="flex justify-center items-center">
-                            <div className="text-center border size-14 rounded-lg justify-center items-center flex flex-col leading-tight">
-                                {/* T<p className="text-[12px]">[°C]</p> */}
-                            </div>
+                            <div className="text-center border size-14 rounded-lg justify-center items-center flex flex-col leading-tight"></div>
                         </div>
                     </div>
                 </div>
 
                 {/* Patient List */}
-                <PatientList selectedDate={selectedDate.format('YYYY-MM-DD')} searchQuery={searchQuery} />
+                <PatientList
+                    selectedDate={selectedDate.format('YYYY-MM-DD')}
+                    searchQuery={searchQuery}
+                />
                 {/* 
                 <button
                     onClick={() => MockVitals()}
