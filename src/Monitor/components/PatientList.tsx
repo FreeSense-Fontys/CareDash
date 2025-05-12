@@ -96,15 +96,12 @@ const PatientList = ({ selectedDate, searchQuery }: PatientListProps) => {
                                         <span
                                             data-testid="patient-status"
                                             className={`w-3 h-3 ${patient.status
-                                                    ? 'bg-green-500'
-                                                    : 'bg-gray-500'
+                                                ? 'bg-green-500'
+                                                : 'bg-gray-500'
                                                 } rounded-full`}
                                         ></span>
-                                        <span className="font-medium truncate">
-                                            {highlightMatch(
-                                                patient.data.name,
-                                                searchQuery
-                                            )}
+                                        <span className="font-medium truncate" data-testid={`patient-name-${patient.id}`}>
+                                            {highlightMatch(patient.data.name, searchQuery)}
                                         </span>
                                     </div>
                                 ) : (
