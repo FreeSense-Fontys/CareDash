@@ -31,8 +31,8 @@ const PatientListForm = () => {
     // }
 
     return (
-        <div className=" bg-gray-100 h-screen flex flex-col">
-            <div className=" mx-auto bg-white p-4 rounded-lg shadow flex flex-col w-full">
+        <div className="bg-white h-screen flex flex-col ">
+            <div className=" mx-auto bg-white p-4 rounded-lg flex flex-col w-full">
                 <SearchOptions
                     selectedDate={selectedDate}
                     setSelectedDate={setSelectedDate}

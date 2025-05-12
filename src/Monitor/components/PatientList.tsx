@@ -90,10 +90,7 @@ const PatientList = ({
     }
 
     return (
-        <div
-            className="h-[calc(50%)] overflow-y-auto"
-            data-testid="patient-list"
-        >
+        <div className="h-[70vh] overflow-y-auto" data-testid="patient-list">
             {filteredPatients?.map((patient, indexPatient) => (
                 <div key={patient.id} className="flex">
                     <div className="flex flex-col w-full">
