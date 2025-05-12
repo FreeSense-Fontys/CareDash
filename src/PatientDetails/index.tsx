@@ -152,12 +152,26 @@ export default function DetailPage({
     }
 
     return (
-        <div>
-            <p>Wearable Id: {wearableId}</p>
-            <div className="flex">
+        <div className="flex flex-col bg-secondary p-8 rounded-2xl w-500 gap-4">
+            {/* Patient Information */}
+            <div className="bg-background rounded-md p-2">
+                {/* <p>Wearable Id: {wearableId}</p> */}
+                <div className="grid grid-cols-2 gap-2">
+                    <p>Patient: Test</p>
+                    <p>Sex: M</p>
+                    <p>Care Path: Diabetes</p>
+                    <p>BMI: 22.8</p>
+                    <p>DOB: 26/11/2002</p>
+                    <p>Skin Type: II</p>
+                </div>
+            </div>
+            <div className="flex gap-4 flex-wrap justify-center">
                 <VitalGraph chartData={bloodPreasureChartData} />
                 <VitalGraph chartData={heartRateChartData} />
                 <VitalGraph chartData={tempratureChartData} />
+                <VitalGraph chartData={heartRateChartData} />
+                <VitalGraph chartData={tempratureChartData} />
+                <VitalGraph chartData={bloodPreasureChartData} />
             </div>
         </div>
     )

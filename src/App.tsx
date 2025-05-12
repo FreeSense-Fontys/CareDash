@@ -6,7 +6,6 @@ import Layout from './Layout'
 import Configuration from './Configuration'
 import Presets from './Presets'
 import ProtectedRoute from './components/ProtectedRoute'
-import PatientDetails from './PatientDetails'
 
 function App() {
     return (

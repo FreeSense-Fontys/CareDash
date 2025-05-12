@@ -10,10 +10,14 @@ const PatientListForm = () => {
     const [selectedDate, setSelectedDate] = useState(dayjs())
     const [open, setOpen] = useState(false)
     const [isDetailsOpen, setIsDetailsOpen] = useState(false)
-    const [isWearableSelected, setIsWearableSelected] = useState(false)
+    const [isWearableSelected, setIsWearableSelected] = useState(true)
     const [selectedWearableId, setSelectedWearableId] = useState<string | null>(
-        null
+        '679c853b53535d5d4c36cae6'
     )
+    // const [isWearableSelected, setIsWearableSelected] = useState(false)
+    // const [selectedWearableId, setSelectedWearableId] = useState<string | null>(
+    //     null
+    // )
     // Date picker opens bellow calendar
     const handlePrevDay = () =>
         setSelectedDate((prev) => prev.subtract(1, 'day'))
@@ -88,7 +92,7 @@ const PatientListForm = () => {
                     </div>
                 </div>
 
-                <div className="flex">
+                <div className="flex gap-x-4">
                     {/* Patient List */}
                     <div className="w-full">
                         <PatientList
