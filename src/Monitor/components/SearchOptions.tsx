@@ -12,6 +12,10 @@ interface wearableDataProps {
     handleNextDay: () => void
     searchQuery: string
     setSearchQuery: (value: string) => void
+    filterCarepath: string
+    setFilterCarepath: (value: string) => void
+    filterOrder: string
+    setFilterOrder: (value: string) => void
 }
 
 const SearchOptions = ({
@@ -22,7 +26,11 @@ const SearchOptions = ({
     handlePrevDay,
     handleNextDay,
     searchQuery,
-    setSearchQuery
+    setSearchQuery,
+    filterCarepath,
+    setFilterCarepath,
+    filterOrder,
+    setFilterOrder,
 }: wearableDataProps) => {
     const buttonRef = useRef<HTMLButtonElement | null>(null)
 
@@ -43,15 +51,26 @@ const SearchOptions = ({
                 {/* Sort */}
                 <div className="justify-center items-center">
                     <div>Sort by</div>
-                    <select className="p-2 border rounded-lg w-25">
-                        <option>Priority</option>
+                    <select
+                        name="Order"
+                        className="p-2 border rounded-lg w-25"
+                        onChange={(e) => setFilterOrder(e.target.value)}
+                    >
+                        <option value="Priority">Priority</option>
+                        <option value="Alphabetical">Alphabetical</option>
                     </select>
                 </div>
                 {/* Filter */}
                 <div>
                     <div>Filter by</div>
-                    <select className="p-2 border rounded-lg w-25">
-                        <option>Illness</option>
+                    <select
+                        name="Illness"
+                        className="p-2 border rounded-lg w-25"
+                        onChange={(e) => setFilterCarepath(e.target.value)}
+                    >
+                        <option value="">All</option>
+                        <option value="COPD">COPD</option>
+                        <option value="Diabetes">Diabetes</option>
                     </select>
                 </div>
             </div>

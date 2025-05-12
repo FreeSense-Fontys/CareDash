@@ -6,9 +6,16 @@ import WearableData from './WearableData'
 interface PatientListProps {
     selectedDate: string
     searchQuery: string
+    filterCarepath: string
+    filterOrder: string
 }
 
-const PatientList = ({ selectedDate, searchQuery }: PatientListProps) => {
+const PatientList = ({
+    selectedDate,
+    searchQuery,
+    filterCarepath,
+    filterOrder,
+}: PatientListProps) => {
     // Patient data
     const [patients, setPatients] = useState<Patient[] | null>(null)
 
@@ -56,10 +63,20 @@ const PatientList = ({ selectedDate, searchQuery }: PatientListProps) => {
     if (!patients) return <></>
 
     const normalizedQuery = (searchQuery ?? '').trim().toLowerCase()
+    const normalizedFilterCarepath = (filterCarepath ?? '').trim().toLowerCase()
+    const normalizedFilterOrder = (filterOrder ?? '').trim().toLowerCase()
 
     const filteredPatients = patients.filter((patient) => {
         const name = patient.data.name.toLowerCase()
-        return name.includes(normalizedQuery)
+        const isInName = name.includes(normalizedQuery)
+        const carepaths = patient.carepaths
+        console.log('carepaths', carepaths)
+        console.log('normalizedFilterCarepath', normalizedFilterCarepath)
+        const isInCarepath = carepaths.some((carepath) =>
+            carepath.name.toLowerCase().includes(normalizedFilterCarepath)
+        )
+        console.log('isInCarepath', isInCarepath)
+        return isInName && isInCarepath
     })
 
     if (filteredPatients.length === 0) {
