@@ -15,7 +15,7 @@ const PatientListForm = () => {
 
     const [searchQuery, setSearchQuery] = useState('')
     const [filterCarepath, setFilterCarepath] = useState('')
-    const [filterOrder, setFilterOrder] = useState('')
+    const [filterOrder, setFilterOrder] = useState('Priority')
 
     // function MockVitals() {
     //     // Add mock vitals to all patients if needed

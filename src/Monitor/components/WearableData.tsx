@@ -19,6 +19,7 @@ interface WearableDataProps {
     patients: Patient[]
     indexPatient: number
     selectedDate: string
+    setPatients: (value: Patient[]) => void
 }
 
 const allVitals = ['HR', 'SBP', 'DBP', 'SPO2', 'RR', 'ACT', 'T']
@@ -27,8 +28,10 @@ const WearableData = ({
     patients,
     indexPatient,
     selectedDate,
+    setPatients,
 }: WearableDataProps) => {
     const [wearables, setWearableData] = useState<any[]>([])
+    const [hasChecked, setHasChecked] = useState(false)
 
     useEffect(() => {
         const getWearable = async (indexPatient: number): Promise<void> => {
@@ -57,8 +60,25 @@ const WearableData = ({
             } else setWearableData([wearableData])
         }
 
+        setHasChecked(patients[indexPatient]?.checked)
         getWearable(indexPatient)
+
     }, [selectedDate, indexPatient, patients])
+
+    const handleCheckPatient = async (e) => {
+        const check = e.target.checked
+
+        setHasChecked(check);
+
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // Update the check of this specific patient
+        const updatedPatients = patients.map((p, i) =>
+            i === indexPatient ? { ...p, checked: check } : p
+        );
+
+        setPatients(updatedPatients);
+    }
 
     // console.log('WearableData: ', wearables)
 
@@ -93,7 +113,7 @@ const WearableData = ({
                 </div>
             ))}
             <div className="flex items-center" data-testid="checkbox">
-                <Checkbox color="success" size="small" />
+                <Checkbox color="success" size="small" checked={hasChecked} onChange={handleCheckPatient} />
             </div>
         </>
     )

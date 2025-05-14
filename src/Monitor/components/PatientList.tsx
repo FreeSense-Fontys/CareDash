@@ -27,10 +27,38 @@ const PatientList = ({
         const updatedPatients = patients.map((patient) => ({
             ...patient,
             carepaths: [{ name: 'COPD' }],
+            checked: false
         }))
         updatedPatients[0].carepaths.push({ name: 'Diabetes' })
         setPatients(updatedPatients)
     }
+
+    useEffect(() => {
+        if (!patients) return;
+
+        // Sort the list
+        const sortedPatients = [...patients]?.sort((a,b) => {
+            // Sort on priority
+            if (normalizedFilterOrder == "priority") {
+                if (a.checked !== b.checked) {
+                    if (a.checked) {return 1}
+                    else {return -1}
+                }
+            }
+            // Sort alphabetically
+            else if (normalizedFilterOrder == "alphabetical") {
+                if(a.data.name < b.data.name) { return -1; }
+                if(a.data.name > b.data.name) { return 1; }
+            }
+            return 0;
+        })
+
+        // Checks if the patients ordering has changed. If it has changed, update the patients
+        const isSameOrder = patients.every((patient, patientNumber) => patient === sortedPatients[patientNumber]);
+        if (!isSameOrder) {
+            setPatients(sortedPatients); 
+        }
+    }, [patients, filterOrder])
 
     useEffect(() => {
         getPatientData()
@@ -143,6 +171,7 @@ const PatientList = ({
                                     patients={filteredPatients}
                                     indexPatient={indexPatient}
                                     selectedDate={selectedDate}
+                                    setPatients={setPatients}
                                 />
                             </div>
                         </div>
