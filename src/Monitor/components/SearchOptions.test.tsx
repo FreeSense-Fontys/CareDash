@@ -198,4 +198,28 @@ describe('SearchOptions', () => {
         // Verify setOpen was called to close the picker
         expect(mockSetOpen).toHaveBeenCalledWith(false)
     })
+
+    it('should display the carepath options correctly', () => {
+        // Mock props
+        const mockSelectedDate = dayjs('2025-04-24')
+        const mockSetOpen = vi.fn()
+        const mockSetFilterCarepath = vi.fn()
+
+        const { getByText } = render(
+            <SearchOptions
+                selectedDate={mockSelectedDate}
+                setSelectedDate={vi.fn()}
+                open={false}
+                setOpen={mockSetOpen}
+                handlePrevDay={vi.fn()}
+                handleNextDay={vi.fn()}
+                searchQuery=""
+                setSearchQuery={vi.fn()}
+                filterCarepath="Carepath 1"
+                setFilterCarepath={mockSetFilterCarepath}
+                filterOrder="asc"
+                setFilterOrder={vi.fn()}
+            />
+        )
+        }
 })
