@@ -70,12 +70,9 @@ const PatientList = ({
         const name = patient.data.name.toLowerCase()
         const isInName = name.includes(normalizedQuery)
         const carepaths = patient.carepaths
-        console.log('carepaths', carepaths)
-        console.log('normalizedFilterCarepath', normalizedFilterCarepath)
         const isInCarepath = carepaths.some((carepath) =>
             carepath.name.toLowerCase().includes(normalizedFilterCarepath)
         )
-        console.log('isInCarepath', isInCarepath)
         return isInName && isInCarepath
     })
 
