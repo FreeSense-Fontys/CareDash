@@ -1,7 +1,5 @@
-import { Patient } from '@extrahorizon/javascript-sdk'
-import { useState, useEffect } from 'react'
-import exh from '../../Auth'
 import WearableData from './WearableData'
+import { usePatient } from '../../contexts/PatientProvider'
 
 interface PatientListProps {
     selectedDate: string
@@ -9,28 +7,14 @@ interface PatientListProps {
 }
 
 const PatientList = ({ selectedDate, searchQuery }: PatientListProps) => {
-    // Patient data
-    const [patients, setPatients] = useState<Patient[] | null>(null)
-
-    async function getPatientData() {
-        const patients = await exh.data.documents.findAll<Patient>('patient')
-        if (!patients) {
-            return
-        }
-        const updatedPatients = patients.map((patient) => ({
-            ...patient,
-            carepaths: [{ name: 'COPD' }],
-        }))
-        updatedPatients[0].carepaths.push({ name: 'Diabetes' })
-        setPatients(updatedPatients)
-    }
-
-    useEffect(() => {
-        getPatientData()
-        const refreshtime = 60000 // 1 minutes
-        const interval = setInterval(() => getPatientData(), refreshtime)
-        return () => clearInterval(interval)
-    }, [])
+    const {
+        patients,
+        selectedWearableId,
+        isWearableSelected,
+        setSelectedPatient,
+        setIsWearableSelected,
+        setSelectedWearableId,
+    } = usePatient()
 
     const highlightMatch = (text: string, query: string) => {
         if (!query) return text
@@ -65,7 +49,7 @@ const PatientList = ({ selectedDate, searchQuery }: PatientListProps) => {
     if (filteredPatients.length === 0) {
         return (
             <div
-                className="h-[calc(50%)] overflow-y-auto text-center text-gray-500 p-4"
+                className="h-[70vh] overflow-y-auto text-center text-gray-500 p-4"
                 data-testid="patient-list"
             >
                 No patients found matching your search.
@@ -74,62 +58,91 @@ const PatientList = ({ selectedDate, searchQuery }: PatientListProps) => {
     }
 
     return (
-        <div className="h-[70vh] overflow-y-auto" data-testid="patient-list">
+        <div data-testid="patient-list">
             {filteredPatients?.map((patient, indexPatient) => (
-                <div key={patient.id}>
-                    {patient.carepaths.map((carepath, index) => (
-                        <div
-                            className={`flex items-center  ${
-                                index > 0 ? 'ml-52' : ''
-                            }  p-3 bg-background rounded-xsm relative mb-2`}
-                            key={`${patient.id}-${index}`}
-                        >
-                            {/* Always left-aligned Patient name (only show once) */}
-                            <div
-                                className={`flex items-center justify-between p-3 bg-background rounded-xsm relative text-lg`}
-                            >
-                                {index == 0 ? (
-                                    <div className="flex justify-left items-center gap-5 w-50 ml-4 ">
-                                        <span
-                                            data-testid="patient-status"
-                                            className={`w-3 h-3 ${
-                                                patient.status
-                                                    ? 'bg-green-500'
-                                                    : 'bg-gray-500'
-                                            } rounded-full`}
-                                        ></span>
-                                        <span
-                                            className="font-medium truncate"
-                                            data-testid={`patient-name-${patient.id}`}
-                                        >
-                                            {highlightMatch(
-                                                patient.data.name,
-                                                searchQuery
-                                            )}
-                                        </span>
+                <div key={patient.id} className="flex">
+                    <div className="flex flex-col w-full">
+                        {patient.carepaths.map((carepath, index) => {
+                            const patientWearableId =
+                                patient.data.coupledWearables[index].wearableId
+                            const isSameWearable =
+                                selectedWearableId === patientWearableId
+                            return (
+                                <div
+                                    className={`flex items-center h-20 ${
+                                        index > 0 ? 'ml-52' : ''
+                                    }  p-3 ${
+                                        isSameWearable
+                                            ? 'bg-accent text-white'
+                                            : 'bg-background'
+                                    } rounded-xsm relative mb-2 cursor-pointer`}
+                                    key={`${patient.id}-${index}`}
+                                    onClick={() => {
+                                        if (isSameWearable) {
+                                            setIsWearableSelected(false)
+                                            setSelectedWearableId(null)
+                                            // setIsDetailsOpen(false)
+                                        } else {
+                                            setIsWearableSelected(true)
+                                            setSelectedWearableId(
+                                                patientWearableId
+                                            )
+                                            // setIsDetailsOpen(true)
+                                            setSelectedPatient(patient.data)
+                                        }
+                                    }}
+                                >
+                                    {/* Always left-aligned Patient name (only show once) */}
+                                    <div
+                                        className={`flex items-center justify-between p-3 rounded-xsm relative text-lg`}
+                                    >
+                                        {index == 0 ? (
+                                            <div className="flex justify-left items-center gap-5 w-50 ml-4 ">
+                                                <span
+                                                    data-testid="patient-status"
+                                                    className={`w-3 h-3 ${
+                                                        patient.status
+                                                            ? 'bg-green-500'
+                                                            : 'bg-gray-500'
+                                                    } rounded-full`}
+                                                ></span>
+                                                <span className="font-medium truncate">
+                                                    {highlightMatch(
+                                                        patient.data.name,
+                                                        searchQuery
+                                                    )}
+                                                </span>
+                                            </div>
+                                        ) : (
+                                            ''
+                                        )}
                                     </div>
-                                ) : (
-                                    ''
-                                )}
-                            </div>
 
-                            {/* Centered carepath */}
-                            <div className="w-22 flex justify-center items-center gap-2">
-                                <span className="italic text-gray-600">
-                                    {carepath.name}
-                                </span>
-                            </div>
+                                    {/* Centered carepath */}
+                                    <div
+                                        className={`italic w-22 justify-center items-center${
+                                            isSameWearable
+                                                ? 'text-white'
+                                                : 'text-gray-600'
+                                        }`}
+                                    >
+                                        {carepath.name}
+                                    </div>
 
-                            {/* Right-aligned WearableData */}
-                            <div className="w-full flex justify-end pr-4">
-                                <WearableData
-                                    patients={filteredPatients}
-                                    indexPatient={indexPatient}
-                                    selectedDate={selectedDate}
-                                />
-                            </div>
-                        </div>
-                    ))}
+                                    {/* Right-aligned WearableData */}
+                                    {!isWearableSelected && (
+                                        <div className="w-full flex justify-end pr-4">
+                                            <WearableData
+                                                patients={filteredPatients}
+                                                indexPatient={indexPatient}
+                                                selectedDate={selectedDate}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                            )
+                        })}
+                    </div>
                 </div>
             ))}
         </div>
