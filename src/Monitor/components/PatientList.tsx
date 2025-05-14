@@ -2,7 +2,6 @@ import { Patient } from '@extrahorizon/javascript-sdk'
 import { useState, useEffect } from 'react'
 import exh from '../../Auth'
 import WearableData from './WearableData'
-import PatientDetails from '../../PatientDetails'
 
 interface PatientListProps {
     selectedDate: string
@@ -10,7 +9,9 @@ interface PatientListProps {
     setIsDetailsOpen: (isOpen: boolean) => void
     isDetailsOpen: boolean
     setIsWearableSelected: (isSelected: boolean) => void
-    setSelectedWearableId: (wearableId: string) => void
+    setSelectedWearableId: (wearableId: string | null) => void
+    setSelectedPatient: (patient: Patient | null) => void
+    selectedWearableId: string | null
 }
 
 const PatientList = ({
@@ -20,6 +21,8 @@ const PatientList = ({
     isDetailsOpen,
     setIsWearableSelected,
     setSelectedWearableId,
+    setSelectedPatient,
+    selectedWearableId,
 }: PatientListProps) => {
     const [patients, setPatients] = useState<Patient[] | null>(null)
 
@@ -33,10 +36,10 @@ const PatientList = ({
             carepaths: [{ name: 'COPD' }],
         }))
         updatedPatients[0].carepaths.push({ name: 'Diabetes' })
-        let firstWearable = updatedPatients[0].data.coupledWearables[0]
+        const firstWearable = updatedPatients[0].data.coupledWearables[0]
         updatedPatients[0].data.coupledWearables.push({
             ...firstWearable,
-            wearableId: 'test',
+            // wearableId: '67f391ad53535d5d4c36cb2b',
         })
         setPatients(updatedPatients)
     }
@@ -81,7 +84,7 @@ const PatientList = ({
     if (filteredPatients.length === 0) {
         return (
             <div
-                className="h-[calc(50%)] overflow-y-auto text-center text-gray-500 p-4"
+                className="h-[70vh] overflow-y-auto text-center text-gray-500 p-4"
                 data-testid="patient-list"
             >
                 No patients found matching your search.
@@ -90,28 +93,45 @@ const PatientList = ({
     }
 
     return (
-        <div className="h-[70vh] overflow-y-auto" data-testid="patient-list">
+        <div data-testid="patient-list">
             {filteredPatients?.map((patient, indexPatient) => (
                 <div key={patient.id} className="flex">
                     <div className="flex flex-col w-full">
                         {patient.carepaths.map((carepath, index) => (
                             <div
-                                className={`flex items-center  ${
+                                className={`flex items-center h-20 ${
                                     index > 0 ? 'ml-52' : ''
-                                }  p-3 bg-background rounded-xsm relative mb-2 cursor-pointer`}
+                                }  p-3 ${
+                                    selectedWearableId ==
+                                    patient.data.coupledWearables[index]
+                                        .wearableId
+                                        ? 'bg-accent text-white'
+                                        : 'bg-background'
+                                } rounded-xsm relative mb-2 cursor-pointer`}
                                 key={`${patient.id}-${index}`}
                                 onClick={() => {
-                                    setIsWearableSelected(!isDetailsOpen)
-                                    setSelectedWearableId(
+                                    const isSameWearable =
+                                        selectedWearableId ===
                                         patient.data.coupledWearables[index]
                                             .wearableId
-                                    )
-                                    setIsDetailsOpen(!isDetailsOpen)
+                                    if (isSameWearable) {
+                                        setIsWearableSelected(false)
+                                        setSelectedWearableId(null)
+                                        setIsDetailsOpen(false)
+                                    } else {
+                                        setIsWearableSelected(true)
+                                        setSelectedWearableId(
+                                            patient.data.coupledWearables[index]
+                                                .wearableId
+                                        )
+                                        setIsDetailsOpen(true)
+                                        setSelectedPatient(patient.data)
+                                    }
                                 }}
                             >
                                 {/* Always left-aligned Patient name (only show once) */}
                                 <div
-                                    className={`flex items-center justify-between p-3 bg-background rounded-xsm relative text-lg`}
+                                    className={`flex items-center justify-between p-3 rounded-xsm relative text-lg`}
                                 >
                                     {index == 0 ? (
                                         <div className="flex justify-left items-center gap-5 w-50 ml-4 ">
@@ -136,10 +156,16 @@ const PatientList = ({
                                 </div>
 
                                 {/* Centered carepath */}
-                                <div className="w-22 flex justify-center items-center gap-2">
-                                    <span className="italic text-gray-600">
-                                        {carepath.name}
-                                    </span>
+                                <div
+                                    className={`italic w-22 justify-center items-center${
+                                        selectedWearableId ==
+                                        patient.data.coupledWearables[index]
+                                            .wearableId
+                                            ? 'text-white'
+                                            : 'text-gray-600'
+                                    }`}
+                                >
+                                    {carepath.name}
                                 </div>
 
                                 {/* Right-aligned WearableData */}

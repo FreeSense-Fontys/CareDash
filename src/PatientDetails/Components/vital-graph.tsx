@@ -1,9 +1,8 @@
 import { Line } from 'react-chartjs-2'
 
 export default function VitalGraph({ chartData }: any) {
-    console.log(chartData)
     return (
-        <div className="bg-white rounded-md w-[225px]">
+        <div className="bg-white rounded-md">
             <Line
                 data={chartData}
                 options={{

@@ -3,21 +3,23 @@ import dayjs from 'dayjs'
 import PatientList from './components/PatientList'
 import SearchOptions from './components/SearchOptions'
 import PatientDetails from '../PatientDetails'
+import { Patient } from '@extrahorizon/javascript-sdk'
 // import AddMockVitals from './components/AddMockVitals'
 
 const PatientListForm = () => {
     // Date
-    const [selectedDate, setSelectedDate] = useState(dayjs())
+    const [selectedDate, setSelectedDate] = useState(dayjs('2025-04-01'))
     const [open, setOpen] = useState(false)
     const [isDetailsOpen, setIsDetailsOpen] = useState(false)
-    const [isWearableSelected, setIsWearableSelected] = useState(true)
-    const [selectedWearableId, setSelectedWearableId] = useState<string | null>(
-        '679c853b53535d5d4c36cae6'
-    )
-    // const [isWearableSelected, setIsWearableSelected] = useState(false)
+    // const [isWearableSelected, setIsWearableSelected] = useState(true)
     // const [selectedWearableId, setSelectedWearableId] = useState<string | null>(
-    //     null
+    //     '679c853b53535d5d4c36cae6'
     // )
+    const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null)
+    const [isWearableSelected, setIsWearableSelected] = useState(false)
+    const [selectedWearableId, setSelectedWearableId] = useState<string | null>(
+        null
+    )
     // Date picker opens bellow calendar
     const handlePrevDay = () =>
         setSelectedDate((prev) => prev.subtract(1, 'day'))
@@ -94,7 +96,7 @@ const PatientListForm = () => {
 
                 <div className="flex gap-x-4">
                     {/* Patient List */}
-                    <div className="w-full">
+                    <div className="w-full min-w-90 h-[70vh] overflow-y-auto">
                         <PatientList
                             selectedDate={selectedDate.format('YYYY-MM-DD')}
                             searchQuery={searchQuery}
@@ -102,14 +104,18 @@ const PatientListForm = () => {
                             isDetailsOpen={isDetailsOpen}
                             setIsWearableSelected={setIsWearableSelected}
                             setSelectedWearableId={setSelectedWearableId}
+                            setSelectedPatient={setSelectedPatient}
+                            selectedWearableId={selectedWearableId}
                         />
                     </div>
                     {isWearableSelected && (
-                        <PatientDetails
-                            wearableId={selectedWearableId}
-                            // patient={patient}
-                            currentDate={selectedDate.format('YYYY-MM-DD')}
-                        />
+                        <div className="flex bg-secondary p-6 rounded-2xl w-full overflow-y-auto h-[70vh]">
+                            <PatientDetails
+                                wearableId={selectedWearableId}
+                                patient={selectedPatient}
+                                currentDate={selectedDate.format('YYYY-MM-DD')}
+                            />
+                        </div>
                     )}
                 </div>
                 {/* 
