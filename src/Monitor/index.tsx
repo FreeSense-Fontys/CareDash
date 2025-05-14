@@ -106,7 +106,7 @@ const PatientListForm = ({
                         />
                     </div>
                     {isWearableSelected && (
-                        <div className="flex justify-center items-center w-full bg-secondary p-6 rounded-2xl overflow-y-auto h-full">
+                        <div className="flex justify-center items-center w-full bg-secondary p-6 rounded-2xl overflow-y-auto h-[70vh]">
                             <PatientDetails
                                 currentDate={selectedDate.format('YYYY-MM-DD')}
                             />
