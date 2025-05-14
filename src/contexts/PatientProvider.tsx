@@ -4,6 +4,7 @@ import { createContext, useState, useEffect, useContext } from 'react'
 
 interface PatientContextType {
     patients: Patient[] | null
+    setPatients: (patients: Patient[] | null) => void
     selectedPatient: Patient | null
     setSelectedPatient: (patient: Patient | null) => void
     isWearableSelected: boolean
@@ -38,7 +39,6 @@ export const PatientProvider = ({
         const firstWearable = updatedPatients[0].data.coupledWearables[0]
         updatedPatients[0].data.coupledWearables.push({
             ...firstWearable,
-            // wearableId: '67f391ad53535d5d4c36cb2b',
         })
         setPatients(updatedPatients)
     }
@@ -54,6 +54,7 @@ export const PatientProvider = ({
         <PatientContext.Provider
             value={{
                 patients,
+                setPatients,
                 selectedPatient,
                 setSelectedPatient,
                 isWearableSelected,

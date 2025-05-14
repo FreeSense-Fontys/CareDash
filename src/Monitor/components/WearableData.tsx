@@ -3,6 +3,7 @@ import exh from '../../Auth'
 import { Patient, rqlBuilder } from '@extrahorizon/javascript-sdk'
 import { Checkbox } from '@mui/material'
 import dayjs from 'dayjs'
+import { usePatient } from '../../contexts/PatientProvider'
 
 // Define the Wearable and Vital types
 interface Wearable {
@@ -29,6 +30,8 @@ const WearableData = ({
     selectedDate,
 }: WearableDataProps) => {
     const [wearables, setWearableData] = useState<any[]>([])
+    const [hasChecked, setHasChecked] = useState(false)
+    const { setSelectedPatient } = usePatient()
 
     useEffect(() => {
         const getWearable = async (indexPatient: number): Promise<void> => {
@@ -57,8 +60,25 @@ const WearableData = ({
             } else setWearableData([wearableData])
         }
 
+        setHasChecked(patients[indexPatient]?.checked)
         getWearable(indexPatient)
     }, [selectedDate, indexPatient, patients])
+
+    const handleCheckPatient = async (e) => {
+        e.stopPropagation()
+        const check = e.target.checked
+
+        setHasChecked(check)
+
+        await new Promise((resolve) => setTimeout(resolve, 500))
+
+        // Update the check of this specific patient
+        const updatedPatients = patients.map((p, i) =>
+            i === indexPatient ? { ...p, checked: check } : p
+        )
+
+        setSelectedPatient(updatedPatients)
+    }
 
     // console.log('WearableData: ', wearables)
 
@@ -96,9 +116,8 @@ const WearableData = ({
                 <Checkbox
                     color="success"
                     size="small"
-                    onClick={(e) => {
-                        e.stopPropagation()
-                    }}
+                    checked={hasChecked}
+                    onChange={handleCheckPatient}
                 />
             </div>
         </>

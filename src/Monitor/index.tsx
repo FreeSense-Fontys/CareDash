@@ -25,6 +25,8 @@ const PatientListForm = ({
         setSelectedDate((prev: Dayjs) => prev.add(1, 'day'))
 
     const [searchQuery, setSearchQuery] = useState('')
+    const [filterCarepath, setFilterCarepath] = useState('')
+    const [filterOrder, setFilterOrder] = useState('Priority')
 
     // function MockVitals() {
     //     // Add mock vitals to all patients if needed
@@ -43,6 +45,10 @@ const PatientListForm = ({
                     handleNextDay={handleNextDay}
                     searchQuery={searchQuery}
                     setSearchQuery={setSearchQuery}
+                    filterCarepath={filterCarepath}
+                    setFilterCarepath={setFilterCarepath}
+                    filterOrder={filterOrder}
+                    setFilterOrder={setFilterOrder}
                 />
 
                 {/* Vitals Header */}
@@ -92,7 +98,6 @@ const PatientListForm = ({
                         )}
                     </div>
                 </div>
-
                 <div className="flex gap-x-4">
                     {/* Patient List */}
                     <div
@@ -103,6 +108,8 @@ const PatientListForm = ({
                         <PatientList
                             selectedDate={selectedDate.format('YYYY-MM-DD')}
                             searchQuery={searchQuery}
+                            filterCarepath={filterCarepath}
+                            filterOrder={filterOrder}
                         />
                     </div>
                     {isWearableSelected && (
@@ -114,7 +121,7 @@ const PatientListForm = ({
                     )}
                 </div>
 
-                {/* 
+              {/* 
                 <button
                     onClick={() => MockVitals()}
                     className="bg-accent text-white px-3 py-2 rounded hover:opacity-80 cursor-pointer center"

@@ -214,4 +214,88 @@ describe('Patient list', () => {
             expect(highlighted).toHaveClass('bg-blue-200')
         })
     })
+
+    it('filters patients by carepath', async () => {
+        ;(exh.data.documents.findAll as Mock).mockResolvedValue([
+            {
+                id: 'test1',
+                data: {
+                    name: 'Annelies Coos',
+                    gender: 'F',
+                    email: 'annelies.coos@example.com',
+                    language: 'EN',
+                    phoneNumber: '',
+                    coupledWearables: [
+                        {
+                            id: 'wid',
+                            wearableId: 'wid',
+                            productName: 'CareBuddy',
+                            status: 'active',
+                            enrolledGroups: ['caregroupid'],
+                        },
+                    ],
+                },
+                status: true,
+            },
+        ])
+
+        render(
+            <PatientList
+                selectedDate="2025-05-08"
+                filterCarepath="COPD"
+                searchQuery=""
+                filterOrder="Alphabetical"
+            />
+        )
+
+        await waitFor(() => {
+            const list = screen.getByTestId('patient-list')
+            expect(list).toBeInTheDocument()
+            expect(screen.getByTestId('patient-name-test1')).toHaveTextContent(
+                'Annelies Coos'
+            )
+        })
+    })
+
+    it('filters out patients by carepath', async () => {
+        ;(exh.data.documents.findAll as Mock).mockResolvedValue([
+            {
+                id: 'test1',
+                data: {
+                    name: 'Annelies Coos',
+                    gender: 'F',
+                    email: 'annelies.coos@example.com',
+                    language: 'EN',
+                    phoneNumber: '',
+                    coupledWearables: [
+                        {
+                            id: 'wid',
+                            wearableId: 'wid',
+                            productName: 'CareBuddy',
+                            status: 'active',
+                            enrolledGroups: ['caregroupid'],
+                        },
+                    ],
+                },
+                status: true,
+            },
+        ])
+
+        render(
+            <PatientList
+                selectedDate="2025-05-08"
+                filterCarepath="Lime"
+                searchQuery=""
+                filterOrder="Alphabetical"
+            />
+        )
+
+        await waitFor(() => {
+            const list = screen.getByTestId('patient-list')
+            expect(list).toBeInTheDocument()
+            expect(
+                screen.queryByTestId('patient-name-test1')
+            ).not.toBeInTheDocument()
+        })
+    })
 })

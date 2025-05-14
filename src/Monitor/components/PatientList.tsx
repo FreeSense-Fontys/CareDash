@@ -1,20 +1,67 @@
 import WearableData from './WearableData'
 import { usePatient } from '../../contexts/PatientProvider'
+import { useState, useEffect } from 'react'
+import { Patient } from '@extrahorizon/javascript-sdk'
 
 interface PatientListProps {
     selectedDate: string
     searchQuery: string
+    filterCarepath: string
+    filterOrder: string
 }
 
-const PatientList = ({ selectedDate, searchQuery }: PatientListProps) => {
+const PatientList = ({
+    selectedDate,
+    searchQuery,
+    filterCarepath,
+    filterOrder,
+}: PatientListProps) => {
     const {
         patients,
+        setPatients,
+        setIsWearableSelected,
         selectedWearableId,
         isWearableSelected,
-        setSelectedPatient,
-        setIsWearableSelected,
         setSelectedWearableId,
+        setSelectedPatient,
     } = usePatient()
+
+    useEffect(() => {
+        if (!patients) return
+
+        // Sort the list
+        const sortedPatients = [...patients]?.sort((a, b) => {
+            // Sort on priority
+            if (normalizedFilterOrder == 'priority') {
+                if (a.checked !== b.checked) {
+                    if (a.checked) {
+                        return 1
+                    } else {
+                        return -1
+                    }
+                }
+            }
+            // Sort alphabetically
+            else if (normalizedFilterOrder == 'alphabetical') {
+                if (a.data.name < b.data.name) {
+                    return -1
+                }
+                if (a.data.name > b.data.name) {
+                    return 1
+                }
+            }
+            return 0
+        })
+
+        // Checks if the patients ordering has changed. If it has changed, update the patients
+        const isSameOrder = patients.every(
+            (patient, patientNumber) =>
+                patient === sortedPatients[patientNumber]
+        )
+        if (!isSameOrder) {
+            setPatients(sortedPatients)
+        }
+    }, [patients, filterOrder])
 
     const highlightMatch = (text: string, query: string) => {
         if (!query) return text
@@ -40,10 +87,17 @@ const PatientList = ({ selectedDate, searchQuery }: PatientListProps) => {
     if (!patients) return <></>
 
     const normalizedQuery = (searchQuery ?? '').trim().toLowerCase()
+    const normalizedFilterCarepath = (filterCarepath ?? '').trim().toLowerCase()
+    const normalizedFilterOrder = (filterOrder ?? '').trim().toLowerCase()
 
     const filteredPatients = patients.filter((patient) => {
         const name = patient.data.name.toLowerCase()
-        return name.includes(normalizedQuery)
+        const isInName = name.includes(normalizedQuery)
+        const carepaths = patient.carepaths
+        const isInCarepath = carepaths.some((carepath) =>
+            carepath.name.toLowerCase().includes(normalizedFilterCarepath)
+        )
+        return isInName && isInCarepath
     })
 
     if (filteredPatients.length === 0) {
@@ -128,7 +182,6 @@ const PatientList = ({ selectedDate, searchQuery }: PatientListProps) => {
                                     >
                                         {carepath.name}
                                     </div>
-
                                     {/* Right-aligned WearableData */}
                                     {!isWearableSelected && (
                                         <div className="w-full flex justify-end pr-4">

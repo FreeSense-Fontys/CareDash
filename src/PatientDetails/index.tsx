@@ -132,9 +132,9 @@ export default function DetailPage({ currentDate }: PatientDetailsProps) {
                     ],
                 })
             }
-            // if (vitalsData.length != 0) setVitalGraphData(vitalsData)
             if (vitalsData.length != 0)
-                setVitalGraphData([...vitalsData, ...vitalsData])
+                if (vitalsData.length != 0) setVitalGraphData(vitalsData)
+            // setVitalGraphData([...vitalsData, ...vitalsData])
             setIsLoading(false)
         }
 
