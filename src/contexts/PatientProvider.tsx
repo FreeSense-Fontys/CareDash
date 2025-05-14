@@ -38,7 +38,6 @@ export const PatientProvider = ({
         const firstWearable = updatedPatients[0].data.coupledWearables[0]
         updatedPatients[0].data.coupledWearables.push({
             ...firstWearable,
-            // wearableId: '67f391ad53535d5d4c36cb2b',
         })
         setPatients(updatedPatients)
     }
