@@ -93,7 +93,13 @@ const WearableData = ({
                 </div>
             ))}
             <div className="flex items-center" data-testid="checkbox">
-                <Checkbox color="success" size="small" />
+                <Checkbox
+                    color="success"
+                    size="small"
+                    onClick={(e) => {
+                        e.stopPropagation()
+                    }}
+                />
             </div>
         </>
     )

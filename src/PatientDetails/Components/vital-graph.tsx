@@ -2,10 +2,12 @@ import { Line } from 'react-chartjs-2'
 
 export default function VitalGraph({ chartData }: any) {
     return (
-        <div className="bg-white rounded-md">
+        <div className={`bg-white rounded-md`}>
             <Line
                 data={chartData}
                 options={{
+                    responsive: true,
+                    maintainAspectRatio: true,
                     plugins: {
                         datalabels: {
                             display: false,
@@ -19,11 +21,9 @@ export default function VitalGraph({ chartData }: any) {
                             radius: 0,
                         },
                     },
-
                     interaction: {
                         intersect: false,
                     },
-                    maintainAspectRatio: false,
                 }}
             />
         </div>

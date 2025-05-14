@@ -2,10 +2,11 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker'
 import { useRef } from 'react'
+import { Dayjs } from 'dayjs'
 
 interface wearableDataProps {
-    selectedDate: any
-    setSelectedDate: (date: any) => void
+    selectedDate: Dayjs
+    setSelectedDate: (date: Dayjs) => void
     open: boolean
     setOpen: (open: boolean) => void
     handlePrevDay: () => void
@@ -22,7 +23,7 @@ const SearchOptions = ({
     handlePrevDay,
     handleNextDay,
     searchQuery,
-    setSearchQuery
+    setSearchQuery,
 }: wearableDataProps) => {
     const buttonRef = useRef<HTMLButtonElement | null>(null)
 
