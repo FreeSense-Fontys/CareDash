@@ -1,7 +1,8 @@
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker'
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import exh from '../../Auth'
 
 interface wearableDataProps {
     selectedDate: any
@@ -33,6 +34,19 @@ const SearchOptions = ({
     setFilterOrder,
 }: wearableDataProps) => {
     const buttonRef = useRef<HTMLButtonElement | null>(null)
+
+    const [carepathOptions, setCarepathOptions] = useState<string[]>([])
+
+    useEffect(() => {
+        const fetchCarepathOptions = async () => {
+            const carepathData = await exh.data.documents.findAll('Carepaths')
+            const options = carepathData.map(
+                (carepath) => carepath.data.carepathname
+            )
+            setCarepathOptions(options)
+        }
+        fetchCarepathOptions()
+    }, [])
 
     return (
         <div className="flex justify-between items-center mb-4 text-lg">
@@ -69,8 +83,11 @@ const SearchOptions = ({
                         onChange={(e) => setFilterCarepath(e.target.value)}
                     >
                         <option value="">All</option>
-                        <option value="COPD">COPD</option>
-                        <option value="Diabetes">Diabetes</option>
+                        {carepathOptions.map((option) => (
+                            <option key={option} value={option}>
+                                {option}
+                            </option>
+                        ))}
                     </select>
                 </div>
             </div>

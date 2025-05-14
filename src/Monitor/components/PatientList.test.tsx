@@ -23,7 +23,7 @@ describe('Patient list', () => {
     })
 
     it('renders the patient list', async () => {
-        ; (exh.data.documents.findAll as Mock).mockResolvedValue([
+        ;(exh.data.documents.findAll as Mock).mockResolvedValue([
             {
                 id: 'test',
                 data: {
@@ -53,7 +53,7 @@ describe('Patient list', () => {
     })
 
     it('should render nothing', async () => {
-        ; (exh.data.documents.findAll as Mock).mockResolvedValue(null)
+        ;(exh.data.documents.findAll as Mock).mockResolvedValue(null)
         render(<PatientList selectedDate="2025-04-17" />)
         await waitFor(() => {
             expect(screen.queryByTestId('patient-list')).not.toBeInTheDocument()
@@ -61,7 +61,7 @@ describe('Patient list', () => {
     })
 
     it('should render the patient is not active', async () => {
-        ; (exh.data.documents.findAll as Mock).mockResolvedValue([
+        ;(exh.data.documents.findAll as Mock).mockResolvedValue([
             {
                 id: 'test',
                 data: {
@@ -92,9 +92,8 @@ describe('Patient list', () => {
         })
     })
 
-
     it('filters patients by search query', async () => {
-        (exh.data.documents.findAll as Mock).mockResolvedValue([
+        ;(exh.data.documents.findAll as Mock).mockResolvedValue([
             {
                 id: 'test1',
                 data: {
@@ -142,15 +141,17 @@ describe('Patient list', () => {
         await waitFor(() => {
             const list = screen.getByTestId('patient-list')
             expect(list).toBeInTheDocument()
-            expect(screen.getByTestId('patient-name-test1')).toHaveTextContent('Annelies Coos')
-            expect(screen.getByTestId('patient-name-test2')).toHaveTextContent('Hanna Rinus')
-
+            expect(screen.getByTestId('patient-name-test1')).toHaveTextContent(
+                'Annelies Coos'
+            )
+            expect(screen.getByTestId('patient-name-test2')).toHaveTextContent(
+                'Hanna Rinus'
+            )
         })
     })
 
-
     it('shows no results message when search query has no matches', async () => {
-        (exh.data.documents.findAll as Mock).mockResolvedValue([
+        ;(exh.data.documents.findAll as Mock).mockResolvedValue([
             {
                 id: 'test1',
                 data: {
@@ -182,9 +183,8 @@ describe('Patient list', () => {
         })
     })
 
-
     it('highlights matched search query in patient name', async () => {
-        (exh.data.documents.findAll as Mock).mockResolvedValue([
+        ;(exh.data.documents.findAll as Mock).mockResolvedValue([
             {
                 id: 'test1',
                 data: {
@@ -215,5 +215,87 @@ describe('Patient list', () => {
         })
     })
 
-})
+    it('filters patients by carepath', async () => {
+        ;(exh.data.documents.findAll as Mock).mockResolvedValue([
+            {
+                id: 'test1',
+                data: {
+                    name: 'Annelies Coos',
+                    gender: 'F',
+                    email: 'annelies.coos@example.com',
+                    language: 'EN',
+                    phoneNumber: '',
+                    coupledWearables: [
+                        {
+                            id: 'wid',
+                            wearableId: 'wid',
+                            productName: 'CareBuddy',
+                            status: 'active',
+                            enrolledGroups: ['caregroupid'],
+                        },
+                    ],
+                },
+                status: true,
+            },
+        ])
 
+        render(
+            <PatientList
+                selectedDate="2025-05-08"
+                filterCarepath="COPD"
+                searchQuery=""
+                filterOrder="Alphabetical"
+            />
+        )
+
+        await waitFor(() => {
+            const list = screen.getByTestId('patient-list')
+            expect(list).toBeInTheDocument()
+            expect(screen.getByTestId('patient-name-test1')).toHaveTextContent(
+                'Annelies Coos'
+            )
+        })
+    })
+
+    it('filters out patients by carepath', async () => {
+        ;(exh.data.documents.findAll as Mock).mockResolvedValue([
+            {
+                id: 'test1',
+                data: {
+                    name: 'Annelies Coos',
+                    gender: 'F',
+                    email: 'annelies.coos@example.com',
+                    language: 'EN',
+                    phoneNumber: '',
+                    coupledWearables: [
+                        {
+                            id: 'wid',
+                            wearableId: 'wid',
+                            productName: 'CareBuddy',
+                            status: 'active',
+                            enrolledGroups: ['caregroupid'],
+                        },
+                    ],
+                },
+                status: true,
+            },
+        ])
+
+        render(
+            <PatientList
+                selectedDate="2025-05-08"
+                filterCarepath="Lime"
+                searchQuery=""
+                filterOrder="Alphabetical"
+            />
+        )
+
+        await waitFor(() => {
+            const list = screen.getByTestId('patient-list')
+            expect(list).toBeInTheDocument()
+            expect(
+                screen.queryByTestId('patient-name-test1')
+            ).not.toBeInTheDocument()
+        })
+    })
+})
