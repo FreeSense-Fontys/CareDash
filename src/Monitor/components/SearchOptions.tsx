@@ -3,11 +3,10 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker'
 import { useEffect, useRef, useState } from 'react'
 import exh from '../../Auth'
-import { Dayjs } from 'dayjs'
 
 interface wearableDataProps {
-    selectedDate: Dayjs
-    setSelectedDate: (date: Dayjs) => void
+    selectedDate: any
+    setSelectedDate: (date: any) => void
     open: boolean
     setOpen: (open: boolean) => void
     handlePrevDay: () => void

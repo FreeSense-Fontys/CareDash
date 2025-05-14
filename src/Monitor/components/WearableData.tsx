@@ -113,9 +113,7 @@ const WearableData = ({
                 </div>
             ))}
             <div className="flex items-center" data-testid="checkbox">
-                <Checkbox color="success" size="small" checked={hasChecked} onChange={handleCheckPatient} onClick={(e) => {
-                        e.stopPropagation()
-                    }} />
+                <Checkbox color="success" size="small" checked={hasChecked} onChange={handleCheckPatient} />
             </div>
         </>
     )
