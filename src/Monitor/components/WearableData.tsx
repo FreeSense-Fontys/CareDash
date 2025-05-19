@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import exh from '../../Auth'
 import { Patient, rqlBuilder } from '@extrahorizon/javascript-sdk'
 import { Checkbox } from '@mui/material'
-import dayjs from 'dayjs'
 import { usePatient } from '../../contexts/PatientProvider'
 
 // Define the Wearable and Vital types
@@ -31,9 +30,10 @@ const WearableData = ({
 }: WearableDataProps) => {
     const [wearables, setWearableData] = useState<any[]>([])
     const [hasChecked, setHasChecked] = useState(false)
-    const { setSelectedPatient } = usePatient()
+    const { setPatients } = usePatient()
 
     useEffect(() => {
+        setWearableData([])
         const getWearable = async (indexPatient: number): Promise<void> => {
             // what if patient has multiple wearables? only taking the first one right now
             const wearableID: string =
@@ -44,20 +44,17 @@ const WearableData = ({
                 'wearable-observation',
                 {
                     rql: rqlBuilder()
+                        .ge('updateTimestamp', `${selectedDate}T00:00:00Z`)
+                        .le('updateTimestamp', `${selectedDate}T23:59:59Z`)
                         .sort('updateTimestamp')
                         .eq('creatorId', wearableID)
                         .build(),
                 }
             )
+
             if (!wearableData) return
 
-            // only set wearable data if the update timestamp is the same as the selected date
-            const wearableUpdateTime = dayjs(
-                wearableData.updateTimestamp
-            ).format('YYYY-MM-DD')
-            if (wearableUpdateTime != selectedDate) {
-                setWearableData([])
-            } else setWearableData([wearableData])
+            setWearableData([wearableData])
         }
 
         setHasChecked(patients[indexPatient]?.checked)
@@ -65,7 +62,6 @@ const WearableData = ({
     }, [selectedDate, indexPatient, patients])
 
     const handleCheckPatient = async (e) => {
-        e.stopPropagation()
         const check = e.target.checked
 
         setHasChecked(check)
@@ -77,7 +73,7 @@ const WearableData = ({
             i === indexPatient ? { ...p, checked: check } : p
         )
 
-        setSelectedPatient(updatedPatients)
+        setPatients(updatedPatients)
     }
 
     // console.log('WearableData: ', wearables)
@@ -116,7 +112,10 @@ const WearableData = ({
                 <Checkbox
                     color="success"
                     size="small"
-                    checked={hasChecked}
+                    checked={!!hasChecked}
+                    onClick={(e) => {
+                        e.stopPropagation()
+                    }}
                     onChange={handleCheckPatient}
                 />
             </div>

@@ -1,7 +1,6 @@
 import WearableData from './WearableData'
 import { usePatient } from '../../contexts/PatientProvider'
-import { useState, useEffect } from 'react'
-import { Patient } from '@extrahorizon/javascript-sdk'
+import { useEffect } from 'react'
 
 interface PatientListProps {
     selectedDate: string
@@ -25,6 +24,10 @@ const PatientList = ({
         setSelectedWearableId,
         setSelectedPatient,
     } = usePatient()
+
+    const normalizedQuery = (searchQuery ?? '').trim().toLowerCase()
+    const normalizedFilterCarepath = (filterCarepath ?? '').trim().toLowerCase()
+    const normalizedFilterOrder = (filterOrder ?? '').trim().toLowerCase()
 
     useEffect(() => {
         if (!patients) return
@@ -86,10 +89,6 @@ const PatientList = ({
 
     if (!patients) return <></>
 
-    const normalizedQuery = (searchQuery ?? '').trim().toLowerCase()
-    const normalizedFilterCarepath = (filterCarepath ?? '').trim().toLowerCase()
-    const normalizedFilterOrder = (filterOrder ?? '').trim().toLowerCase()
-
     const filteredPatients = patients.filter((patient) => {
         const name = patient.data.name.toLowerCase()
         const isInName = name.includes(normalizedQuery)
@@ -135,13 +134,11 @@ const PatientList = ({
                                         if (isSameWearable) {
                                             setIsWearableSelected(false)
                                             setSelectedWearableId(null)
-                                            // setIsDetailsOpen(false)
                                         } else {
                                             setIsWearableSelected(true)
                                             setSelectedWearableId(
                                                 patientWearableId
                                             )
-                                            // setIsDetailsOpen(true)
                                             setSelectedPatient(patient.data)
                                         }
                                     }}
