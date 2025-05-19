@@ -3,10 +3,11 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker'
 import { useEffect, useRef, useState } from 'react'
 import exh from '../../Auth'
+import { Dayjs } from 'dayjs'
 
 interface wearableDataProps {
-    selectedDate: any
-    setSelectedDate: (date: any) => void
+    selectedDate: Dayjs
+    setSelectedDate: (date: Dayjs) => void
     open: boolean
     setOpen: (open: boolean) => void
     handlePrevDay: () => void
@@ -28,9 +29,7 @@ const SearchOptions = ({
     handleNextDay,
     searchQuery,
     setSearchQuery,
-    filterCarepath,
     setFilterCarepath,
-    filterOrder,
     setFilterOrder,
 }: wearableDataProps) => {
     const buttonRef = useRef<HTMLButtonElement | null>(null)
@@ -40,6 +39,9 @@ const SearchOptions = ({
     useEffect(() => {
         const fetchCarepathOptions = async () => {
             const carepathData = await exh.data.documents.findAll('Carepaths')
+            if (!carepathData) {
+                return
+            }
             const options = carepathData.map(
                 (carepath) => carepath.data.carepathname
             )

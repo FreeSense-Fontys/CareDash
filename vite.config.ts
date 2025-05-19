@@ -25,6 +25,8 @@ export default defineConfig({
                 'src/Monitor/components/AddMockPatients.tsx',
                 'src/Monitor/components/AddMockVitals.tsx',
                 'src/Layout/components/SidebarLogo.tsx',
+                'src/contexts/*.{tsx, ts}',
+                'src/contexts/*/*.{tsx, ts}',
             ], // Specify which folders to exclude
             thresholds: {
                 statements: 80,

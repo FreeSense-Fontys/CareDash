@@ -28,7 +28,8 @@ export const PatientProvider = ({
 
     async function getPatientData() {
         const patients = await exh.data.documents.findAll<Patient>('patient')
-        if (!patients) {
+        if (!patients || patients.length === 0) {
+            setPatients(null)
             return
         }
         const updatedPatients = patients.map((patient) => ({

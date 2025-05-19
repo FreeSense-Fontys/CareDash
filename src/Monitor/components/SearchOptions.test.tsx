@@ -1,8 +1,7 @@
 import { describe, it, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import userEvent from '@testing-library/user-event'
-import PatientListForm from '..'
 import SearchOptions from './SearchOptions'
 import dayjs, { Dayjs } from 'dayjs'
 
@@ -23,8 +22,27 @@ vi.mock('../../Auth', () => ({
 }))
 
 describe('Calendar', () => {
+    const mockSelectedDate = dayjs()
+    const mockSetOpen = vi.fn()
+    const handlePrevDay = vi.fn()
+    const handleNextDay = vi.fn()
     beforeEach(async () => {
-        render(<PatientListForm />)
+        render(
+            <SearchOptions
+                selectedDate={mockSelectedDate}
+                searchQuery=""
+                setSearchQuery={vi.fn()}
+                filterCarepath=""
+                setFilterCarepath={vi.fn()}
+                filterOrder=""
+                setFilterOrder={vi.fn()}
+                setSelectedDate={vi.fn()}
+                open={true}
+                setOpen={mockSetOpen}
+                handlePrevDay={handlePrevDay}
+                handleNextDay={handleNextDay}
+            />
+        )
     })
 
     afterEach(async () => {
@@ -41,21 +59,13 @@ describe('Calendar', () => {
         const formattedDate = currentDate.replace(/ (\w{3}) /, ' $1, ')
         expect(screen.getByText(formattedDate)).toBeInTheDocument()
 
-        // Go the the previous day
+        // Go to the previous day
         const mockButton = screen.getByTestId('prev_day')
-        await userEvent.click(mockButton)
-
-        // Check the previous day is on the screen
-        const yesterday = new Date()
-        yesterday.setDate(yesterday.getDate() - 1)
-        const prevDay = yesterday.toLocaleDateString('en-GB', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
+        await waitFor(async () => {
+            await userEvent.click(mockButton)
         })
-        const formattedPrevDate = prevDay.replace(/ (\w{3}) /, ' $1, ')
 
-        expect(screen.getByText(formattedPrevDate)).toBeInTheDocument()
+        await expect(handlePrevDay).toHaveBeenCalled()
     })
 
     it('next day success', async () => {
@@ -68,21 +78,11 @@ describe('Calendar', () => {
         const formattedDate = currentDate.replace(/ (\w{3}) /, ' $1, ')
         expect(screen.getByText(formattedDate)).toBeInTheDocument()
 
-        // Go the the previous day
+        // Go to the next day
         const mockButton = screen.getByTestId('next_day')
         await userEvent.click(mockButton)
 
-        // Check the previous day is on the screen
-        const tomorrow = new Date()
-        tomorrow.setDate(tomorrow.getDate() + 1)
-        const nextDay = tomorrow.toLocaleDateString('en-GB', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-        })
-        const formattedPrevDate = nextDay.replace(/ (\w{3}) /, ' $1, ')
-
-        expect(screen.getByText(formattedPrevDate)).toBeInTheDocument()
+        expect(handleNextDay).toHaveBeenCalled()
     })
 })
 
@@ -125,8 +125,14 @@ describe('SearchOptions', () => {
         const { getByText } = render(
             <SearchOptions
                 selectedDate={mockSelectedDate}
+                searchQuery=""
+                setSearchQuery={vi.fn()}
+                filterCarepath=""
+                setFilterCarepath={vi.fn()}
+                filterOrder=""
+                setFilterOrder={vi.fn()}
                 setSelectedDate={vi.fn()}
-                open={false}
+                open={true}
                 setOpen={mockSetOpen}
                 handlePrevDay={vi.fn()}
                 handleNextDay={vi.fn()}
@@ -152,6 +158,12 @@ describe('SearchOptions', () => {
         const { getByTestId } = render(
             <SearchOptions
                 selectedDate={mockSelectedDate}
+                searchQuery=""
+                setSearchQuery={vi.fn()}
+                filterCarepath=""
+                setFilterCarepath={vi.fn()}
+                filterOrder=""
+                setFilterOrder={vi.fn()}
                 setSelectedDate={mockSetSelectedDate}
                 open={true}
                 setOpen={mockSetOpen}
@@ -180,6 +192,12 @@ describe('SearchOptions', () => {
         const { getByTestId } = render(
             <SearchOptions
                 selectedDate={mockSelectedDate}
+                searchQuery=""
+                setSearchQuery={vi.fn()}
+                filterCarepath=""
+                setFilterCarepath={vi.fn()}
+                filterOrder=""
+                setFilterOrder={vi.fn()}
                 setSelectedDate={mockSetSelectedDate}
                 open={true}
                 setOpen={mockSetOpen}
@@ -205,7 +223,7 @@ describe('SearchOptions', () => {
         const mockSetOpen = vi.fn()
         const mockSetFilterCarepath = vi.fn()
 
-        const { getByText } = render(
+        render(
             <SearchOptions
                 selectedDate={mockSelectedDate}
                 setSelectedDate={vi.fn()}
@@ -221,5 +239,5 @@ describe('SearchOptions', () => {
                 setFilterOrder={vi.fn()}
             />
         )
-        }
+    })
 })

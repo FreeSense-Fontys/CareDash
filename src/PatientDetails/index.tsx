@@ -23,7 +23,10 @@ export default function DetailPage({ currentDate }: PatientDetailsProps) {
         setIsLoading(true)
         setVitalGraphData(undefined)
         const getVitalData = async () => {
-            if (!selectedWearableId) return
+            if (!selectedWearableId) {
+                setIsLoading(false)
+                return
+            }
             // note that this may take long to execute depending on how many vital measurements
             // that wearable has measured that day (e.g. the second Eric Berry in the list on April 10, 2025 has
             // almost 4000 measurements per vital)
@@ -32,7 +35,10 @@ export default function DetailPage({ currentDate }: PatientDetailsProps) {
                 `?wearableId=${selectedWearableId}&date=${currentDate}`,
                 {}
             )
-            if (!data) return
+            if (!data) {
+                setIsLoading(false)
+                return
+            }
             const sbp = data?.vitals.find((v: any) => v.name === 'SBP')
             const dbp = data?.vitals.find((v: any) => v.name === 'DBP')
             const vitalsData = []
@@ -172,7 +178,7 @@ export default function DetailPage({ currentDate }: PatientDetailsProps) {
     )
 }
 
-const dangerousTemperature = (ctx: any, value: any) =>
+export const dangerousTemperature = (ctx: any, value: any) =>
     ctx.p0.parsed.y >= 40 ||
     ctx.p1.parsed.y >= 40 ||
     ctx.p0.parsed.y <= 34 ||
@@ -180,7 +186,7 @@ const dangerousTemperature = (ctx: any, value: any) =>
         ? value
         : undefined
 
-const dangerousHeartRate = (ctx: any, value: any) =>
+export const dangerousHeartRate = (ctx: any, value: any) =>
     ctx.p0.parsed.y >= 90 ||
     ctx.p1.parsed.y >= 90 ||
     ctx.p0.parsed.y <= 40 ||
@@ -188,15 +194,15 @@ const dangerousHeartRate = (ctx: any, value: any) =>
         ? value
         : undefined
 
-const dangerousBPM = (ctx: any, value: any) =>
+export const dangerousBPM = (ctx: any, value: any) =>
     ctx.p0.parsed.y >= 140 ||
     ctx.p1.parsed.y >= 140 ||
     ctx.p0.parsed.y <= 90 ||
     ctx.p1.parsed.y <= 90
         ? value
         : undefined
-const dangerousLowBPM = (ctx: any, value: any) =>
+export const dangerousLowBPM = (ctx: any, value: any) =>
     ctx.p0.parsed.y <= 82 || ctx.p1.parsed.y <= 82 ? value : undefined
 
-const missingData = (ctx: any, value: any) =>
+export const missingData = (ctx: any, value: any) =>
     ctx.p0.skip || ctx.p1.skip ? value : undefined

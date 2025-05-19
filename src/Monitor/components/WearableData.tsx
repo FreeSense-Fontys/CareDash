@@ -86,7 +86,7 @@ const WearableData = ({
                     className="flex justify-around gap-7 text-lg pr-7"
                 >
                     {allVitals.map((vitalName: string) => {
-                        const vital = wearable.data.vitals?.find(
+                        const vital = wearable.data?.vitals?.find(
                             (v: Vital) => v.name === vitalName
                         )
                         return (
