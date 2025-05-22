@@ -1,5 +1,5 @@
 import logo from '../assets/Carebuddy logo.webp';
-import ConfigurationItems from "./components/ConfigurationItems";
+import ConfigurationPatient from './components/ConfigurationPatient';
 
 
 const ConfigurationPage = () => {
@@ -15,7 +15,7 @@ const ConfigurationPage = () => {
                         </div>
                     </div>
 
-                    <ConfigurationItems />
+                    <ConfigurationPatient />
                 </div>
             </div>
         </div>
