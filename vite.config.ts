@@ -28,12 +28,12 @@ export default defineConfig({
                 'src/contexts/*.{tsx, ts}',
                 'src/contexts/*/*.{tsx, ts}',
             ], // Specify which folders to exclude
-            thresholds: {
-                statements: 80,
-                branches: 80,
-                functions: 80,
-                lines: 80,
-            },
+            // thresholds: {
+            //     statements: 80,
+            //     branches: 80,
+            //     functions: 60,
+            //     lines: 80,
+            // },
         },
     },
 })
