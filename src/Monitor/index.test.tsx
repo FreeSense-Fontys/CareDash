@@ -1,9 +1,10 @@
-import { describe, it, vi, vitest } from 'vitest'
+import { describe, it, Mock, vitest } from 'vitest'
 import { render } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import PatientListForm from './index'
 import dayjs from 'dayjs'
 import { PatientProvider } from '../contexts/PatientProvider'
+import exh from '../Auth'
 
 const mockPatients = [
     {
@@ -71,25 +72,9 @@ const mockPatients = [
     },
 ]
 
-vi.mock('../../contexts/PatientProvider', () => ({
-    PatientProvider: ({ children }: { children: React.ReactNode }) => children,
-    usePatient: () => ({
-        patients: mockPatients,
-        setPatients: vi.fn(),
-        setIsWearableSelected: vi.fn(),
-        selectedWearableId: null,
-        isWearableSelected: false,
-        setSelectedWearableId: vi.fn(),
-        setSelectedPatient: vi.fn(),
-        wearables: [],
-        setWearables: vi.fn(),
-        hasChecked: false,
-        setHasChecked: vi.fn(),
-    }),
-}))
-
 describe('Monitor page', () => {
     it('renders without crashing', () => {
+        ;(exh.data.documents.findAll as Mock).mockResolvedValue(mockPatients)
         render(
             <PatientProvider>
                 <PatientListForm
