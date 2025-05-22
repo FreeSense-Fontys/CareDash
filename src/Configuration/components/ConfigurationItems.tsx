@@ -1,14 +1,46 @@
+import { useState } from 'react'
+import exh from '../../Auth'
+import { Patient } from '@extrahorizon/javascript-sdk'
 
-interface ConfigurationItemsPromps {
-    selectedPatient: 
-    icon: ReactNode
-    label: string
-    testId: string
-    collapsed: boolean
-}
+const patients = [
+    { id: "emma", name: "Emma Martin" },
+    { id: "john", name: "John Doe" },
+    { id: "jane", name: "Jane Smith" }
+];
+
+const defaultConfig = {
+    vitals: ["Activity", "Oxygen Saturation", "Respiration Rate"],
+    timing: "Every 3 Minutes",
+    alerts: ["BP < 90/60 mm Hg", "BP > 140/90 mm Hg"]
+};
 
 
-const ConfigurationItems = ({selectedPatient, activeCarepath, handleAddCarepath}: ConfigurationItemsPromps) => {
+const ConfigurationItems = () => {
+
+    const [selectedPatient, setSelectedPatient] = useState("emma");
+    const [carepaths, setCarepaths] = useState(["Diabetes"]);
+    const [activeCarepath, setActiveCarepath] = useState("Diabetes");
+
+    const handleAddCarepath = () => {
+        const newCarepath = `Carepath ${carepaths.length + 1}`;
+        setCarepaths([...carepaths, newCarepath]);
+        setActiveCarepath(newCarepath);
+    };
+
+    //const [patients, setPatients] = useState<Patient[] | null>(null)
+
+    // async function getPatientData() {
+    //     const patients = await exh.data.documents.findAll<Patient>('patient')
+    //     if (!patients) {
+    //         return
+    //     }
+    //     const updatedPatients = patients.map((patient) => ({
+    //         ...patient,
+    //         carepaths: [{ name: 'COPD' }],
+    //     }))
+    //     updatedPatients[0].carepaths.push({ name: 'Diabetes' })
+    //     setPatients(updatedPatients)
+    // }
 
     return (
 

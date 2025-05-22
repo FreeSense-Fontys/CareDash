@@ -1,31 +1,8 @@
-import { useState } from "react";
 import logo from '../assets/Carebuddy logo.webp';
 import ConfigurationItems from "./components/ConfigurationItems";
 
 
-const patients = [
-    { id: "emma", name: "Emma Martin" },
-    { id: "john", name: "John Doe" },
-    { id: "jane", name: "Jane Smith" }
-];
-
-const defaultConfig = {
-    vitals: ["Activity", "Oxygen Saturation", "Respiration Rate"],
-    timing: "Every 3 Minutes",
-    alerts: ["BP < 90/60 mm Hg", "BP > 140/90 mm Hg"]
-};
-
 const ConfigurationPage = () => {
-
-    const [selectedPatient, setSelectedPatient] = useState("emma");
-    const [carepaths, setCarepaths] = useState(["Diabetes"]);
-    const [activeCarepath, setActiveCarepath] = useState("Diabetes");
-
-    const handleAddCarepath = () => {
-        const newCarepath = `Carepath ${carepaths.length + 1}`;
-        setCarepaths([...carepaths, newCarepath]);
-        setActiveCarepath(newCarepath);
-    };
 
     return (
         <div className="w-full overflow-hidden">
@@ -38,11 +15,7 @@ const ConfigurationPage = () => {
                         </div>
                     </div>
 
-                    <ConfigurationItems
-                        selectedPatient={selectedPatient}
-                        activeCarepath={activeCarepath}
-                        handleAddCarepath={handleAddCarepath}
-                    />
+                    <ConfigurationItems />
                 </div>
             </div>
         </div>
