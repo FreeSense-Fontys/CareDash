@@ -1,10 +1,24 @@
-import { describe, it, Mock, vitest } from 'vitest'
+import { describe, it, Mock, vi, vitest } from 'vitest'
 import { render } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import PatientListForm from './index'
 import dayjs from 'dayjs'
 import { PatientProvider } from '../contexts/PatientProvider'
 import exh from '../Auth'
+
+// Mock any API services used by PatientListForm
+vi.mock('../Auth', () => {
+    return {
+        default: {
+            data: {
+                documents: {
+                    findAll: vi.fn(),
+                    findFirst: vi.fn(),
+                },
+            },
+        },
+    }
+})
 
 const mockPatients = [
     {
