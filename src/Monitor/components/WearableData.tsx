@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import exh from '../../Auth'
 import { Patient, rqlBuilder } from '@extrahorizon/javascript-sdk'
 import { Checkbox } from '@mui/material'
-import dayjs from 'dayjs'
+import { usePatient } from '../../contexts/PatientProvider'
 
 // Define the Wearable and Vital types
 interface Wearable {
@@ -29,8 +29,11 @@ const WearableData = ({
     selectedDate,
 }: WearableDataProps) => {
     const [wearables, setWearableData] = useState<any[]>([])
+    const [hasChecked, setHasChecked] = useState(false)
+    const { setPatients } = usePatient()
 
     useEffect(() => {
+        setWearableData([])
         const getWearable = async (indexPatient: number): Promise<void> => {
             // what if patient has multiple wearables? only taking the first one right now
             const wearableID: string =
@@ -41,24 +44,37 @@ const WearableData = ({
                 'wearable-observation',
                 {
                     rql: rqlBuilder()
+                        .ge('updateTimestamp', `${selectedDate}T00:00:00Z`)
+                        .le('updateTimestamp', `${selectedDate}T23:59:59Z`)
                         .sort('updateTimestamp')
                         .eq('creatorId', wearableID)
                         .build(),
                 }
             )
+
             if (!wearableData) return
 
-            // only set wearable data if the update timestamp is the same as the selected date
-            const wearableUpdateTime = dayjs(
-                wearableData.updateTimestamp
-            ).format('YYYY-MM-DD')
-            if (wearableUpdateTime != selectedDate) {
-                setWearableData([])
-            } else setWearableData([wearableData])
+            setWearableData([wearableData])
         }
 
+        setHasChecked(patients[indexPatient]?.checked)
         getWearable(indexPatient)
     }, [selectedDate, indexPatient, patients])
+
+    const handleCheckPatient = async (e) => {
+        const check = e.target.checked
+
+        setHasChecked(check)
+
+        await new Promise((resolve) => setTimeout(resolve, 500))
+
+        // Update the check of this specific patient
+        const updatedPatients = patients.map((p, i) =>
+            i === indexPatient ? { ...p, checked: check } : p
+        )
+
+        setPatients(updatedPatients)
+    }
 
     // console.log('WearableData: ', wearables)
 
@@ -70,7 +86,7 @@ const WearableData = ({
                     className="flex justify-around gap-7 text-lg pr-7"
                 >
                     {allVitals.map((vitalName: string) => {
-                        const vital = wearable.data.vitals?.find(
+                        const vital = wearable.data?.vitals?.find(
                             (v: Vital) => v.name === vitalName
                         )
                         return (
@@ -93,7 +109,15 @@ const WearableData = ({
                 </div>
             ))}
             <div className="flex items-center" data-testid="checkbox">
-                <Checkbox color="success" size="small" />
+                <Checkbox
+                    color="success"
+                    size="small"
+                    checked={!!hasChecked}
+                    onClick={(e) => {
+                        e.stopPropagation()
+                    }}
+                    onChange={handleCheckPatient}
+                />
             </div>
         </>
     )
