@@ -38,7 +38,7 @@ const SearchOptions = ({
 
     useEffect(() => {
         const fetchCarepathOptions = async () => {
-            const carepathData = await exh.data.documents.findAll('Carepaths')
+            const carepathData = await exh.data.documents.findAll('carepaths')
             if (!carepathData) {
                 return
             }
