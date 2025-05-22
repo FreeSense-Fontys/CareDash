@@ -1,118 +1,161 @@
-import { useState } from 'react'
-import exh from '../../Auth'
-import { Patient } from '@extrahorizon/javascript-sdk'
-
-const patients = [
-    { id: "emma", name: "Emma Martin" },
-    { id: "john", name: "John Doe" },
-    { id: "jane", name: "Jane Smith" }
-];
-
-const defaultConfig = {
-    vitals: ["Activity", "Oxygen Saturation", "Respiration Rate"],
-    timing: "Every 3 Minutes",
-    alerts: ["BP < 90/60 mm Hg", "BP > 140/90 mm Hg"]
-};
 
 
-const ConfigurationItems = () => {
+interface ConfigData {
+    vitals: string[];
+    timing: string[];
+    alerts: string[];
+}
 
-    const [selectedPatient, setSelectedPatient] = useState("emma");
-    const [carepaths, setCarepaths] = useState(["Diabetes"]);
-    const [activeCarepath, setActiveCarepath] = useState("Diabetes");
+// Mock configuration data for different carepaths
+const mockConfigurations: Record<string, ConfigData> = {
+    'COPD': {
+        vitals: [
+            'Peak Flow Rate (L/min)',
+            'Oxygen Saturation (%)',
+            'Heart Rate (bpm)',
+            'Blood Pressure (mmHg)',
+            'Respiratory Rate (breaths/min)',
+            'Temperature (°C)'
+        ],
+        timing: ['Daily measurements at 8:00 AM and 6:00 PM'],
+        alerts: [
+            'Peak flow < 80% of personal best',
+            'Oxygen saturation < 90%',
+            'Heart rate > 100 bpm at rest',
+            'Respiratory rate > 20 breaths/min',
+            'Temperature > 38°C or < 36C',
+            'Respiratory rate > 20 breaths/min',
+        ]
+    },
+    'Diabetes': {
+        vitals: [
+            'Blood Glucose (mg/dL)',
+            'Blood Pressure (mmHg)',
+            'Weight (kg)',
+            'Heart Rate (bpm)',
+            'Temperature (°C)',
+            'HbA1c (%) - Monthly'
+        ],
+        timing: ['Blood glucose: Before meals and bedtime. Other vitals: Daily at 7 AM'],
+        alerts: [
+            'Blood glucose < 70 mg/dL or > 250 mg/dL',
+            'Blood pressure > 140/90 mmHg',
+            'Weight change > 2kg in 24 hours',
+            'Heart rate > 100 bpm at rest',
+            'Temperature > 38°C'
+        ]
+    },
+}
 
-    const handleAddCarepath = () => {
-        const newCarepath = `Carepath ${carepaths.length + 1}`;
-        setCarepaths([...carepaths, newCarepath]);
-        setActiveCarepath(newCarepath);
+interface ConfigurationItemsProps {
+    activeCarepath: string;
+}
+
+const ConfigurationItems = ({ activeCarepath }: ConfigurationItemsProps) => {
+
+
+    const currentConfig = activeCarepath ? mockConfigurations[activeCarepath] : null;
+
+    const handleEditConfiguration = () => {
+
+        // TODO: Implement edit functionality
     };
 
-    //const [patients, setPatients] = useState<Patient[] | null>(null)
+    // Helper function to split array into columns
+    const splitIntoTwoColumns = (items: string[]) => {
+        const left: string[] = [];
+        const right: string[] = [];
+        items.forEach((item, idx) => {
+            if (idx % 2 === 0) {
+                left.push(item); // Even indices go left
+            } else {
+                right.push(item); // Odd indices go right
+            }
+        });
+        return [left, right];
+    };
 
-    // async function getPatientData() {
-    //     const patients = await exh.data.documents.findAll<Patient>('patient')
-    //     if (!patients) {
-    //         return
-    //     }
-    //     const updatedPatients = patients.map((patient) => ({
-    //         ...patient,
-    //         carepaths: [{ name: 'COPD' }],
-    //     }))
-    //     updatedPatients[0].carepaths.push({ name: 'Diabetes' })
-    //     setPatients(updatedPatients)
-    // }
+    // Show message if no configuration found for the carepath
+    if (!currentConfig) {
+        return (
+            <div className="text-center py-12 text-gray-500">
+                <p>No configuration found for {activeCarepath}</p>
+                <p className="text-sm mt-2">No configuration data. Please configure it.</p>
+            </div>
+        );
+    }
+
+    const maxItems = 6;
+    const [vitalLeft, vitalRight] = splitIntoTwoColumns(currentConfig.vitals.slice(0, maxItems));
+    const [timingLeft, timingRight] = splitIntoTwoColumns(currentConfig.timing); 
+    const [alertLeft, alertRight] = splitIntoTwoColumns(currentConfig.alerts.slice(0, maxItems));
+
 
     return (
-
-        <div className="flex flex-col ">
-            <div className=" gap-4 relative inline-block w-64 bg-accent rounded-lg text-white mb-8">
-                <select
-                    value={selectedPatient}
-                    onChange={(e) => setSelectedPatient(e.target.value)}
-                    className="block appearance-none w-full py-3 px-4 pr-10 text-black rounded leading-tight focus:outline-none"
-                >
-                    {patients.map((patient) => (
-                        <option key={patient.id} value={patient.id}>
-                            {patient.name}
-                        </option>
-                    ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M5.516 7.548l4.484 4.484 4.484-4.484L16 9l-6 6-6-6z" /></svg>
+        <div>
+            <div className="h-[59vh] overflow-y-auto">
+                {/* Vitals Section */}
+                <div className="grid grid-cols-4 mb-6">
+                    <h2 className="text-lg font-semibold text-gray-800">Vitals</h2>
+                    <div className="col-span-3 flex gap-6">
+                        {[vitalLeft, vitalRight].map((column, columnIndex) => (
+                            <div key={columnIndex} className="flex-1 space-y-2">
+                                {column.map((vital, index) => (
+                                    <div key={index} className="flex items-start p-2 bg-blue-50 border-l-4 border-blue-500 rounded">
+                                        <p className="text-grey-700">{vital}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        ))}
+                    </div>
                 </div>
-            </div>
 
-            <div className="border-b ">
-                <div className="flex ">
-                    {carepaths.map((cp) => (
-                        <button
-                            key={cp}
-                            onClick={() => setActiveCarepath(cp)}
-                            className={`px-4 py-2 rounded-t-lg text-sm font-medium transition-colors duration-150 border-b-2 ${activeCarepath === cp
-                                ? "bg-blue-100 border-t-indigo-500 border-white-500 rounded-t-lg"
-                                : "bg-gray-100 border-transparent text-gray-600 hover:text-gray-800 hover:border-gray-500"
-                                }`}
-                        >
-                            {cp}
-                        </button>
-                    ))}
+
+                {/* Timing Section */}
+                <div className="grid grid-cols-4 gap-4 border-t pt-4 mb-6">
+                    <h2 className="text-lg font-semibold text-gray-800">Timing</h2>
+                    <div className="col-span-3 flex gap-6">
+                        {[timingLeft, timingRight].map((column, columnIndex) => (
+                            <div key={columnIndex} className="flex-1 space-y-2">
+                                {column.map((timing, index) => (
+                                    <div key={index} className="flex items-start p-2 bg-gray-100 border-l-4 border-gray-500 rounded">
+                                        <p className="text-grey-700 ">{timing}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        ))}
+                    </div>
                 </div>
-            </div>
 
-            <div className="grid grid-cols-4 pt-4 mb-5">
-                <h2 className="text-lg font-semibold">Vitals</h2>
-                <div className="col-span-3 space-y-1">
-                    {defaultConfig.vitals.map((vital) => (
-                        <p key={vital}>{vital}</p>
-                    ))}
+                {/* Alerts Section */}
+                <div className="grid grid-cols-4 gap-4 border-t pt-4 mb-6">
+                    <h2 className="text-lg font-semibold text-gray-800">Alerts</h2>
+                    <div className="col-span-3 flex gap-6">
+                        {[alertLeft, alertRight].map((column, columnIndex) => (
+                            <div key={columnIndex} className="flex-1 space-y-2">
+                                {column.map((alert, index) => (
+                                    <div key={index} className="flex items-start p-2 bg-red-50 border-l-4 border-red-400 rounded">
+                                        <p className="text-red-700 ">{alert}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        ))}
+                    </div>
                 </div>
-            </div>
-
-            <div className="grid grid-cols-4 gap-4 border-t pt-4 mb-5">
-                <h2 className="text-lg font-semibold">Timing</h2>
-                <p className="col-span-3">{defaultConfig.timing}</p>
-            </div>
-
-            <div className="grid grid-cols-4 gap-4 border-t pt-4 mb-5">
-                <h2 className="text-lg font-semibold">Alerts</h2>
-                <div className="col-span-3 space-y-1">
-                    {defaultConfig.alerts.map((alert) => (
-                        <p key={alert}>{alert}</p>
-                    ))}
+            </div >
+            <div>
+                {/* Edit Button */}
+                <div className="flex justify-end">
+                    <button
+                        className="bg-secondary text-white text-lg px-7 py-2 rounded mr-5 hover:bg-accent"
+                        onClick={handleEditConfiguration}
+                    >
+                        Edit
+                    </button>
                 </div>
-            </div>
-
-            <div className="flex justify-end mt-15">
-                <button
-                    className=" bg-secondary text-white text-lg px-7 py-2 rounded mr-5 hover:bg-accent"
-                    onClick={handleAddCarepath}
-                >
-                    Edit
-                </button>
             </div>
         </div>
     )
-
 }
 
 export default ConfigurationItems
