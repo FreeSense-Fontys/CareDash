@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import EditConfigurationPage from './EditConfiguration';
 
-
 interface ConfigData {
     vitals: string[];
-    timing: string[];
+    timing: string;
     alerts: string[];
 }
 
@@ -19,7 +18,7 @@ const mockConfigurations: Record<string, ConfigData> = {
             'Respiratory Rate (breaths/min)',
             'Temperature (°C)'
         ],
-        timing: ['Daily measurements at 8:00 AM and 6:00 PM'],
+        timing: 'Daily measurements at 8:00 AM and 6:00 PM',
         alerts: [
             'Peak flow < 80% of personal best',
             'Oxygen saturation < 90%',
@@ -38,7 +37,7 @@ const mockConfigurations: Record<string, ConfigData> = {
             'Temperature (°C)',
             'HbA1c (%) - Monthly'
         ],
-        timing: ['Blood glucose: Before meals and bedtime. Other vitals: Daily at 7 AM'],
+        timing: 'Blood glucose: Before meals and bedtime. Other vitals: Daily at 7 AM',
         alerts: [
             'Blood glucose < 70 mg/dL or > 250 mg/dL',
             'Blood pressure > 140/90 mmHg',
@@ -59,6 +58,8 @@ const ConfigurationItems = ({ activeCarepath }: ConfigurationItemsProps) => {
     const [isEditing, setIsEditing] = useState(false);
 
     const currentConfig = activeCarepath ? mockConfigurations[activeCarepath] : null;
+
+
 
     const handleEditConfiguration = () => {
         setIsEditing(true);
@@ -102,7 +103,6 @@ const ConfigurationItems = ({ activeCarepath }: ConfigurationItemsProps) => {
 
     const maxItems = 6;
     const [vitalLeft, vitalRight] = splitIntoTwoColumns(currentConfig.vitals.slice(0, maxItems));
-    const [timingLeft, timingRight] = splitIntoTwoColumns(currentConfig.timing);
     const [alertLeft, alertRight] = splitIntoTwoColumns(currentConfig.alerts.slice(0, maxItems));
 
 
@@ -130,17 +130,14 @@ const ConfigurationItems = ({ activeCarepath }: ConfigurationItemsProps) => {
                 <div className="grid grid-cols-4 gap-4 border-t pt-4 mb-6">
                     <h2 className="text-lg font-semibold text-gray-800">Timing</h2>
                     <div className="col-span-3 flex gap-6">
-                        {[timingLeft, timingRight].map((column, columnIndex) => (
-                            <div key={columnIndex} className="flex-1 space-y-2">
-                                {column.map((timing, index) => (
-                                    <div key={index} className="flex items-start p-2 bg-gray-100 border-l-4 border-gray-500 rounded">
-                                        <p className="text-grey-700 ">{timing}</p>
-                                    </div>
-                                ))}
+                        <div className="flex-1 space-y-2">
+                            <div className="flex items-start p-2 bg-gray-100 border-l-4 border-gray-500 rounded">
+                                <p className="text-grey-700">{currentConfig.timing}</p>
                             </div>
-                        ))}
+                        </div>
                     </div>
                 </div>
+
 
                 {/* Alerts Section */}
                 <div className="grid grid-cols-4 gap-4 border-t pt-4 mb-6">
