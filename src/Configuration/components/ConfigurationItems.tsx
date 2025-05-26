@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import EditConfigurationPage from './EditConfiguration';
 
 
 interface ConfigData {
@@ -53,13 +55,26 @@ interface ConfigurationItemsProps {
 
 const ConfigurationItems = ({ activeCarepath }: ConfigurationItemsProps) => {
 
+    //const [configurations, setConfigurations] = useState(mockConfigurations);
+    const [isEditing, setIsEditing] = useState(false);
 
     const currentConfig = activeCarepath ? mockConfigurations[activeCarepath] : null;
 
     const handleEditConfiguration = () => {
-
-        // TODO: Implement edit functionality
+        setIsEditing(true);
     };
+
+    // Show edit page if in editing mode
+    if (isEditing && currentConfig) {
+        return (
+            <EditConfigurationPage
+                activeCarepath={activeCarepath}
+                currentConfig={currentConfig}
+                onCancel={() => setIsEditing(false)}
+            />
+        );
+    }
+
 
     // Helper function to split array into columns
     const splitIntoTwoColumns = (items: string[]) => {
@@ -87,7 +102,7 @@ const ConfigurationItems = ({ activeCarepath }: ConfigurationItemsProps) => {
 
     const maxItems = 6;
     const [vitalLeft, vitalRight] = splitIntoTwoColumns(currentConfig.vitals.slice(0, maxItems));
-    const [timingLeft, timingRight] = splitIntoTwoColumns(currentConfig.timing); 
+    const [timingLeft, timingRight] = splitIntoTwoColumns(currentConfig.timing);
     const [alertLeft, alertRight] = splitIntoTwoColumns(currentConfig.alerts.slice(0, maxItems));
 
 
