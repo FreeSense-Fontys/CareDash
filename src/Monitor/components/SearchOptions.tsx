@@ -43,7 +43,7 @@ const SearchOptions = ({
                 return
             }
             const options = carepathData.map(
-                (carepath) => carepath.data.carepathname
+                (carepath) => carepath.data.carepathName
             )
             setCarepathOptions(options)
         }

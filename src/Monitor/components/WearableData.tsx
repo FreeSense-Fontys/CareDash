@@ -3,7 +3,6 @@ import exh from '../../Auth'
 import { Patient, rqlBuilder } from '@extrahorizon/javascript-sdk'
 import { Checkbox } from '@mui/material'
 import { usePatient } from '../../contexts/PatientProvider'
-import { C } from 'vitest/dist/chunks/reporters.d.79o4mouw.js'
 
 // Define the Wearable and Vital types
 interface Wearable {
@@ -22,6 +21,11 @@ interface WearableDataProps {
     selectedDate: string
 }
 
+enum AlertType {
+    ABOVE = 'Above',
+    BELOW = 'Below',
+}
+
 const allVitals = ['HR', 'SBP', 'DBP', 'SPO2', 'RR', 'ACT', 'T']
 
 const WearableData = ({
@@ -31,10 +35,10 @@ const WearableData = ({
 }: WearableDataProps) => {
     const [wearables, setWearableData] = useState<any[]>([])
     const [hasChecked, setHasChecked] = useState(false)
-    const [alerts, setAlerts] = useState<any[]>([])
+    const [alertTriggers, setAlertTriggers] = useState<any[]>([])
     const { setPatients } = usePatient()
 
-    // what if patient has multiple wearables? only taking the first one right now
+    // what if patient has multiple wearables? only using the first one right now
     const wearableId: string =
         patients[indexPatient]?.data.coupledWearables[0].wearableId
 
@@ -47,15 +51,17 @@ const WearableData = ({
                 'wearable-observation',
                 {
                     rql: rqlBuilder()
-                        .ge('updateTimestamp', `${selectedDate}T00:00:00Z`)
-                        .le('updateTimestamp', `${selectedDate}T23:59:59Z`)
-                        .sort('updateTimestamp')
+                        .ge('creationTimestamp', `${selectedDate}T00:00:00Z`)
+                        .le('creationTimestamp', `${selectedDate}T23:59:59Z`)
+                        .sort('creationTimestamp')
                         .eq('creatorId', wearableId)
                         .build(),
                 }
             )
 
             if (!wearableData) return
+
+            wearableData.data.vitals[0].value = 105
 
             setWearableData([wearableData])
         }
@@ -67,13 +73,18 @@ const WearableData = ({
     useEffect(() => {
         const getAlerts = async () => {
             const alerts = await exh.data.documents.find('alerts', {
-                rql: rqlBuilder().eq('data.wearableId', wearableId).build(),
+                rql: rqlBuilder()
+                    .eq('data.wearableId', wearableId)
+                    // .ge('creationTimestamp', `${selectedDate}T00:00:00Z`)
+                    // .le('creationTimestamp', `${selectedDate}T23:59:59Z`)
+                    .build(),
             })
             if (!alerts) return
-            setAlerts(alerts.data)
+            console.log(alerts.data)
+            setAlertTriggers(alerts.data)
         }
         getAlerts()
-    }, [patients, indexPatient, wearableId])
+    }, [patients, indexPatient, wearableId, selectedDate])
 
     const handleCheckPatient = async (e) => {
         const check = e.target.checked
@@ -90,10 +101,6 @@ const WearableData = ({
         setPatients(updatedPatients)
     }
 
-    // console.log('WearableData: ', wearables)
-
-    // console.log('WearableData alerts: ', alerts)
-
     return (
         <>
             {wearables?.map((wearable: Wearable, wearableIndex: number) => (
@@ -105,18 +112,30 @@ const WearableData = ({
                         const vital = wearable.data?.vitals?.find(
                             (v: Vital) => v.name === vitalName
                         )
-                        const alert = alerts.find(
+                        console.log(alertTriggers)
+                        const alert = alertTriggers.find(
                             (a) => a.data.vitals === vitalName
                         )
 
-                        console.log('WearableData alert: ', alert)
+                        const isDangerous =
+                            (alert?.data?.alertType === AlertType.ABOVE &&
+                                vital?.value > alert.data.threshold) ||
+                            (alert?.data?.alertType === AlertType.BELOW &&
+                                vital?.value < alert.data.threshold)
+
                         return (
                             <div
                                 key={vitalName}
                                 className="flex justify-center items-center"
                             >
                                 {vital ? (
-                                    <div className="text-center border size-12 rounded-lg justify-center items-center flex leading-tight">
+                                    <div
+                                        className={
+                                            (isDangerous &&
+                                                'text-white bg-red-500') +
+                                            ` text-center border size-12 rounded-lg justify-center items-center flex leading-tight`
+                                        }
+                                    >
                                         {vital.value.toFixed(
                                             vitalName === 'T' ? 1 : 0
                                         )}
