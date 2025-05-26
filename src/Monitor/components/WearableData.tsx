@@ -3,6 +3,7 @@ import exh from '../../Auth'
 import { Patient, rqlBuilder } from '@extrahorizon/javascript-sdk'
 import { Checkbox } from '@mui/material'
 import { usePatient } from '../../contexts/PatientProvider'
+import { C } from 'vitest/dist/chunks/reporters.d.79o4mouw.js'
 
 // Define the Wearable and Vital types
 interface Wearable {
@@ -30,15 +31,17 @@ const WearableData = ({
 }: WearableDataProps) => {
     const [wearables, setWearableData] = useState<any[]>([])
     const [hasChecked, setHasChecked] = useState(false)
+    const [alerts, setAlerts] = useState<any[]>([])
     const { setPatients } = usePatient()
+
+    // what if patient has multiple wearables? only taking the first one right now
+    const wearableId: string =
+        patients[indexPatient]?.data.coupledWearables[0].wearableId
 
     useEffect(() => {
         setWearableData([])
-        const getWearable = async (indexPatient: number): Promise<void> => {
-            // what if patient has multiple wearables? only taking the first one right now
-            const wearableID: string =
-                patients[indexPatient]?.data.coupledWearables[0].wearableId
-            if (!wearableID) return
+        const getWearable = async (): Promise<void> => {
+            if (!wearableId) return
 
             const wearableData = await exh.data.documents.findFirst(
                 'wearable-observation',
@@ -47,7 +50,7 @@ const WearableData = ({
                         .ge('updateTimestamp', `${selectedDate}T00:00:00Z`)
                         .le('updateTimestamp', `${selectedDate}T23:59:59Z`)
                         .sort('updateTimestamp')
-                        .eq('creatorId', wearableID)
+                        .eq('creatorId', wearableId)
                         .build(),
                 }
             )
@@ -58,8 +61,19 @@ const WearableData = ({
         }
 
         setHasChecked(patients[indexPatient]?.checked)
-        getWearable(indexPatient)
-    }, [selectedDate, indexPatient, patients])
+        getWearable()
+    }, [selectedDate, indexPatient, patients, wearableId])
+
+    useEffect(() => {
+        const getAlerts = async () => {
+            const alerts = await exh.data.documents.find('alerts', {
+                rql: rqlBuilder().eq('data.wearableId', wearableId).build(),
+            })
+            if (!alerts) return
+            setAlerts(alerts.data)
+        }
+        getAlerts()
+    }, [patients, indexPatient, wearableId])
 
     const handleCheckPatient = async (e) => {
         const check = e.target.checked
@@ -78,6 +92,8 @@ const WearableData = ({
 
     // console.log('WearableData: ', wearables)
 
+    // console.log('WearableData alerts: ', alerts)
+
     return (
         <>
             {wearables?.map((wearable: Wearable, wearableIndex: number) => (
@@ -89,6 +105,11 @@ const WearableData = ({
                         const vital = wearable.data?.vitals?.find(
                             (v: Vital) => v.name === vitalName
                         )
+                        const alert = alerts.find(
+                            (a) => a.data.vitals === vitalName
+                        )
+
+                        console.log('WearableData alert: ', alert)
                         return (
                             <div
                                 key={vitalName}
