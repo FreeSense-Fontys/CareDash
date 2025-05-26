@@ -38,9 +38,6 @@ const EditConfigurationPage = ({ activeCarepath, currentConfig, onCancel }: Edit
         { name: 'Temperature', selected: false }
     ];
 
-    const initialTimingConfigs = [
-        { id: '1', interval: 'Interval', frequency: 3, unit: 'Minutes' }
-    ];
 
     const initialAlertConfigs = [
         { id: '1', vital: 'BP', operator: '<', value: '90/70' },
@@ -53,7 +50,12 @@ const EditConfigurationPage = ({ activeCarepath, currentConfig, onCancel }: Edit
     const [vitals, setVitals] = useState<VitalOption[]>(initialVitals);
 
     // Timing configurations
-    const [timingConfigs, setTimingConfigs] = useState<TimingConfig[]>(initialTimingConfigs);
+    const [timingConfig, setTimingConfig] = useState<TimingConfig>({
+        id: '1',
+        interval: 'Interval',
+        frequency: 3,
+        unit: 'Minutes'
+    });
 
     // Alert configurations
     const [alertConfigs, setAlertConfigs] = useState<AlertConfig[]>(initialAlertConfigs);
@@ -64,25 +66,11 @@ const EditConfigurationPage = ({ activeCarepath, currentConfig, onCancel }: Edit
         setVitals(newVitals);
     };
 
-    const addTimingMode = () => {
-        const newTiming: TimingConfig = {
-            id: Date.now().toString(),
-            interval: 'Interval',
-            frequency: 1,
-            unit: 'Minutes'
-        };
-        setTimingConfigs([...timingConfigs, newTiming]);
+
+    const updateTimingConfig = (field: keyof TimingConfig, value: string | number) => {
+        setTimingConfig({ ...timingConfig, [field]: value });
     };
 
-    const updateTimingConfig = (id: string, field: keyof TimingConfig, value: string | number) => {
-        setTimingConfigs(timingConfigs.map(config =>
-            config.id === id ? { ...config, [field]: value } : config
-        ));
-    };
-
-    const deleteTimingConfig = (id: string) => {
-        setTimingConfigs(timingConfigs.filter(config => config.id !== id));
-    };
 
     const addAlert = () => {
         const newAlert: AlertConfig = {
@@ -108,16 +96,16 @@ const EditConfigurationPage = ({ activeCarepath, currentConfig, onCancel }: Edit
         const selectedVitals = vitals.filter(v => v.selected).map(v => v.name);
         console.log('Saving configuration:', {
             vitals: selectedVitals,
-            timing: timingConfigs,
+            timing: timingConfig,
             alerts: alertConfigs
         });
-        onCancel(); 
+        onCancel();
     };
 
     const handleCancel = () => {
         // Reset to initial state and go back
         setVitals(initialVitals);
-        setTimingConfigs(initialTimingConfigs);
+        setTimingConfig(timingConfig);
         setAlertConfigs(initialAlertConfigs);
         console.log('Configuration cancelled - reset to initial state');
         onCancel();
@@ -137,7 +125,6 @@ const EditConfigurationPage = ({ activeCarepath, currentConfig, onCancel }: Edit
         return [left, right];
     };
 
-    const [timingLeft, timingRight] = splitIntoTwoColumns(timingConfigs);
     const [alertLeft, alertRight] = splitIntoTwoColumns(alertConfigs);
 
     return (
@@ -170,60 +157,36 @@ const EditConfigurationPage = ({ activeCarepath, currentConfig, onCancel }: Edit
                     <div className="grid grid-cols-4 gap-4 border-t pt-4 mb-6">
                         <h2 className="text-lg font-semibold text-gray-800">Timing</h2>
                         <div className="col-span-3 flex gap-6">
-                            {[timingLeft, timingRight].map((column, columnIndex) => (
-                                <div key={columnIndex} className="flex-1 space-y-2">
-                                    {column.map((config) => (
-                                        <div key={config.id} className="flex items-center gap-3">
-                                            <select
-                                                value={config.interval}
-                                                onChange={(e) => updateTimingConfig(config.id, 'interval', e.target.value)}
-                                                className="px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            >
-                                                <option value="Interval">Interval</option>
-                                                <option value="Daily">Daily</option>
-                                                <option value="Hourly">Hourly</option>
-                                            </select>
-
-                                            <span className="text-gray-600">Every</span>
-
-                                            <input
-                                                type="number"
-                                                value={config.frequency}
-                                                onChange={(e) => updateTimingConfig(config.id, 'frequency', parseInt(e.target.value) || 1)}
-                                                className="w-16 px-3 py-2 border border-gray-300 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                min="1"
-                                            />
-
-                                            <select
-                                                value={config.unit}
-                                                onChange={(e) => updateTimingConfig(config.id, 'unit', e.target.value)}
-                                                className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            >
-                                                <option value="Minutes">Minutes</option>
-                                                <option value="Hours">Hours</option>
-                                                <option value="Days">Days</option>
-                                            </select>
-
-                                            <button
-                                                onClick={() => deleteTimingConfig(config.id)}
-                                                className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </div>
-                                    ))}
-                                    
-                                    {columnIndex === 1 && (
-                                        <button
-                                            onClick={addTimingMode}
-                                            className="mt-4 text-blue-500 hover:text-blue-700 font-medium flex items-center gap-1 pb-1 pl-80"
-                                        >
-                                            <Plus size={16} />
-                                            Add Mode
-                                        </button>
-                                    )}
+                            <div className="flex-1 space-y-2">
+                                <div className="flex items-center gap-3">
+                                    <select
+                                        value={timingConfig.interval}
+                                        onChange={(e) => updateTimingConfig('interval', e.target.value)}
+                                        className="px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    >
+                                        <option value="Interval">Interval</option>
+                                        <option value="Daily">Daily</option>
+                                        <option value="Hourly">Hourly</option>
+                                    </select>
+                                    <span className="text-gray-600">Every</span>
+                                    <input
+                                        type="number"
+                                        value={timingConfig.frequency}
+                                        onChange={(e) => updateTimingConfig('frequency', parseInt(e.target.value) || 1)}
+                                        className="w-16 px-3 py-2 border border-gray-300 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        min="1"
+                                    />
+                                    <select
+                                        value={timingConfig.unit}
+                                        onChange={(e) => updateTimingConfig('unit', e.target.value)}
+                                        className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    >
+                                        <option value="Minutes">Minutes</option>
+                                        <option value="Hours">Hours</option>
+                                        <option value="Days">Days</option>
+                                    </select>
                                 </div>
-                            ))}
+                            </div>
                         </div>
                     </div>
 
@@ -275,7 +238,7 @@ const EditConfigurationPage = ({ activeCarepath, currentConfig, onCancel }: Edit
                                             </button>
                                         </div>
                                     ))}
-                                    
+
                                     {columnIndex === 1 && (
                                         <button
                                             onClick={addAlert}
