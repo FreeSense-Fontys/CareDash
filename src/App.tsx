@@ -7,38 +7,182 @@ import Configuration from './Configuration'
 import Presets from './Presets'
 import ProtectedRoute from './components/ProtectedRoute'
 import exh from './Auth'
+import { rqlBuilder } from '@extrahorizon/javascript-sdk'
+import { create } from 'domain'
 
 function App() {
+    const createSchemaCarepaths = async () => {
+        await exh.data.schemas.create({
+            name: 'carepaths',
+            description: 'This list of all carepaths',
+            defaultLimit: 20,
+            maximumLimit: 20,
+        })
+    }
+
+    const addPropertiesToCarepaths = async () => {
+        await exh.data.properties.create('carepaths', {
+            name: 'carepathName',
+            configuration: {
+                type: 'string',
+                minLength: 1,
+                pattern: '^[a-zA-Z]+$',
+            },
+        })
+    }
+
+    const addDataToCarepaths = async () => {
+        await exh.data.documents.create('carepaths', {
+            carepathName: 'COPD',
+        })
+        await exh.data.documents.create('carepaths', {
+            carepathName: 'Diabetes',
+        })
+        await exh.data.documents.create('carepaths', {
+            carepathName: 'Lyme',
+        })
+    }
+
+    const createSchemaAlerts = async () => {
+        await exh.data.schemas.create({
+            name: 'alerts',
+            description: 'All alerts are defined here',
+            defaultLimit: 20,
+            maximumLimit: 20,
+        })
+    }
+
+    const addPropertiesToAlerts = async () => {
+        await exh.data.properties.create('alerts', {
+            name: 'vitals',
+            configuration: {
+                type: 'string',
+            },
+        })
+        await exh.data.properties.create('alerts', {
+            name: 'threshold',
+            configuration: {
+                type: 'number',
+            },
+        })
+        await exh.data.properties.create('alerts', {
+            name: 'alertType',
+            configuration: {
+                type: 'string',
+                enum: ['Above', 'Below'],
+            },
+        })
+        await exh.data.properties.create('alerts', {
+            name: 'carepathId',
+            configuration: {
+                type: 'string',
+            },
+        })
+        await exh.data.properties.create('alerts', {
+            name: 'wearableId',
+            configuration: {
+                type: 'string',
+            },
+        })
+    }
+
+    const addDataToAlerts = async () => {
+        await exh.data.documents.create('alerts', {
+            vitals: 'HR',
+            alertType: 'Above',
+            threshold: 100,
+            carepathId: '682ee8958bd54e0c0c0e3d02',
+            wearableId: '67ea58ec53535d5d4c36cb28',
+        })
+    }
+
+    const removeDocumentAlerts = async (id: string) => {
+        await exh.data.documents.remove('alerts', id)
+    }
+
+    const removeSchema = async (name: string) => {
+        await exh.data.schemas.disable(name)
+        await exh.data.schemas.remove(name)
+    }
+
+    const printAllAlertsWithWearableId = async (wearableId: string) => {
+        const allAlerts = await exh.data.documents.find('alerts', {
+            rql: rqlBuilder().eq('data.wearableId', wearableId).build(),
+        })
+        console.log('all alerts', allAlerts)
+    }
+
+    const createSchemaAlertTriggers = async () => {
+        await exh.data.schemas.create({
+            name: 'alert-triggers',
+            description: 'This list of all alert triggers',
+            defaultLimit: 20,
+            maximumLimit: 20,
+        })
+    }
+
+    const addPropertiesToAlertTriggers = async () => {
+        await exh.data.properties.create('alert-triggers', {
+            name: 'timestamp',
+            configuration: {
+                type: 'string',
+                format: 'date-time',
+            },
+        })
+        await exh.data.properties.create('alert-triggers', {
+            name: 'vital',
+            configuration: {
+                type: 'string',
+            },
+        })
+        await exh.data.properties.create('alert-triggers', {
+            name: 'wearableId',
+            configuration: {
+                type: 'string',
+            },
+        })
+        await exh.data.properties.create('alert-triggers', {
+            name: 'observationId',
+            configuration: {
+                type: 'string',
+            },
+        })
+        await exh.data.properties.create('alert-triggers', {
+            name: 'value',
+            configuration: {
+                type: 'number',
+            },
+        })
+    }
+
+    const addDataToAlertTriggers = async () => {
+        console.log('Adding data to alert triggers')
+        await exh.data.documents.create('alert-triggers', {
+            vitals: 'HR',
+            wearableId: '67ea58ec53535d5d4c36cb28',
+            observationId: '67eceb2c8bd54e1f9f0d68ba',
+            value: 68.15192246987792,
+        })
+    }
+
     const createSchema = async () => {
-        // const carepathSchema = await exh.data.schemas.create({
-        //     name: 'Carepaths',
-        //     description: 'This list of all carepaths',
-        //     defaultLimit: 20,
-        //     maximumLimit: 20,
-        // })
-        // console.log('carepathSchema', carepathSchema)
-        // const withpropts = await exh.data.properties.create('Carepaths', {
-        //     name: 'carepathname',
-        //     configuration: {
-        //         type: 'string',
-        //         minLength: 1,
-        //         pattern: '^[a-zA-Z]+$',
-        //     },
-        // })
-        // console.log('withpropts', withpropts)
-        // const addCarepath = await exh.data.documents.create('Carepaths', {
-        //     carepathname: 'COPD',
-        // })
-        // const addCarepath2 = await exh.data.documents.create('Carepaths', {
-        //     carepathname: 'Diabetes',
-        // })
-        // const addCarepath2 = await exh.data.documents.create('Carepaths', {
-        //     carepathname: 'Lyme',
-        // })
-        // const test2 = await exh.data.documents.find('Carepaths')
-        // console.log('test', test2)
-        // const disableSchema = await exh.data.schemas.disable('Carepaths')
-        // const deleteSchema = await exh.data.schemas.remove('Carepaths')
+        // createSchemaCarepaths()
+        // addPropertiesToCarepaths()
+        // addDataToCarepaths()
+        // removeSchema('carepaths')
+
+        // createSchemaAlerts()
+        // addPropertiesToAlerts()
+        // addDataToAlerts()
+        // removeDocumentAlerts('682ee7c58bd54ee0880e3cfe')
+        // removeSchema('alerts')
+
+        printAllAlertsWithWearableId('67ea58ec53535d5d4c36cb28')
+
+        // createSchemaAlertTriggers()
+        // addPropertiesToAlertTriggers()
+        // addDataToAlertTriggers()
+        // removeSchema('alert-triggers')
     }
     createSchema()
 
