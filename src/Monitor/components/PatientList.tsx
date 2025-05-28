@@ -64,7 +64,7 @@ const PatientList = ({
         if (!isSameOrder) {
             setPatients(sortedPatients)
         }
-    }, [patients, filterOrder])
+    }, [patients, filterOrder, setPatients, normalizedFilterOrder])
 
     const highlightMatch = (text: string, query: string) => {
         if (!query) return text
@@ -139,7 +139,7 @@ const PatientList = ({
                                             setSelectedWearableId(
                                                 patientWearableId
                                             )
-                                            setSelectedPatient(patient.data)
+                                            setSelectedPatient(patient)
                                         }
                                     }}
                                 >

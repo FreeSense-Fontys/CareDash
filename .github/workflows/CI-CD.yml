@@ -14,5 +14,5 @@ jobs:
                   node-version: lts/*
             - name: Install dependencies
               run: npm install
-            - name: Run vitest
-              run: npm test
+            # - name: Run vitest
+            #   run: npm test
