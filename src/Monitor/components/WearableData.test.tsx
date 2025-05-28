@@ -3,6 +3,7 @@ import { act, render, waitFor, screen } from '@testing-library/react'
 import WearableData from './WearableData'
 import '@testing-library/jest-dom'
 import exh from '../../Auth'
+import { PatientProvider } from '../../contexts/PatientProvider'
 
 vi.mock('../../Auth', () => {
     return {
@@ -10,6 +11,7 @@ vi.mock('../../Auth', () => {
             data: {
                 documents: {
                     findFirst: vi.fn(),
+                    findAll: vi.fn(),
                 },
             },
         },
@@ -82,11 +84,13 @@ describe('WearableData', () => {
 
         await act(async () => {
             render(
-                <WearableData
-                    patients={mockPatients}
-                    selectedDate={mockSelectedDate}
-                    indexPatient={mockPatientIndex}
-                />
+                <PatientProvider>
+                    <WearableData
+                        patients={mockPatients}
+                        selectedDate={mockSelectedDate}
+                        indexPatient={mockPatientIndex}
+                    />
+                </PatientProvider>
             )
         })
 
@@ -97,11 +101,13 @@ describe('WearableData', () => {
         await act(async () => {
             await waitFor(() => {
                 render(
-                    <WearableData
-                        patients={mockPatients}
-                        selectedDate={mockSelectedDate}
-                        indexPatient={mockPatientIndex}
-                    />
+                    <PatientProvider>
+                        <WearableData
+                            patients={mockPatients}
+                            selectedDate={mockSelectedDate}
+                            indexPatient={mockPatientIndex}
+                        />
+                    </PatientProvider>
                 )
             })
         })
@@ -121,11 +127,13 @@ describe('WearableData', () => {
 
         await act(async () => {
             render(
-                <WearableData
-                    patients={mockPatients}
-                    selectedDate={mockSelectedDate}
-                    indexPatient={mockPatientIndex}
-                />
+                <PatientProvider>
+                    <WearableData
+                        patients={mockPatients}
+                        selectedDate={mockSelectedDate}
+                        indexPatient={mockPatientIndex}
+                    />
+                </PatientProvider>
             )
         })
 
@@ -154,11 +162,13 @@ describe('WearableData', () => {
         await act(async () => {
             await waitFor(() => {
                 render(
-                    <WearableData
-                        patients={mockPatients}
-                        selectedDate={mockSelectedDate}
-                        indexPatient={mockPatientIndex}
-                    />
+                    <PatientProvider>
+                        <WearableData
+                            patients={mockPatients}
+                            selectedDate={mockSelectedDate}
+                            indexPatient={mockPatientIndex}
+                        />
+                    </PatientProvider>
                 )
             })
         })
@@ -174,11 +184,13 @@ describe('WearableData', () => {
 
         await act(() => {
             render(
-                <WearableData
-                    patients={[]}
-                    selectedDate={mockSelectedDate}
-                    indexPatient={mockPatientIndex}
-                />
+                <PatientProvider>
+                    <WearableData
+                        patients={[]}
+                        selectedDate={mockSelectedDate}
+                        indexPatient={mockPatientIndex}
+                    />
+                </PatientProvider>
             )
         })
 
