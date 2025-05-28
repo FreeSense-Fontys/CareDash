@@ -7,8 +7,8 @@ import Configuration from './Configuration'
 import Presets from './Presets'
 import ProtectedRoute from './components/ProtectedRoute'
 import exh from './Auth'
-import { rqlBuilder } from '@extrahorizon/javascript-sdk'
-import { create } from 'domain'
+import { rqlBuilder, createOAuth2Client } from '@extrahorizon/javascript-sdk'
+import Credentials from './config'
 
 function App() {
     const createSchemaCarepaths = async () => {
@@ -158,10 +158,61 @@ function App() {
     const addDataToAlertTriggers = async () => {
         console.log('Adding data to alert triggers')
         await exh.data.documents.create('alert-triggers', {
-            vitals: 'HR',
+            vital: 'HR',
             wearableId: '67ea58ec53535d5d4c36cb28',
             observationId: '67eceb2c8bd54e1f9f0d68ba',
             value: 68.15192246987792,
+        })
+    }
+
+    const removeDocumentAlertTriggers = async (id: string) => {
+        await exh.data.documents.remove('alert-triggers', id)
+    }
+
+    const addDocumentWearableObservation = async () => {
+        const exhWearables = createOAuth2Client({
+            host: Credentials.EXH_HOST || '',
+            clientId: Credentials.EXH_CLIENT_ID || '',
+            clientSecret: Credentials.EXH_CLIENT_SECRET || '',
+        })
+        await exhWearables.auth.authenticate({
+            username: 'wearable1@freesense-solutions.com',
+            password: 'Wearable1',
+        })
+        await exhWearables.data.documents.create('wearable-observation', {
+            vitals: [
+                {
+                    name: 'HR',
+                    value: 65,
+                    sqiStatus: 1,
+                    timestamp: '2025-04-01T00:00:00.000Z',
+                    id: '67ec39378bd54e176f0d601e',
+                },
+                {
+                    name: 'SBP',
+                    value: 140,
+                    sqiStatus: 1,
+                    timestamp: '2025-04-01T00:00:00.000Z',
+                    id: '67ec39378bd54e41530d601f',
+                },
+                {
+                    name: 'DBP',
+                    value: 80,
+                    sqiStatus: 1,
+                    timestamp: '2025-04-01T00:00:00.000Z',
+                    id: '67ec39378bd54e432a0d6020',
+                },
+                {
+                    name: 'T',
+                    value: 38,
+                    sqiStatus: 1,
+                    timestamp: '2025-04-01T00:00:01.000Z',
+                    id: '67ec39378bd54e6fdf0d6021',
+                },
+            ],
+            ppgFileToken: '',
+            scheduleTags: ['Heart Failure', 'COPD'],
+            patientId: '67ea71688bd54e5ccb0d4066',
         })
     }
 
@@ -177,12 +228,15 @@ function App() {
         // removeDocumentAlerts('682ee7c58bd54ee0880e3cfe')
         // removeSchema('alerts')
 
-        printAllAlertsWithWearableId('67ea58ec53535d5d4c36cb28')
+        // printAllAlertsWithWearableId('67ea58ec53535d5d4c36cb28')
 
         // createSchemaAlertTriggers()
         // addPropertiesToAlertTriggers()
         // addDataToAlertTriggers()
+        // removeDocumentAlertTriggers('6834376a8bd54e22dc0e3d1e')
         // removeSchema('alert-triggers')
+
+        addDocumentWearableObservation()
     }
     createSchema()
 
