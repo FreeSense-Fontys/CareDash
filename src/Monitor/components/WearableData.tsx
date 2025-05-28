@@ -1,29 +1,18 @@
 import { useEffect, useState } from 'react'
 import exh from '../../Auth'
-import { Patient, rqlBuilder } from '@extrahorizon/javascript-sdk'
+import { rqlBuilder } from '@extrahorizon/javascript-sdk'
 import { Checkbox } from '@mui/material'
+
+import { AlertTrigger } from '../../types/AlertTrigger'
+import { Vital } from '../../types/Vital'
+import { PatientResponse } from '../../types/PatientResponse'
 import { usePatient } from '../../contexts/PatientProvider'
-
-// Define the Wearable and Vital types
-interface Wearable {
-    id?: string
-    vitals: Vital[]
-}
-
-interface Vital {
-    name: string
-    series: { value: number }[]
-}
+import { WearableResponse } from '../../types/WearableResponse'
 
 interface WearableDataProps {
-    patients: Patient[]
+    patients: PatientResponse[]
     indexPatient: number
     selectedDate: string
-}
-
-enum AlertType {
-    ABOVE = 'Above',
-    BELOW = 'Below',
 }
 
 const allVitals = ['HR', 'SBP', 'DBP', 'SPO2', 'RR', 'ACT', 'T']
@@ -33,9 +22,9 @@ const WearableData = ({
     indexPatient,
     selectedDate,
 }: WearableDataProps) => {
-    const [wearables, setWearableData] = useState<any[]>([])
+    const [wearables, setWearableData] = useState<WearableResponse[]>([])
     const [hasChecked, setHasChecked] = useState(false)
-    const [alertTriggers, setAlertTriggers] = useState<any[]>([])
+    const [alertTriggers, setAlertTriggers] = useState<AlertTrigger[]>([])
     const { setPatients } = usePatient()
 
     // what if patient has multiple wearables? only using the first one right now
@@ -53,7 +42,7 @@ const WearableData = ({
                     rql: rqlBuilder()
                         .ge('creationTimestamp', `${selectedDate}T00:00:00Z`)
                         .le('creationTimestamp', `${selectedDate}T23:59:59Z`)
-                        .sort('creationTimestamp')
+                        .sort('-creationTimestamp')
                         .eq('creatorId', wearableId)
                         .build(),
                 }
@@ -61,39 +50,43 @@ const WearableData = ({
 
             if (!wearableData) return
 
-            wearableData.data.vitals[0].value = 105
-
-            setWearableData([wearableData])
+            setWearableData([wearableData as unknown as WearableResponse])
         }
 
-        setHasChecked(patients[indexPatient]?.checked)
+        setHasChecked(patients[indexPatient]?.checked ?? false)
         getWearable()
     }, [selectedDate, indexPatient, patients, wearableId])
 
     useEffect(() => {
         const getAlerts = async () => {
-            const alerts = await exh.data.documents.find('alerts', {
+            // gets alert triggers for each wearable for the selected date
+            const alerts = await exh.data.documents.find('alert-trigger', {
                 rql: rqlBuilder()
                     .eq('data.wearableId', wearableId)
-                    // .ge('creationTimestamp', `${selectedDate}T00:00:00Z`)
-                    // .le('creationTimestamp', `${selectedDate}T23:59:59Z`)
+                    .ge('creationTimestamp', `${selectedDate}T00:00:00Z`)
+                    .le('creationTimestamp', `${selectedDate}T23:59:59Z`)
                     .build(),
             })
-            if (!alerts) return
-            console.log(alerts.data)
-            setAlertTriggers(alerts.data)
+            if (alerts.data.length == 0) return
+            setAlertTriggers(alerts.data as unknown as AlertTrigger[])
         }
         getAlerts()
     }, [patients, indexPatient, wearableId, selectedDate])
 
-    const handleCheckPatient = async (e) => {
+    interface CheckPatientEvent {
+        target: {
+            checked: boolean
+        }
+    }
+
+    const handleCheckPatient = async (e: CheckPatientEvent): Promise<void> => {
         const check = e.target.checked
 
         setHasChecked(check)
 
-        await new Promise((resolve) => setTimeout(resolve, 500))
+        await new Promise<void>((resolve) => setTimeout(resolve, 500))
 
-        // Update the check of this specific patient
+        // update the check of this specific patient
         const updatedPatients = patients.map((p, i) =>
             i === indexPatient ? { ...p, checked: check } : p
         )
@@ -103,51 +96,49 @@ const WearableData = ({
 
     return (
         <>
-            {wearables?.map((wearable: Wearable, wearableIndex: number) => (
-                <div
-                    key={wearable.id ?? `wearable-${wearableIndex}`}
-                    className="flex justify-around gap-7 text-lg pr-7"
-                >
-                    {allVitals.map((vitalName: string) => {
-                        const vital = wearable.data?.vitals?.find(
-                            (v: Vital) => v.name === vitalName
-                        )
-                        console.log(alertTriggers)
-                        const alert = alertTriggers.find(
-                            (a) => a.data.vitals === vitalName
-                        )
+            {wearables?.map(
+                (wearable: WearableResponse, wearableIndex: number) => (
+                    <div
+                        key={wearable.id ?? `wearable-${wearableIndex}`}
+                        className="flex justify-around gap-7 text-lg pr-7"
+                    >
+                        {allVitals.map((vitalName: string) => {
+                            const vital = wearable.data.vitals.find(
+                                (v: Vital) => v.name === vitalName
+                            )
 
-                        const isDangerous =
-                            (alert?.data?.alertType === AlertType.ABOVE &&
-                                vital?.value > alert.data.threshold) ||
-                            (alert?.data?.alertType === AlertType.BELOW &&
-                                vital?.value < alert.data.threshold)
+                            const temp = alertTriggers.some(
+                                (alert) =>
+                                    alert.data.vital === vitalName &&
+                                    alert.data.wearableId === wearableId
+                            )
 
-                        return (
-                            <div
-                                key={vitalName}
-                                className="flex justify-center items-center"
-                            >
-                                {vital ? (
-                                    <div
-                                        className={
-                                            (isDangerous &&
-                                                'text-white bg-red-500') +
-                                            ` text-center border size-12 rounded-lg justify-center items-center flex leading-tight`
-                                        }
-                                    >
-                                        {vital.value.toFixed(
-                                            vitalName === 'T' ? 1 : 0
-                                        )}
-                                    </div>
-                                ) : (
-                                    <div className="text-center size-12 rounded-lg justify-center items-center flex leading-tight"></div>
-                                )}
-                            </div>
-                        )
-                    })}
-                </div>
-            ))}
+                            return (
+                                <div
+                                    key={vitalName}
+                                    className="flex justify-center items-center"
+                                >
+                                    {vital ? (
+                                        <div
+                                            className={
+                                                (temp &&
+                                                    'text-white bg-red-500') +
+                                                ` text-center border size-12 rounded-lg justify-center items-center flex leading-tight`
+                                            }
+                                        >
+                                            {vital.value.toFixed(
+                                                vitalName === 'T' ? 1 : 0
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div className="text-center size-12 rounded-lg justify-center items-center flex leading-tight"></div>
+                                    )}
+                                </div>
+                            )
+                        })}
+                    </div>
+                )
+            )}
             <div className="flex items-center" data-testid="checkbox">
                 <Checkbox
                     color="success"

@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import PatientList from './components/PatientList'
 import SearchOptions from './components/SearchOptions'
-// import AddMockVitals from './components/AddMockVitals'
 import { Dayjs } from 'dayjs'
 import { usePatient } from '../contexts/PatientProvider'
 import PatientDetails from '../PatientDetails'
@@ -27,11 +26,6 @@ const PatientListForm = ({
     const [searchQuery, setSearchQuery] = useState('')
     const [filterCarepath, setFilterCarepath] = useState('')
     const [filterOrder, setFilterOrder] = useState('Priority')
-
-    // function MockVitals() {
-    //     // Add mock vitals to all patients if needed
-    //     AddMockVitals.AddMockVitals()
-    // }
 
     return (
         <div className="bg-white h-screen flex flex-col ">
@@ -120,15 +114,6 @@ const PatientListForm = ({
                         </div>
                     )}
                 </div>
-
-                {/* 
-                <button
-                    onClick={() => MockVitals()}
-                    className="bg-accent text-white px-3 py-2 rounded hover:opacity-80 cursor-pointer center"
-                    data-testid="mock_vitals"
-                >
-                    Add mock vitals
-                </button> */}
             </div>
         </div>
     )

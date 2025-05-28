@@ -1,12 +1,12 @@
-import { Patient } from '@extrahorizon/javascript-sdk'
+import { PatientResponse } from '../types/PatientResponse'
 import exh from '../Auth'
 import { createContext, useState, useEffect, useContext } from 'react'
 
 interface PatientContextType {
-    patients: Patient[] | null
-    setPatients: (patients: Patient[] | null) => void
-    selectedPatient: Patient | null
-    setSelectedPatient: (patient: Patient | null) => void
+    patients: PatientResponse[] | null
+    setPatients: (patients: PatientResponse[] | null) => void
+    selectedPatient: PatientResponse | null
+    setSelectedPatient: (patient: PatientResponse | null) => void
     isWearableSelected: boolean
     setIsWearableSelected: (isSelected: boolean) => void
     selectedWearableId: string | null
@@ -19,15 +19,18 @@ export const PatientProvider = ({
 }: {
     children: React.ReactNode
 }) => {
-    const [patients, setPatients] = useState<Patient[] | null>(null)
-    const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null)
+    const [patients, setPatients] = useState<PatientResponse[] | null>(null)
+    const [selectedPatient, setSelectedPatient] =
+        useState<PatientResponse | null>(null)
     const [isWearableSelected, setIsWearableSelected] = useState(false)
     const [selectedWearableId, setSelectedWearableId] = useState<string | null>(
         null
     )
 
     async function getPatientData() {
-        const patients = await exh.data.documents.findAll<Patient>('patient')
+        const patients = await exh.data.documents.findAll<PatientResponse>(
+            'patient'
+        )
         if (!patients || patients.length === 0) {
             setPatients(null)
             return

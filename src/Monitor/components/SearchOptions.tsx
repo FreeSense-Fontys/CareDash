@@ -34,7 +34,7 @@ const SearchOptions = ({
 }: wearableDataProps) => {
     const buttonRef = useRef<HTMLButtonElement | null>(null)
 
-    const [carepathOptions, setCarepathOptions] = useState<string[]>([])
+    const [carepathOptions, setCarepathOptions] = useState<any[]>([])
 
     useEffect(() => {
         const fetchCarepathOptions = async () => {
