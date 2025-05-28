@@ -1,17 +1,23 @@
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker'
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import exh from '../../Auth'
+import { Dayjs } from 'dayjs'
 
 interface wearableDataProps {
-    selectedDate: any
-    setSelectedDate: (date: any) => void
+    selectedDate: Dayjs
+    setSelectedDate: (date: Dayjs) => void
     open: boolean
     setOpen: (open: boolean) => void
     handlePrevDay: () => void
     handleNextDay: () => void
     searchQuery: string
     setSearchQuery: (value: string) => void
+    filterCarepath: string
+    setFilterCarepath: (value: string) => void
+    filterOrder: string
+    setFilterOrder: (value: string) => void
 }
 
 const SearchOptions = ({
@@ -22,9 +28,27 @@ const SearchOptions = ({
     handlePrevDay,
     handleNextDay,
     searchQuery,
-    setSearchQuery
+    setSearchQuery,
+    setFilterCarepath,
+    setFilterOrder,
 }: wearableDataProps) => {
     const buttonRef = useRef<HTMLButtonElement | null>(null)
+
+    const [carepathOptions, setCarepathOptions] = useState<any[]>([])
+
+    useEffect(() => {
+        const fetchCarepathOptions = async () => {
+            const carepathData = await exh.data.documents.findAll('carepaths')
+            if (!carepathData) {
+                return
+            }
+            const options = carepathData.map(
+                (carepath) => carepath.data.carepathName
+            )
+            setCarepathOptions(options)
+        }
+        fetchCarepathOptions()
+    }, [])
 
     return (
         <div className="flex justify-between items-center mb-4 text-lg">
@@ -43,15 +67,29 @@ const SearchOptions = ({
                 {/* Sort */}
                 <div className="justify-center items-center">
                     <div>Sort by</div>
-                    <select className="p-2 border rounded-lg w-25">
-                        <option>Priority</option>
+                    <select
+                        name="Order"
+                        className="p-2 border rounded-lg w-25"
+                        onChange={(e) => setFilterOrder(e.target.value)}
+                    >
+                        <option value="Priority">Priority</option>
+                        <option value="Alphabetical">Alphabetical</option>
                     </select>
                 </div>
                 {/* Filter */}
                 <div>
                     <div>Filter by</div>
-                    <select className="p-2 border rounded-lg w-25">
-                        <option>Illness</option>
+                    <select
+                        name="Illness"
+                        className="p-2 border rounded-lg w-25"
+                        onChange={(e) => setFilterCarepath(e.target.value)}
+                    >
+                        <option value="">All</option>
+                        {carepathOptions.map((option) => (
+                            <option key={option} value={option}>
+                                {option}
+                            </option>
+                        ))}
                     </select>
                 </div>
             </div>
