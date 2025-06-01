@@ -1,5 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import EditConfigurationPage from './EditConfiguration'
+import { Patient, rqlBuilder } from '@extrahorizon/javascript-sdk'
+import exh from '../../Auth'
 
 interface ConfigData {
     vitals: string[]
@@ -48,13 +50,29 @@ const mockConfigurations: Record<string, ConfigData> = {
     },
 }
 
-interface ConfigurationItemsProps {
-    activeCarepath: string
+interface Alert {
+    id?: string
+    data: {
+        vital: string
+        alertType: 'Above' | 'Below'
+        threshold: number
+        wearableId: string
+        patientId: string
+        carepathId: string
+    }
 }
 
-const ConfigurationItems = ({ activeCarepath }: ConfigurationItemsProps) => {
-    //const [configurations, setConfigurations] = useState(mockConfigurations);
+interface ConfigurationItemsProps {
+    activeCarepath: string
+    currentPatient: Patient
+}
+
+const ConfigurationItems = ({
+    activeCarepath,
+    currentPatient,
+}: ConfigurationItemsProps) => {
     const [isEditing, setIsEditing] = useState(false)
+    const [alerts, setAlerts] = useState<Alert[]>([])
 
     const currentConfig = activeCarepath
         ? mockConfigurations[activeCarepath]
@@ -64,13 +82,27 @@ const ConfigurationItems = ({ activeCarepath }: ConfigurationItemsProps) => {
         setIsEditing(true)
     }
 
+    useEffect(() => {
+        const fetchAlerts = async () => {
+            const alerts = await exh.data.documents.find('alert', {
+                rql: rqlBuilder()
+                    .eq('data.patientId', currentPatient.id ?? '')
+                    .build(),
+            })
+            setAlerts(alerts.data)
+        }
+        fetchAlerts()
+    }, [currentPatient])
+
     // Show edit page if in editing mode
     if (isEditing && currentConfig) {
         return (
             <EditConfigurationPage
                 activeCarepath={activeCarepath}
                 currentConfig={currentConfig}
+                alerts={alerts}
                 onCancel={() => setIsEditing(false)}
+                patient={currentPatient}
             />
         )
     }
@@ -106,7 +138,14 @@ const ConfigurationItems = ({ activeCarepath }: ConfigurationItemsProps) => {
         currentConfig.vitals.slice(0, maxItems)
     )
     const [alertLeft, alertRight] = splitIntoTwoColumns(
-        currentConfig.alerts.slice(0, maxItems)
+        alerts
+            .map((alert) => {
+                const message = `${alert.data.vital} ${
+                    alert.data.alertType === 'Above' ? '>' : '<'
+                } ${alert.data.threshold}`
+                return message
+            })
+            .slice(0, maxItems)
     )
 
     return (
