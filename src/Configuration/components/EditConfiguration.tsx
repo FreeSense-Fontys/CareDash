@@ -60,18 +60,6 @@ const EditConfigurationPage = ({
         })
     }
 
-    async function updateAlerts(alerts: Alert[]) {
-        alerts.forEach(async (alert) => {
-            await exh.data.documents.update('alert', alert.id, {
-                data: {
-                    vital: alert.data.vital,
-                    alertType: alert.data.alertType,
-                    threshold: alert.data.threshold,
-                },
-            })
-        })
-    }
-
     // Store initial state for cancel functionality
     const initialVitals = [
         { name: 'Heart Rate', selected: false },
@@ -140,7 +128,7 @@ const EditConfigurationPage = ({
 
     const handleSave = async () => {
         const newAlerts = tempAlerts.filter((alert) => !alert.id)
-        const updatedAlerts = tempAlerts.filter(
+        const updateAlerts = tempAlerts.filter(
             (alert) =>
                 alert !== alerts.find((a) => a.id === alert.id) &&
                 newAlerts.find((a) => a.id === alert.id) === undefined
@@ -148,10 +136,17 @@ const EditConfigurationPage = ({
         const removeAlerts = alerts.filter(
             (alert) => alert.id && !tempAlerts.find((a) => a.id === alert.id)
         )
-        // await deleteAlerts(removeAlerts)
+        await deleteAlerts(removeAlerts)
         // console.log('Delete Alerts: ', deleteAlerts)
-        await updateAlerts(updatedAlerts)
-        await createAlerts(newAlerts)
+        updateAlerts.forEach(async (alert) => {
+            await exh.data.documents.update('alert', alert.id, {
+                vital: alert.data.vital,
+                alertType: alert.data.alertType,
+                threshold: alert.data.threshold,
+            })
+        })
+        // createAlerts(newAlerts)
+        // await refetchAlerts()
         onCancel()
     }
 
