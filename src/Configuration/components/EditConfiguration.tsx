@@ -34,7 +34,15 @@ const EditConfigurationPage = ({
     currentConfig,
     onCancel,
 }: EditConfigurationProps) => {
-    const vitalAbreviations = ['HR', 'SpO2', 'DBP', 'SBP', 'RR', 'Ac', 'Temp']
+    const vitalAbreviations = ['HR', 'SBP', 'DBP', 'SpO2', 'RR', 'ACT', 'T']
+    const vitalName = [
+        { name: 'Heart Rate', abreviation: 'HR' },
+        { name: 'Blood Pressure', abreviation: ['DBP', 'SBP'] },
+        { name: 'Oxygen Saturation', abreviation: 'SpO2' },
+        { name: 'Respiration Rate', abreviation: 'RR' },
+        { name: 'Activity', abreviation: 'ACT' },
+        { name: 'Temperature', abreviation: 'T' },
+    ]
 
     const createWearableScheduleDocument = async () => {
         const createdScheduleDocument = await exh.data.documents.create(
@@ -43,34 +51,60 @@ const EditConfigurationPage = ({
                 patientId: '67ea71688bd54e5ccb0d4066',
                 schedule: [
                     {
-                        what: ['HR', 'SBP', 'DBP', 'SpO2', 'RR', 'ACT', 'T'], // change to value from form
+                        what: ['HR', 'SBP', 'DBP', 'SpO2'], // change to value from form
                         tag: 'Wearable Schedule',
                         carepaths: ['COPD', 'Diabetes'], // change to value from form
                         mode: 'interval',
-                        interval: 5, // change to value from form
+                        tInterval: 5, // change to value from form
                     },
                 ],
+                wearableId: '679c853b53535d5d4c36cae6',
             }
         )
         console.log(createdScheduleDocument)
     }
 
+    const findVitals = () => {
+        let selectedVitalsAbreviations: string[] = []
+        vitals.forEach((vital) => {
+            if (vital.selected) {
+                const foundVital = vitalName.find((v) => v.name === vital.name)
+                if (foundVital) {
+                    if (Array.isArray(foundVital.abreviation)) {
+                        selectedVitalsAbreviations.push(
+                            ...foundVital.abreviation
+                        )
+                    } else {
+                        selectedVitalsAbreviations.push(foundVital.abreviation)
+                    }
+                }
+            }
+        })
+        return selectedVitalsAbreviations
+    }
+
     const updateWearableScheduleDocument = async (id: string) => {
-        console.log('Updating schedule document with ID:', id)
+        const onlySelectedVitals = findVitals()
+
         const updateScheduleDocument = await exh.data.documents.update(
             'wearable-schedule',
             id,
             {
-                what: ['2HR', 'SBP', 'DBP', 'SpO2', 'RR', 'ACT', 'T'], // change to value from form
-                carepaths: ['2COPD', 'Diabetes'], // change to value from form
-                tInterval: 6, // change to value from form
+                schedule: [
+                    {
+                        what: onlySelectedVitals, // change to value from form
+                        carepaths: [activeCarepath], // change to value from form
+                        mode: 'interval',
+                        tInterval: timingConfig.frequency, // change to value from form
+                    },
+                ],
+                wearableId: '679c853b53535d5d4c36cae6',
             }
         )
         console.log(updateScheduleDocument)
     }
 
     // createWearableScheduleDocument()
-    updateWearableScheduleDocument('6836fec88bd54e9c2d0e3d6e')
 
     // Store initial state for cancel functionality
     const initialVitals = [
@@ -153,6 +187,7 @@ const EditConfigurationPage = ({
             alerts: alertConfigs,
         })
         onCancel()
+        updateWearableScheduleDocument('6836fec88bd54e9c2d0e3d6e')
     }
 
     const handleCancel = () => {
