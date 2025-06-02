@@ -3,6 +3,8 @@ import { Check, Trash2, Plus } from 'lucide-react'
 import exh from '../../Auth'
 import { PatientResponse } from '../../types/PatientResponse'
 import { Alert } from '../../types/Alert'
+import EditVitalsSection from './EditVitalsSection'
+import EditTimingSection from './EditTimingSection'
 
 interface VitalOption {
     name: string
@@ -23,13 +25,90 @@ interface EditConfigurationProps {
     patient: PatientResponse
 }
 
-async function createAlerts(alerts: Alert[]) {
-    Promise.all(
-        alerts.map(async (alert) => {
-            await exh.data.documents.create('alert', alert.data)
+
+const EditConfigurationPage = ({
+    activeCarepath,
+    currentConfig,
+    onCancel,
+}: EditConfigurationProps) => {
+    async function createAlerts(alerts: Alert[]) {
+        Promise.all(
+            alerts.map(async (alert) => {
+                await exh.data.documents.create('alert', alert.data)
+            })
+        )
+    }
+    const vitalAbreviations = ['HR', 'SBP', 'DBP', 'SpO2', 'RR', 'ACT', 'T']
+    const vitalName = [
+        { name: 'Heart Rate', abreviation: 'HR' },
+        { name: 'Blood Pressure', abreviation: ['DBP', 'SBP'] },
+        { name: 'Oxygen Saturation', abreviation: 'SpO2' },
+        { name: 'Respiration Rate', abreviation: 'RR' },
+        { name: 'Activity', abreviation: 'ACT' },
+        { name: 'Temperature', abreviation: 'T' },
+    ]
+
+    const createWearableScheduleDocument = async () => {
+        const createdScheduleDocument = await exh.data.documents.create(
+            'wearable-schedule',
+            {
+                patientId: '67ea71688bd54e5ccb0d4066',
+                schedule: [
+                    {
+                        what: ['HR', 'SBP', 'DBP', 'SpO2'], // change to value from form
+                        tag: 'Wearable Schedule',
+                        carepaths: ['COPD', 'Diabetes'], // change to value from form
+                        mode: 'interval',
+                        tInterval: 5, // change to value from form
+                    },
+                ],
+                wearableId: '679c853b53535d5d4c36cae6',
+            }
+        )
+        console.log(createdScheduleDocument)
+    }
+
+    const findVitals = () => {
+        let selectedVitalsAbreviations: string[] = []
+        vitals.forEach((vital) => {
+            if (vital.selected) {
+                const foundVital = vitalName.find((v) => v.name === vital.name)
+                if (foundVital) {
+                    if (Array.isArray(foundVital.abreviation)) {
+                        selectedVitalsAbreviations.push(
+                            ...foundVital.abreviation
+                        )
+                    } else {
+                        selectedVitalsAbreviations.push(foundVital.abreviation)
+                    }
+                }
+            }
         })
-    )
-}
+        return selectedVitalsAbreviations
+    }
+
+    const updateWearableScheduleDocument = async (id: string) => {
+        const onlySelectedVitals = findVitals()
+
+        const updateScheduleDocument = await exh.data.documents.update(
+            'wearable-schedule',
+            id,
+            {
+                schedule: [
+                    {
+                        what: onlySelectedVitals, // change to value from form
+                        carepaths: [activeCarepath], // change to value from form
+                        mode: 'interval',
+                        tInterval: timingConfig.frequency, // change to value from form
+                    },
+                ],
+                wearableId: '679c853b53535d5d4c36cae6',
+            }
+        )
+        console.log(updateScheduleDocument)
+    }
+
+    // createWearableScheduleDocument()
 
 async function deleteAlerts(alerts: Alert[]) {
     Promise.all(
@@ -66,7 +145,6 @@ const EditConfigurationPage = ({
         { name: 'Activity', selected: true },
         { name: 'Temperature', selected: false },
     ]
-
     // Available vitals with selection state
     const [vitals, setVitals] = useState<VitalOption[]>(initialVitals)
     const [tempAlerts, setTempAlerts] = useState<Alert[]>(alerts)
@@ -157,89 +235,16 @@ const EditConfigurationPage = ({
             <div className="h-[59vh] overflow-y-auto">
                 <div className="space-y-8 mr-2">
                     {/* Vitals Section */}
-                    <div className="grid grid-cols-4 mb-6">
-                        <h2 className="text-lg font-semibold text-gray-800">
-                            Vitals
-                        </h2>
-                        <div className="grid grid-cols-2 col-span-3 gap-4">
-                            {vitals.map((vital, index) => (
-                                <div
-                                    key={vital.name}
-                                    className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50"
-                                    onClick={() => toggleVital(index)}
-                                >
-                                    <div
-                                        className={`w-5 h-5 border-2 rounded mr-3 flex items-center justify-center ${
-                                            vital.selected
-                                                ? 'bg-green-500 border-green-500 text-white'
-                                                : 'border-gray-300'
-                                        }`}
-                                    >
-                                        {vital.selected && <Check size={12} />}
-                                    </div>
-                                    <span className="text-gray-700">
-                                        {vital.name}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+                    <EditVitalsSection
+                        vitals={vitals}
+                        toggleVital={toggleVital}
+                    />
 
                     {/* Timing Section */}
-                    <div className="grid grid-cols-4 gap-4 border-t pt-4 mb-6">
-                        <h2 className="text-lg font-semibold text-gray-800">
-                            Timing
-                        </h2>
-                        <div className="col-span-3 flex gap-6">
-                            <div className="flex-1 space-y-2">
-                                <div className="flex items-center gap-3">
-                                    <select
-                                        value={timingConfig.interval}
-                                        onChange={(e) =>
-                                            updateTimingConfig(
-                                                'interval',
-                                                e.target.value
-                                            )
-                                        }
-                                        className="px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    >
-                                        <option value="Interval">
-                                            Interval
-                                        </option>
-                                        <option value="Daily">Daily</option>
-                                        <option value="Hourly">Hourly</option>
-                                    </select>
-                                    <span className="text-gray-600">Every</span>
-                                    <input
-                                        type="number"
-                                        value={timingConfig.frequency}
-                                        onChange={(e) =>
-                                            updateTimingConfig(
-                                                'frequency',
-                                                parseInt(e.target.value) || 1
-                                            )
-                                        }
-                                        className="w-16 px-3 py-2 border border-gray-300 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        min="1"
-                                    />
-                                    <select
-                                        value={timingConfig.unit}
-                                        onChange={(e) =>
-                                            updateTimingConfig(
-                                                'unit',
-                                                e.target.value
-                                            )
-                                        }
-                                        className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    >
-                                        <option value="Minutes">Minutes</option>
-                                        <option value="Hours">Hours</option>
-                                        <option value="Days">Days</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <EditTimingSection
+                        timingConfig={timingConfig}
+                        updateTimingConfig={updateTimingConfig}
+                    />
 
                     {/* Alerts Section */}
                     <div className="grid grid-cols-4 gap-4 border-t pt-4 mb-6">
@@ -285,25 +290,16 @@ const EditConfigurationPage = ({
                                                     }
                                                     className="px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                 >
-                                                    <option value="HR">
-                                                        HR
-                                                    </option>
-                                                    <option value="SBP">
-                                                        SBP
-                                                    </option>
-                                                    <option value="DBP">
-                                                        DBP
-                                                    </option>
-                                                    <option value="SpO2">
-                                                        SpO2
-                                                    </option>
-                                                    <option value="RR">
-                                                        RR
-                                                    </option>
-                                                    <option value="ACT">
-                                                        ACT
-                                                    </option>
-                                                    <option value="T">T</option>
+                                                      {vitalAbreviations.map(
+                                                        (vital) => (
+                                                            <option
+                                                                key={vital}
+                                                                value={vital}
+                                                            >
+                                                                {vital}
+                                                            </option>
+                                                        )
+                                                    )}
                                                 </select>
 
                                                 <select
