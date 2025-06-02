@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Check, Trash2, Plus } from 'lucide-react'
 import exh from '../../Auth'
 import { PatientResponse } from '../../types/PatientResponse'
+import { Alert } from '../../types/Alert'
 
 interface VitalOption {
     name: string
@@ -15,31 +16,39 @@ interface TimingConfig {
     unit: string
 }
 
-interface AlertConfig {
-    id: string
-    vital: string
-    operator: string
-    value: string
-}
-
 interface EditConfigurationProps {
     activeCarepath: string
-    // currentConfig: string
-    alerts: any[]
+    alerts: Alert[]
     onCancel: () => void
     patient: PatientResponse
 }
 
-interface Alert {
-    id: string
-    data: {
-        vital: string
-        alertType: 'Above' | 'Below'
-        threshold: number
-        wearableId: string
-        patientId?: string
-        carepathId: string
-    }
+async function createAlerts(alerts: Alert[]) {
+    Promise.all(
+        alerts.map(async (alert) => {
+            await exh.data.documents.create('alert', alert.data)
+        })
+    )
+}
+
+async function deleteAlerts(alerts: Alert[]) {
+    Promise.all(
+        alerts.map(async (alert) => {
+            await exh.data.documents.remove('alert', alert.id)
+        })
+    )
+}
+
+async function updateAlerts(alerts: Alert[]) {
+    await Promise.all(
+        alerts.map(async (alert) => {
+            await exh.data.documents.update('alert', alert.id, {
+                vital: alert.data.vital,
+                alertType: alert.data.alertType,
+                threshold: alert.data.threshold,
+            })
+        })
+    )
 }
 
 const EditConfigurationPage = ({
@@ -48,18 +57,6 @@ const EditConfigurationPage = ({
     onCancel,
     patient,
 }: EditConfigurationProps) => {
-    async function createAlerts(alerts: Alert[]) {
-        alerts.forEach(async (alert) => {
-            await exh.data.documents.create('alert', alert.data)
-        })
-    }
-
-    async function deleteAlerts(alerts: Alert[]) {
-        alerts.forEach(async (alert) => {
-            await exh.data.documents.remove('alert', alert.id)
-        })
-    }
-
     // Store initial state for cancel functionality
     const initialVitals = [
         { name: 'Heart Rate', selected: false },
@@ -102,6 +99,7 @@ const EditConfigurationPage = ({
                 vital: 'BP',
                 alertType: 'Above',
                 threshold: 0,
+                //only using first wearable for now, wearable should be passed in as a prop
                 wearableId: patient.data.coupledWearables[0].wearableId,
                 patientId: patient.id,
                 carepathId: activeCarepath,
@@ -110,25 +108,13 @@ const EditConfigurationPage = ({
         setTempAlerts([...tempAlerts, newAlert])
     }
 
-    const updateAlertConfig = (
-        id: string,
-        field: keyof AlertConfig,
-        value: string
-    ) => {
-        setTempAlerts(
-            tempAlerts.map((config) =>
-                config.id === id ? { ...config, [field]: value } : config
-            )
-        )
-    }
-
     const deleteAlertConfig = (id: string) => {
         setTempAlerts(tempAlerts.filter((config) => config.id !== id))
     }
 
     const handleSave = async () => {
         const newAlerts = tempAlerts.filter((alert) => !alert.id)
-        const updateAlerts = tempAlerts.filter(
+        const updatedAlerts = tempAlerts.filter(
             (alert) =>
                 alert !== alerts.find((a) => a.id === alert.id) &&
                 newAlerts.find((a) => a.id === alert.id) === undefined
@@ -137,16 +123,8 @@ const EditConfigurationPage = ({
             (alert) => alert.id && !tempAlerts.find((a) => a.id === alert.id)
         )
         await deleteAlerts(removeAlerts)
-        // console.log('Delete Alerts: ', deleteAlerts)
-        updateAlerts.forEach(async (alert) => {
-            await exh.data.documents.update('alert', alert.id, {
-                vital: alert.data.vital,
-                alertType: alert.data.alertType,
-                threshold: alert.data.threshold,
-            })
-        })
-        // createAlerts(newAlerts)
-        // await refetchAlerts()
+        await updateAlerts(updatedAlerts)
+        await createAlerts(newAlerts)
         onCancel()
     }
 
@@ -160,9 +138,9 @@ const EditConfigurationPage = ({
     }
 
     // Helper function to split array into columns
-    const splitIntoTwoColumns = (items: any[]) => {
-        const left: any[] = []
-        const right: any[] = []
+    const splitIntoTwoColumns = (items: Alert[]) => {
+        const left: Alert[] = []
+        const right: Alert[] = []
         items.forEach((item, idx) => {
             if (idx % 2 === 0) {
                 left.push(item)

@@ -1,30 +1,100 @@
 import { ChartJSContext } from '../../types/ChartJSContext'
 
-export const dangerousTemperature = (ctx: ChartJSContext, value: string) =>
-    ctx.p0.parsed.y >= 40 ||
-    ctx.p1.parsed.y >= 40 ||
-    ctx.p0.parsed.y <= 34 ||
-    ctx.p1.parsed.y <= 34
-        ? value
-        : undefined
+import { Alert } from '../../types/Alert'
 
-export const dangerousHeartRate = (ctx: ChartJSContext, value: string) =>
-    ctx.p0.parsed.y >= 90 ||
-    ctx.p1.parsed.y >= 90 ||
-    ctx.p0.parsed.y <= 40 ||
-    ctx.p1.parsed.y <= 40
-        ? value
-        : undefined
+const RED_COLOR = 'rgb(226, 30, 30)'
 
-export const dangerousBPM = (ctx: ChartJSContext, value: string) =>
-    ctx.p0.parsed.y >= 140 ||
-    ctx.p1.parsed.y >= 140 ||
-    ctx.p0.parsed.y <= 90 ||
-    ctx.p1.parsed.y <= 90
-        ? value
-        : undefined
-export const dangerousLowBPM = (ctx: ChartJSContext, value: string) =>
-    ctx.p0.parsed.y <= 82 || ctx.p1.parsed.y <= 82 ? value : undefined
+const MISSING_DATA_COLOR = 'rgb(175, 175, 175)'
 
+export const dangerousTemperature = (ctx: ChartJSContext, alerts: Alert[]) => {
+    const relevantAlerts = alerts.filter((alert) => alert.data.vital === 'T')
+    let shouldBeRed = false
+
+    relevantAlerts.forEach((alert) => {
+        if (
+            alert.data.alertType === 'Above' &&
+            (ctx.p0.parsed.y > alert.data.threshold ||
+                ctx.p1.parsed.y > alert.data.threshold)
+        ) {
+            shouldBeRed = true
+        }
+        if (
+            alert.data.alertType === 'Below' &&
+            (ctx.p0.parsed.y < alert.data.threshold ||
+                ctx.p1.parsed.y < alert.data.threshold)
+        ) {
+            shouldBeRed = true
+        }
+    })
+    return shouldBeRed ? RED_COLOR : undefined
+}
+
+export const dangerousHeartRate = (ctx: ChartJSContext, alerts: Alert[]) => {
+    const relevantAlerts = alerts.filter((alert) => alert.data.vital === 'HR')
+    let shouldBeRed = false
+
+    relevantAlerts.forEach((alert) => {
+        if (
+            alert.data.alertType === 'Above' &&
+            (ctx.p0.parsed.y > alert.data.threshold ||
+                ctx.p1.parsed.y > alert.data.threshold)
+        ) {
+            shouldBeRed = true
+        }
+        if (
+            alert.data.alertType === 'Below' &&
+            (ctx.p0.parsed.y < alert.data.threshold ||
+                ctx.p1.parsed.y < alert.data.threshold)
+        ) {
+            shouldBeRed = true
+        }
+    })
+    return shouldBeRed ? RED_COLOR : undefined
+}
+
+export const dangerousBPM = (ctx: ChartJSContext, alerts: Alert[]) => {
+    const relevantAlerts = alerts.filter((alert) => alert.data.vital === 'SBP')
+    let shouldBeRed = false
+
+    relevantAlerts.forEach((alert) => {
+        if (
+            alert.data.alertType === 'Above' &&
+            (ctx.p0.parsed.y > alert.data.threshold ||
+                ctx.p1.parsed.y > alert.data.threshold)
+        ) {
+            shouldBeRed = true
+        }
+        if (
+            alert.data.alertType === 'Below' &&
+            (ctx.p0.parsed.y < alert.data.threshold ||
+                ctx.p1.parsed.y < alert.data.threshold)
+        ) {
+            shouldBeRed = true
+        }
+    })
+    return shouldBeRed ? RED_COLOR : undefined
+}
+export const dangerousLowBPM = (ctx: ChartJSContext, alerts: Alert[]) => {
+    const relevantAlerts = alerts.filter((alert) => alert.data.vital === 'DBP')
+    let shouldBeRed = false
+
+    relevantAlerts.forEach((alert) => {
+        if (
+            alert.data.alertType === 'Above' &&
+            (ctx.p0.parsed.y > alert.data.threshold ||
+                ctx.p1.parsed.y > alert.data.threshold)
+        ) {
+            shouldBeRed = true
+        }
+        if (
+            alert.data.alertType === 'Below' &&
+            (ctx.p0.parsed.y < alert.data.threshold ||
+                ctx.p1.parsed.y < alert.data.threshold)
+        ) {
+            shouldBeRed = true
+        }
+    })
+    return shouldBeRed ? RED_COLOR : undefined
+}
 export const missingData = (ctx: ChartJSContext, value: number[]) =>
-    ctx.p0.skip || ctx.p1.skip ? value : undefined
+    ctx.p0.skip || ctx.p1.skip ? MISSING_DATA_COLOR : undefined

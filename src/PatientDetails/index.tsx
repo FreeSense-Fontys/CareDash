@@ -10,8 +10,10 @@ import { usePatient } from '../contexts/PatientProvider'
 import { VitalSeries, WearableDataByDay } from '../types/WearableDataByDay'
 import { ChartJSContext } from '../types/ChartJSContext'
 import { Vital } from '../types/Vital'
+import { Alert } from '../types/Alert'
 
 import * as TempAlerts from './Components/TempAlerts'
+import { rqlBuilder } from '@extrahorizon/javascript-sdk'
 
 Chart.register(CategoryScale)
 Chart.register(ChartDataLabels)
@@ -25,6 +27,8 @@ export default function DetailPage({ currentDate }: PatientDetailsProps) {
     const [vitalGraphData, setVitalGraphData] = useState<any | undefined>()
     const { selectedPatient, selectedWearableId } = usePatient()
     const [isLoading, setIsLoading] = useState(true)
+
+    // gets data for patient and sets graph data
     useEffect(() => {
         setIsLoading(true)
         setVitalGraphData(undefined)
@@ -33,6 +37,14 @@ export default function DetailPage({ currentDate }: PatientDetailsProps) {
                 setIsLoading(false)
                 return
             }
+
+            // fetching alerts
+            const tempAlerts = await exh.data.documents.find<Alert>('alert', {
+                rql: rqlBuilder()
+                    .eq('data.wearableId', selectedWearableId)
+                    .build(),
+            })
+            const alerts = tempAlerts.data ?? []
             // note that this may take long to execute depending on how many vital measurements
             // that wearable has measured that day (e.g. the second Eric Berry in the list on April 10, 2025 has
             // almost 4000 measurements per vital)
@@ -74,10 +86,7 @@ export default function DetailPage({ currentDate }: PatientDetailsProps) {
                                         ctx,
                                         [175, 175, 175]
                                     ) ||
-                                    TempAlerts.dangerousBPM(
-                                        ctx,
-                                        'rgb(226, 30, 30)'
-                                    ),
+                                    TempAlerts.dangerousBPM(ctx, alerts || []),
                                 borderDash: (ctx: ChartJSContext) =>
                                     TempAlerts.missingData(ctx, [6, 6]),
                             },
@@ -97,7 +106,7 @@ export default function DetailPage({ currentDate }: PatientDetailsProps) {
                                     ) ||
                                     TempAlerts.dangerousLowBPM(
                                         ctx,
-                                        'rgb(226, 30, 30)'
+                                        alerts || []
                                     ),
                                 borderDash: (ctx: ChartJSContext) =>
                                     TempAlerts.missingData(ctx, [6, 6]),
@@ -106,12 +115,16 @@ export default function DetailPage({ currentDate }: PatientDetailsProps) {
                         },
                     ],
                 }
-                vitalsData.push(bloodPressureChartData)
             }
 
             // creating charts for all other vitals except SBP and DBP
             for (const vitals of data.vitals) {
-                if (vitals.name == 'SBP' || vitals.name == 'DBP') continue
+                if (vitals.name == 'SBP') {
+                    vitalsData.push(bloodPressureChartData)
+                    continue
+                }
+                if (vitals.name == 'DBP') continue // skip DBP as it's already included in the blood pressure chart
+
                 vitalsData.push({
                     labels: vitals.series.map((vital: Vital) => {
                         const date: Date = new Date(vital.timestamp)
@@ -142,13 +155,13 @@ export default function DetailPage({ currentDate }: PatientDetailsProps) {
                                     (vitals.name == 'HR'
                                         ? TempAlerts.dangerousHeartRate(
                                               ctx,
-                                              'rgb(226, 30, 30)'
+                                              alerts || []
                                           )
                                         : 'rgb(0, 80, 0)') ||
                                     (vitals.name == 'T'
                                         ? TempAlerts.dangerousTemperature(
                                               ctx,
-                                              'rgb(226, 30, 30)'
+                                              alerts || []
                                           )
                                         : 'rgb(0, 80, 0)'),
                                 borderDash: (ctx: ChartJSContext) =>
@@ -159,9 +172,7 @@ export default function DetailPage({ currentDate }: PatientDetailsProps) {
                     ],
                 })
             }
-            if (vitalsData.length != 0)
-                if (vitalsData.length != 0) setVitalGraphData(vitalsData)
-            // setVitalGraphData([...vitalsData, ...vitalsData])
+            if (vitalsData.length != 0) setVitalGraphData(vitalsData)
             setIsLoading(false)
         }
 

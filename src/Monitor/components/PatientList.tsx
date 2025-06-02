@@ -93,10 +93,11 @@ const PatientList = ({
         const name = patient.data.name.toLowerCase()
         const isInName = name.includes(normalizedQuery)
         const carepaths = patient.carepaths
-        const isInCarepath = carepaths.some((carepath) =>
-            carepath.name.toLowerCase().includes(normalizedFilterCarepath)
-        )
-        return isInName && isInCarepath
+        // const isInCarepath = carepaths.some((carepath) =>
+        //     carepath.name.toLowerCase().includes(normalizedFilterCarepath)
+        // )
+        // return isInName && isInCarepath
+        return isInName
     })
 
     if (filteredPatients.length === 0) {
@@ -115,83 +116,86 @@ const PatientList = ({
             {filteredPatients?.map((patient, indexPatient) => (
                 <div key={patient.id} className="flex">
                     <div className="flex flex-col w-full">
-                        {patient.carepaths.map((carepath, index) => {
-                            const patientWearableId =
-                                patient.data.coupledWearables[index].wearableId
-                            const isSameWearable =
-                                selectedWearableId === patientWearableId
-                            return (
-                                <div
-                                    className={`flex items-center h-20 ${
-                                        index > 0 ? 'ml-52' : ''
-                                    }  p-3 ${
-                                        isSameWearable
-                                            ? 'bg-accent text-white'
-                                            : 'bg-background'
-                                    } rounded-xsm relative mb-2 cursor-pointer`}
-                                    key={`${patient.id}-${index}`}
-                                    onClick={() => {
-                                        if (isSameWearable) {
-                                            setIsWearableSelected(false)
-                                            setSelectedWearableId(null)
-                                        } else {
-                                            setIsWearableSelected(true)
-                                            setSelectedWearableId(
-                                                patientWearableId
-                                            )
-                                            setSelectedPatient(patient)
-                                        }
-                                    }}
-                                >
-                                    {/* Always left-aligned Patient name (only show once) */}
+                        {patient.data.coupledWearables.map(
+                            (wearable, index) => {
+                                const patientWearableId =
+                                    patient.data.coupledWearables[index]
+                                        .wearableId
+                                const isSameWearable =
+                                    selectedWearableId === patientWearableId
+                                return (
                                     <div
-                                        className={`flex items-center justify-between p-3 rounded-xsm relative text-lg`}
+                                        className={`flex items-center h-20 ${
+                                            index > 0 ? 'ml-52' : ''
+                                        }  p-3 ${
+                                            isSameWearable
+                                                ? 'bg-accent text-white'
+                                                : 'bg-background'
+                                        } rounded-xsm relative mb-2 cursor-pointer`}
+                                        key={`${patient.id}-${index}`}
+                                        onClick={() => {
+                                            if (isSameWearable) {
+                                                setIsWearableSelected(false)
+                                                setSelectedWearableId(null)
+                                            } else {
+                                                setIsWearableSelected(true)
+                                                setSelectedWearableId(
+                                                    patientWearableId
+                                                )
+                                                setSelectedPatient(patient)
+                                            }
+                                        }}
                                     >
-                                        {index == 0 ? (
-                                            <div className="flex justify-left items-center gap-5 w-50 ml-4 ">
-                                                <span
-                                                    data-testid="patient-status"
-                                                    className={`w-3 h-3 ${
-                                                        patient.status
-                                                            ? 'bg-green-500'
-                                                            : 'bg-gray-500'
-                                                    } rounded-full`}
-                                                ></span>
-                                                <span className="font-medium truncate">
-                                                    {highlightMatch(
-                                                        patient.data.name,
-                                                        searchQuery
-                                                    )}
-                                                </span>
+                                        {/* Always left-aligned Patient name (only show once) */}
+                                        <div
+                                            className={`flex items-center justify-between p-3 rounded-xsm relative text-lg`}
+                                        >
+                                            {index == 0 ? (
+                                                <div className="flex justify-left items-center gap-5 w-50 ml-4 ">
+                                                    <span
+                                                        data-testid="patient-status"
+                                                        className={`w-3 h-3 ${
+                                                            patient.status
+                                                                ? 'bg-green-500'
+                                                                : 'bg-gray-500'
+                                                        } rounded-full`}
+                                                    ></span>
+                                                    <span className="font-medium truncate">
+                                                        {highlightMatch(
+                                                            patient.data.name,
+                                                            searchQuery
+                                                        )}
+                                                    </span>
+                                                </div>
+                                            ) : (
+                                                ''
+                                            )}
+                                        </div>
+
+                                        {/* Centered carepath */}
+                                        <div
+                                            className={`italic w-22 justify-center items-center${
+                                                isSameWearable
+                                                    ? 'text-white'
+                                                    : 'text-gray-600'
+                                            }`}
+                                        >
+                                            {wearable.name}
+                                        </div>
+                                        {/* Right-aligned WearableData */}
+                                        {!isWearableSelected && (
+                                            <div className="w-full flex justify-end pr-4">
+                                                <WearableData
+                                                    patients={filteredPatients}
+                                                    indexPatient={indexPatient}
+                                                    selectedDate={selectedDate}
+                                                />
                                             </div>
-                                        ) : (
-                                            ''
                                         )}
                                     </div>
-
-                                    {/* Centered carepath */}
-                                    <div
-                                        className={`italic w-22 justify-center items-center${
-                                            isSameWearable
-                                                ? 'text-white'
-                                                : 'text-gray-600'
-                                        }`}
-                                    >
-                                        {carepath.name}
-                                    </div>
-                                    {/* Right-aligned WearableData */}
-                                    {!isWearableSelected && (
-                                        <div className="w-full flex justify-end pr-4">
-                                            <WearableData
-                                                patients={filteredPatients}
-                                                indexPatient={indexPatient}
-                                                selectedDate={selectedDate}
-                                            />
-                                        </div>
-                                    )}
-                                </div>
-                            )
-                        })}
+                                )
+                            }
+                        )}
                     </div>
                 </div>
             ))}

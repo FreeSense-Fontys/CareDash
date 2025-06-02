@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import EditConfigurationPage from './EditConfiguration'
-import { Patient, rqlBuilder } from '@extrahorizon/javascript-sdk'
+import { rqlBuilder } from '@extrahorizon/javascript-sdk'
 import exh from '../../Auth'
+import { Alert } from '../../types/Alert'
+import { PatientResponse } from '../../types/PatientResponse'
 
 interface ConfigData {
     vitals: string[]
@@ -11,7 +13,7 @@ interface ConfigData {
 
 // Mock configuration data for different carepaths
 const mockConfigurations: Record<string, ConfigData> = {
-    COPD: {
+    CareBuddy: {
         vitals: [
             'Peak Flow Rate (L/min)',
             'Oxygen Saturation (%)',
@@ -30,41 +32,11 @@ const mockConfigurations: Record<string, ConfigData> = {
             'Respiratory rate > 20 breaths/min',
         ],
     },
-    Diabetes: {
-        vitals: [
-            'Blood Glucose (mg/dL)',
-            'Blood Pressure (mmHg)',
-            'Weight (kg)',
-            'Heart Rate (bpm)',
-            'Temperature (°C)',
-            'HbA1c (%) - Monthly',
-        ],
-        timing: 'Blood glucose: Before meals and bedtime. Other vitals: Daily at 7 AM',
-        alerts: [
-            'Blood glucose < 70 mg/dL or > 250 mg/dL',
-            'Blood pressure > 140/90 mmHg',
-            'Weight change > 2kg in 24 hours',
-            'Heart rate > 100 bpm at rest',
-            'Temperature > 38°C',
-        ],
-    },
-}
-
-interface Alert {
-    id?: string
-    data: {
-        vital: string
-        alertType: 'Above' | 'Below'
-        threshold: number
-        wearableId: string
-        patientId: string
-        carepathId: string
-    }
 }
 
 interface ConfigurationItemsProps {
     activeCarepath: string
-    currentPatient: Patient
+    currentPatient: PatientResponse
 }
 
 const ConfigurationItems = ({
@@ -73,6 +45,7 @@ const ConfigurationItems = ({
 }: ConfigurationItemsProps) => {
     const [isEditing, setIsEditing] = useState(false)
     const [alerts, setAlerts] = useState<Alert[]>([])
+    const [refetchAlerts, setRefetchAlerts] = useState(false)
 
     const currentConfig = activeCarepath
         ? mockConfigurations[activeCarepath]
@@ -92,16 +65,18 @@ const ConfigurationItems = ({
             setAlerts(alerts.data)
         }
         fetchAlerts()
-    }, [currentPatient])
+    }, [currentPatient, refetchAlerts])
 
     // Show edit page if in editing mode
     if (isEditing && currentConfig) {
         return (
             <EditConfigurationPage
                 activeCarepath={activeCarepath}
-                currentConfig={currentConfig}
                 alerts={alerts}
-                onCancel={() => setIsEditing(false)}
+                onCancel={async () => {
+                    setIsEditing(false)
+                    setRefetchAlerts((prev) => !prev) // Trigger refetch of alerts
+                }}
                 patient={currentPatient}
             />
         )
@@ -133,19 +108,14 @@ const ConfigurationItems = ({
         )
     }
 
-    const maxItems = 6
-    const [vitalLeft, vitalRight] = splitIntoTwoColumns(
-        currentConfig.vitals.slice(0, maxItems)
-    )
+    const [vitalLeft, vitalRight] = splitIntoTwoColumns(currentConfig.vitals)
     const [alertLeft, alertRight] = splitIntoTwoColumns(
-        alerts
-            .map((alert) => {
-                const message = `${alert.data.vital} ${
-                    alert.data.alertType === 'Above' ? '>' : '<'
-                } ${alert.data.threshold}`
-                return message
-            })
-            .slice(0, maxItems)
+        alerts.map((alert) => {
+            const message = `${alert.data.vital} ${
+                alert.data.alertType === 'Above' ? '>' : '<'
+            } ${alert.data.threshold}`
+            return message
+        })
     )
 
     return (

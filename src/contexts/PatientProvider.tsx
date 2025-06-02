@@ -35,16 +35,17 @@ export const PatientProvider = ({
             setPatients(null)
             return
         }
-        const updatedPatients = patients.map((patient) => ({
-            ...patient,
-            carepaths: [{ name: 'COPD' }],
-        }))
-        updatedPatients[0].carepaths.push({ name: 'Diabetes' })
-        const firstWearable = updatedPatients[0].data.coupledWearables[0]
-        updatedPatients[0].data.coupledWearables.push({
-            ...firstWearable,
-        })
-        setPatients(updatedPatients)
+        // const updatedPatients = patients.map((patient) => ({
+        //     ...patient,
+        //     carepaths: [{ name: 'COPD' }],
+        // }))
+        // updatedPatients[0].carepaths.push({ name: 'Diabetes' })
+        // const firstWearable = updatedPatients[0].data.coupledWearables[0]
+        // updatedPatients[0].data.coupledWearables.push({
+        //     ...firstWearable,
+        // })
+        // setPatients(updatedPatients)
+        setPatients(patients)
     }
 
     useEffect(() => {
