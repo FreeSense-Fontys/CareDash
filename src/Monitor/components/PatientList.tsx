@@ -175,7 +175,7 @@ const PatientList = ({
                                             index > 0 ? 'ml-52' : ''
                                         }  p-3 ${
                                             isSameWearable
-                                                ? 'bg-accent text-white'
+                                                ? 'bg-secondary text-white'
                                                 : 'bg-background'
                                         } rounded-xsm relative mb-2 cursor-pointer`}
                                         key={`${patient.id}-${index}`}

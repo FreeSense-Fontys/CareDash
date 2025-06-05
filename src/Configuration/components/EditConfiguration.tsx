@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Trash2, Plus } from 'lucide-react'
 import exh from '../../Auth'
 import { PatientResponse } from '../../types/PatientResponse'
 import { Alert } from '../../types/Alert'
 import EditVitalsSection from './EditVitalsSection'
 import EditTimingSection from './EditTimingSection'
+import { usePatient } from '../../contexts/PatientProvider'
 
 interface VitalOption {
     name: string
@@ -23,6 +24,7 @@ interface EditConfigurationProps {
     alerts: Alert[]
     onCancel: () => void
     patient: PatientResponse
+    wearableSchedule: any
 }
 
 async function createAlerts(alerts: Alert[]) {
@@ -62,8 +64,8 @@ const createWearableScheduleDocument = async () => {
     console.log(createdScheduleDocument)
 }
 
-const findVitals = () => {
-    let selectedVitalsAbreviations: string[] = []
+const findVitals = (vitals: any) => {
+    const selectedVitalsAbreviations: string[] = []
     vitals.forEach((vital) => {
         if (vital.selected) {
             const foundVital = vitalName.find((v) => v.name === vital.name)
@@ -79,12 +81,12 @@ const findVitals = () => {
     return selectedVitalsAbreviations
 }
 
-const updateWearableScheduleDocument = async (id: string) => {
+const updateWearableScheduleDocument = async () => {
     const onlySelectedVitals = findVitals()
 
     const updateScheduleDocument = await exh.data.documents.update(
         'wearable-schedule',
-        id,
+        '6836fec88bd54e9c2d0e3d6e',
         {
             schedule: [
                 {
@@ -122,24 +124,88 @@ async function updateAlerts(alerts: Alert[]) {
     )
 }
 
+const updateWearableSchedule = async (vitals: any) => {
+    const onlySelectedVitals = findVitals(vitals)
+    console.log('Found vitals: ', onlySelectedVitals)
+}
+
+// Store initial state for cancel functionality
+const initialVitals = [
+    { name: 'Heart Rate', abbreviation: 'HR', selected: false },
+    { name: 'Oxygen Saturation', abbreviation: 'SpO2', selected: true },
+    { name: 'Blood Pressure', abbreviation: 'BP', selected: false },
+    { name: 'Respiration Rate', abbreviation: 'RR', selected: true },
+    { name: 'Activity', abbreviation: 'ACT', selected: true },
+    { name: 'Temperature', abbreviation: 'T', selected: false },
+]
+
 const EditConfigurationPage = ({
     activeCarepath,
     alerts,
     onCancel,
     patient,
+    wearableSchedule,
 }: EditConfigurationProps) => {
-    // Store initial state for cancel functionality
-    const initialVitals = [
-        { name: 'Heart Rate', selected: false },
-        { name: 'Oxygen Saturation', selected: true },
-        { name: 'Blood Pressure', selected: false },
-        { name: 'Respiration Rate', selected: true },
-        { name: 'Activity', selected: true },
-        { name: 'Temperature', selected: false },
-    ]
+    const { selectedWearableId } = usePatient()
+    const [selectedWearableSchedule, setSelectedWearableSchedule] =
+        useState<any>(null)
+
+    // useEffect(() => {
+    //     const updateWearableSchedule = async () => {
+    //         const updatedSchedule = await exh.data.documents.update(
+    //             'wearable-schedule',
+    //             '6836fec88bd54e9c2d0e3d6e',
+    //             {
+    //                 schedule: [
+    //                     {
+    //                         what: ['HR', 'SpO2', 'T'], // change to value from form
+    //                         carepaths: ['COPD'], // change to value from form
+    //                         mode: 'interval',
+    //                         tInterval: timingConfig.frequency, // change to value from form
+    //                     },
+    //                 ],
+    //             }
+    //         )
+    //         console.log('Updated Wearable Schedule:', updatedSchedule)
+    //     }
+    //     updateWearableSchedule()
+    // }, [])
+
+    useEffect(() => {
+        const relevantWearableSchedule = wearableSchedule.find((schedule) => {
+            return schedule.data.wearableId === selectedWearableId
+        })
+        setSelectedWearableSchedule(relevantWearableSchedule)
+        // console.log(
+        //     'Relevant Wearable Schedule:',
+        //     relevantWearableSchedule.data.schedule[0]
+        // )
+        if (relevantWearableSchedule) {
+            const selectedVitals =
+                relevantWearableSchedule.data.schedule[0].what
+            setVitals(
+                initialVitals.map((vital) => {
+                    if (selectedVitals.includes(vital.abbreviation)) {
+                        vital.selected = true
+                    } else {
+                        vital.selected = false
+                    }
+                    return vital
+                })
+            )
+        }
+    }, [wearableSchedule, selectedWearableId])
+
     // Available vitals with selection state
     const [vitals, setVitals] = useState<VitalOption[]>(initialVitals)
     const [tempAlerts, setTempAlerts] = useState<Alert[]>(alerts)
+
+    useEffect(() => {
+        const test = async () => {
+            await updateWearableSchedule(vitals)
+        }
+        test()
+    }, [vitals])
 
     // Timing configurations
     const [timingConfig, setTimingConfig] = useState<TimingConfig>({

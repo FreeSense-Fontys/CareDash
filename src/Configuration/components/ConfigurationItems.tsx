@@ -4,6 +4,7 @@ import { rqlBuilder } from '@extrahorizon/javascript-sdk'
 import exh from '../../Auth'
 import { Alert } from '../../types/Alert'
 import { PatientResponse } from '../../types/PatientResponse'
+import { usePatient } from '../../contexts/PatientProvider'
 
 interface ConfigData {
     vitals: string[]
@@ -45,7 +46,9 @@ const ConfigurationItems = ({
 }: ConfigurationItemsProps) => {
     const [isEditing, setIsEditing] = useState(false)
     const [alerts, setAlerts] = useState<Alert[]>([])
+    const [wearableSchedule, setWearableSchedule] = useState<any>(null)
     const [refetchAlerts, setRefetchAlerts] = useState(false)
+    const { selectedWearableId } = usePatient()
 
     const currentConfig = activeCarepath
         ? mockConfigurations[activeCarepath]
@@ -56,17 +59,34 @@ const ConfigurationItems = ({
     }
 
     useEffect(() => {
+        const fetchWearableSchedule = async () => {
+            const wearableSchedule = await exh.data.documents.find(
+                'wearable-schedule',
+                {
+                    rql: rqlBuilder()
+                        .eq('data.wearableId', selectedWearableId ?? '')
+                        .build(),
+                }
+            )
+            if (wearableSchedule.data.length > 0) {
+                setWearableSchedule(wearableSchedule.data)
+            }
+        }
+        fetchWearableSchedule()
+    }, [selectedWearableId])
+
+    useEffect(() => {
         const fetchAlerts = async () => {
             const alerts = await exh.data.documents.find('alert', {
                 rql: rqlBuilder()
-                    .eq('data.patientId', currentPatient.id ?? '')
+                    .eq('data.wearableId', selectedWearableId ?? '')
                     .build(),
             })
             setAlerts(alerts.data)
             setIsEditing(false) // Reset editing state after fetching alerts
         }
         fetchAlerts()
-    }, [currentPatient, refetchAlerts])
+    }, [selectedWearableId, refetchAlerts])
 
     // Show edit page if in editing mode
     if (isEditing && currentConfig) {
@@ -77,6 +97,7 @@ const ConfigurationItems = ({
                 onCancel={async () => {
                     setRefetchAlerts((prev) => !prev) // Trigger refetch of alerts
                 }}
+                wearableSchedule={wearableSchedule}
                 patient={currentPatient}
             />
         )
@@ -108,7 +129,13 @@ const ConfigurationItems = ({
         )
     }
 
-    const [vitalLeft, vitalRight] = splitIntoTwoColumns(currentConfig.vitals)
+    console.log('Wearable Schedule:', wearableSchedule)
+    console.log('Alerts:', alerts)
+
+    const [vitalLeft, vitalRight] = splitIntoTwoColumns(
+        wearableSchedule?.data?.schedule[0]?.what
+    )
+
     const [alertLeft, alertRight] = splitIntoTwoColumns(
         alerts.map((alert) => {
             const message = `${alert.data.vital} ${

@@ -4,7 +4,12 @@ import { usePatient } from '../../contexts/PatientProvider'
 
 const ConfigurationPatient = () => {
     const [activeCarepath, setActiveCarepath] = useState(String)
-    const { patients, selectedPatient, setSelectedPatient } = usePatient()
+    const {
+        patients,
+        selectedPatient,
+        setSelectedPatient,
+        setSelectedWearableId,
+    } = usePatient()
 
     // when page is first loaded, set the first patient as selected
     useEffect(() => {
@@ -12,7 +17,10 @@ const ConfigurationPatient = () => {
         setActiveCarepath(
             patients?.[0].data.coupledWearables[0].productName ?? ''
         )
-    }, [setSelectedPatient, patients])
+        setSelectedWearableId(
+            patients?.[0].data.coupledWearables[0].wearableId ?? ''
+        )
+    }, [setSelectedPatient, patients, setSelectedWearableId])
 
     const handlePatientChange = (patientId: string) => {
         setSelectedPatient(patients?.find((p) => p.id === patientId) ?? null)
@@ -62,9 +70,10 @@ const ConfigurationPatient = () => {
                         {selectedPatient.data.coupledWearables.map((cp) => (
                             <button
                                 key={cp.productName}
-                                onClick={() =>
+                                onClick={() => {
                                     setActiveCarepath(cp.productName)
-                                }
+                                    setSelectedWearableId(cp.wearableId)
+                                }}
                                 className={`px-4 py-2 rounded-t-lg text-sm font-medium transition-colors duration-150 border-b-2 ${
                                     activeCarepath === cp.productName
                                         ? 'bg-blue-100 border-blue-500 text-blue-700'
