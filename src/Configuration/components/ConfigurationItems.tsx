@@ -6,35 +6,6 @@ import { Alert } from '../../types/Alert'
 import { PatientResponse } from '../../types/PatientResponse'
 import { usePatient } from '../../contexts/PatientProvider'
 
-interface ConfigData {
-    vitals: string[]
-    timing: string
-    alerts: string[]
-}
-
-// Mock configuration data for different carepaths
-const mockConfigurations: Record<string, ConfigData> = {
-    CareBuddy: {
-        vitals: [
-            'Peak Flow Rate (L/min)',
-            'Oxygen Saturation (%)',
-            'Heart Rate (bpm)',
-            'Blood Pressure (mmHg)',
-            'Respiratory Rate (breaths/min)',
-            'Temperature (°C)',
-        ],
-        timing: 'Daily measurements at 8:00 AM and 6:00 PM',
-        alerts: [
-            'Peak flow < 80% of personal best',
-            'Oxygen saturation < 90%',
-            'Heart rate > 100 bpm at rest',
-            'Respiratory rate > 20 breaths/min',
-            'Temperature > 38°C or < 36C',
-            'Respiratory rate > 20 breaths/min',
-        ],
-    },
-}
-
 interface ConfigurationItemsProps {
     activeCarepath: string
     currentPatient: PatientResponse
@@ -47,12 +18,8 @@ const ConfigurationItems = ({
     const [isEditing, setIsEditing] = useState(false)
     const [alerts, setAlerts] = useState<Alert[]>([])
     const [wearableSchedule, setWearableSchedule] = useState<any>(null)
-    const [refetchAlerts, setRefetchAlerts] = useState(false)
+    const [refetch, setRefetch] = useState(false)
     const { selectedWearableId } = usePatient()
-
-    const currentConfig = activeCarepath
-        ? mockConfigurations[activeCarepath]
-        : null
 
     const handleEditConfiguration = () => {
         setIsEditing(true)
@@ -73,7 +40,7 @@ const ConfigurationItems = ({
             }
         }
         fetchWearableSchedule()
-    }, [selectedWearableId])
+    }, [selectedWearableId, refetch])
 
     useEffect(() => {
         const fetchAlerts = async () => {
@@ -86,16 +53,16 @@ const ConfigurationItems = ({
             setIsEditing(false) // Reset editing state after fetching alerts
         }
         fetchAlerts()
-    }, [selectedWearableId, refetchAlerts])
+    }, [selectedWearableId, refetch])
 
     // Show edit page if in editing mode
-    if (isEditing && currentConfig) {
+    if (isEditing) {
         return (
             <EditConfigurationPage
                 activeCarepath={activeCarepath}
                 alerts={alerts}
                 onCancel={async () => {
-                    setRefetchAlerts((prev) => !prev) // Trigger refetch of alerts
+                    setRefetch((prev) => !prev) // Trigger refetch of alerts
                 }}
                 wearableSchedule={wearableSchedule}
                 patient={currentPatient}
@@ -118,7 +85,7 @@ const ConfigurationItems = ({
     }
 
     // Show message if no configuration found for the carepath
-    if (!currentConfig) {
+    if (!wearableSchedule) {
         return (
             <div className="text-center py-12 text-gray-500">
                 <p>No configuration found for {activeCarepath}</p>
@@ -129,12 +96,9 @@ const ConfigurationItems = ({
         )
     }
 
-    console.log('Wearable Schedule:', wearableSchedule)
-    console.log('Alerts:', alerts)
-
-    const [vitalLeft, vitalRight] = splitIntoTwoColumns(
-        wearableSchedule?.data?.schedule[0]?.what || []
-    )
+    const vitalsToDisplay =
+        (wearableSchedule && wearableSchedule[0].data?.schedule[0]?.what) || []
+    const [vitalLeft, vitalRight] = splitIntoTwoColumns(vitalsToDisplay)
 
     const [alertLeft, alertRight] = splitIntoTwoColumns(
         alerts.map((alert) => {
@@ -144,6 +108,11 @@ const ConfigurationItems = ({
             return message
         })
     )
+
+    // console.log(
+    //     'Wearable Schedule:',
+    //     wearableSchedule[0]?.data.schedule[0]?.tInterval
+    // )
 
     return (
         <div>
@@ -178,7 +147,12 @@ const ConfigurationItems = ({
                         <div className="flex-1 space-y-2">
                             <div className="flex items-start p-2 bg-gray-100 border-l-4 border-gray-500 rounded">
                                 <p className="text-grey-700">
-                                    {currentConfig.timing}
+                                    Measurements taken every{' '}
+                                    {
+                                        wearableSchedule[0]?.data.schedule[0]
+                                            ?.tInterval
+                                    }{' '}
+                                    minutes
                                 </p>
                             </div>
                         </div>

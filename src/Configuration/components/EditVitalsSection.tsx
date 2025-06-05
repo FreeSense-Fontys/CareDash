@@ -4,6 +4,7 @@ interface EditVitalsSectionProps {
     vitals: {
         name: string
         selected: boolean
+        abbreviation: string[]
     }[]
     toggleVital: (index: number) => void
 }
@@ -31,7 +32,9 @@ const EditVitalsSection = ({ vitals, toggleVital }: EditVitalsSectionProps) => {
                         >
                             {vital.selected && <Check size={12} />}
                         </span>
-                        <span className="text-gray-700">{vital.name}</span>
+                        <span className="text-gray-700">
+                            {vital.name} [{vital.abbreviation.join(', ')}]
+                        </span>
                     </button>
                 ))}
             </div>

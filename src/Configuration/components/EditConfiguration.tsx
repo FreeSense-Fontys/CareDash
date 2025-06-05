@@ -28,11 +28,9 @@ interface EditConfigurationProps {
 }
 
 async function createAlerts(alerts: Alert[]) {
-    await Promise.all(
-        alerts.map(async (alert) => {
-            await exh.data.documents.create('alert', alert.data)
-        })
-    )
+    alerts.map(async (alert) => {
+        await exh.data.documents.create('alert', alert.data)
+    })
 }
 const vitalName = [
     { name: 'Heart Rate', abreviation: 'HR' },
@@ -80,62 +78,50 @@ const findVitals = (vitals: any) => {
     return selectedVitalsAbreviations
 }
 
-const updateWearableScheduleDocument = async () => {
-    const onlySelectedVitals = findVitals()
-
-    const updateScheduleDocument = await exh.data.documents.update(
-        'wearable-schedule',
-        '6836fec88bd54e9c2d0e3d6e',
-        {
-            schedule: [
-                {
-                    what: onlySelectedVitals, // change to value from form
-                    carepaths: [activeCarepath], // change to value from form
-                    mode: 'interval',
-                    tInterval: timingConfig.frequency, // change to value from form
-                },
-            ],
-            wearableId: '679c853b53535d5d4c36cae6',
-        }
-    )
-    console.log(updateScheduleDocument)
-}
-
 // createWearableScheduleDocument()
 
 async function deleteAlerts(alerts: Alert[]) {
-    await Promise.all(
-        alerts.map(async (alert) => {
-            await exh.data.documents.remove('alert', alert.id)
-        })
-    )
+    alerts.map(async (alert) => {
+        await exh.data.documents.remove('alert', alert.id)
+    })
 }
 
 async function updateAlerts(alerts: Alert[]) {
-    await Promise.all(
-        alerts.map(async (alert) => {
-            await exh.data.documents.update('alert', alert.id, {
-                vital: alert.data.vital,
-                alertType: alert.data.alertType,
-                threshold: alert.data.threshold,
-            })
+    alerts.map(async (alert) => {
+        await exh.data.documents.update('alert', alert.id, {
+            vital: alert.data.vital,
+            alertType: alert.data.alertType,
+            threshold: alert.data.threshold,
         })
-    )
+    })
 }
 
-const updateWearableSchedule = async (vitals: any) => {
+async function updateWearableSchedule(vitals: any, wearableSchedule: any) {
     const onlySelectedVitals = findVitals(vitals)
-    console.log('Found vitals: ', onlySelectedVitals)
+    await exh.data.documents.update('wearable-schedule', wearableSchedule.id, {
+        schedule: [
+            {
+                what: onlySelectedVitals,
+                carepaths: wearableSchedule.data.schedule[0].carepaths, // use existing carepath
+                mode: 'interval',
+                tInterval: wearableSchedule.data.schedule[0].tInterval, // use existing interval
+            },
+        ],
+    })
 }
 
 // Store initial state for cancel functionality
 const initialVitals = [
-    { name: 'Heart Rate', abbreviation: 'HR', selected: false },
-    { name: 'Oxygen Saturation', abbreviation: 'SpO2', selected: true },
-    { name: 'Blood Pressure', abbreviation: 'BP', selected: false },
-    { name: 'Respiration Rate', abbreviation: 'RR', selected: true },
-    { name: 'Activity', abbreviation: 'ACT', selected: true },
-    { name: 'Temperature', abbreviation: 'T', selected: false },
+    { name: 'Heart Rate', abbreviation: ['HR'], selected: false },
+    { name: 'Oxygen Saturation', abbreviation: ['SpO2'], selected: true },
+    {
+        name: 'Blood Pressure',
+        abbreviation: ['SBP', 'DBP'],
+        selected: false,
+    },
+    { name: 'Respiration Rate', abbreviation: ['RR'], selected: true },
+    { name: 'Activity', abbreviation: ['ACT'], selected: true },
+    { name: 'Temperature', abbreviation: ['T'], selected: false },
 ]
 
 const EditConfigurationPage = ({
@@ -149,42 +135,25 @@ const EditConfigurationPage = ({
     const [selectedWearableSchedule, setSelectedWearableSchedule] =
         useState<any>(null)
 
-    // useEffect(() => {
-    //     const updateWearableSchedule = async () => {
-    //         const updatedSchedule = await exh.data.documents.update(
-    //             'wearable-schedule',
-    //             '6836fec88bd54e9c2d0e3d6e',
-    //             {
-    //                 schedule: [
-    //                     {
-    //                         what: ['HR', 'SpO2', 'T'], // change to value from form
-    //                         carepaths: ['COPD'], // change to value from form
-    //                         mode: 'interval',
-    //                         tInterval: timingConfig.frequency, // change to value from form
-    //                     },
-    //                 ],
-    //             }
-    //         )
-    //         console.log('Updated Wearable Schedule:', updatedSchedule)
-    //     }
-    //     updateWearableSchedule()
-    // }, [])
-
     useEffect(() => {
         const relevantWearableSchedule = wearableSchedule.find((schedule) => {
             return schedule.data.wearableId === selectedWearableId
         })
         setSelectedWearableSchedule(relevantWearableSchedule)
-        // console.log(
-        //     'Relevant Wearable Schedule:',
-        //     relevantWearableSchedule.data.schedule[0]
-        // )
+
         if (relevantWearableSchedule) {
             const selectedVitals =
                 relevantWearableSchedule.data.schedule[0].what
             setVitals(
                 initialVitals.map((vital) => {
-                    if (selectedVitals.includes(vital.abbreviation)) {
+                    if (vital.name === 'Blood Pressure') {
+                        if (
+                            selectedVitals.includes('SBP') &&
+                            selectedVitals.includes('DBP')
+                        ) {
+                            vital.selected = true
+                        }
+                    } else if (selectedVitals.includes(vital.abbreviation[0])) {
                         vital.selected = true
                     } else {
                         vital.selected = false
@@ -196,15 +165,8 @@ const EditConfigurationPage = ({
     }, [wearableSchedule, selectedWearableId])
 
     // Available vitals with selection state
-    const [vitals, setVitals] = useState<VitalOption[]>(initialVitals)
+    const [vitals, setVitals] = useState<VitalOption[]>([])
     const [tempAlerts, setTempAlerts] = useState<Alert[]>(alerts)
-
-    useEffect(() => {
-        const test = async () => {
-            await updateWearableSchedule(vitals)
-        }
-        test()
-    }, [vitals])
 
     // Timing configurations
     const [timingConfig, setTimingConfig] = useState<TimingConfig>({
@@ -260,6 +222,7 @@ const EditConfigurationPage = ({
         await deleteAlerts(removeAlerts)
         await updateAlerts(updatedAlerts)
         await createAlerts(newAlerts)
+        await updateWearableSchedule(vitals, selectedWearableSchedule)
         onCancel()
     }
 
