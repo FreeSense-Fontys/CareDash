@@ -133,7 +133,7 @@ const ConfigurationItems = ({
     console.log('Alerts:', alerts)
 
     const [vitalLeft, vitalRight] = splitIntoTwoColumns(
-        wearableSchedule?.data?.schedule[0]?.what
+        wearableSchedule?.data?.schedule[0]?.what || []
     )
 
     const [alertLeft, alertRight] = splitIntoTwoColumns(
