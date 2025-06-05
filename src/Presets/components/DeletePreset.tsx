@@ -16,9 +16,9 @@ const DeletePreset = ({
     onComplete,
 }: DeletePresetProps) => {
     const handleConfirm = () => {
-        console.log("setPreset:", setPreset)
+        console.log('setPreset:', setPreset)
 
-        const updated = presets ? presets.filter(p => p.id !== preset.id) : []
+        const updated = presets ? presets.filter((p) => p.id !== preset.id) : []
         setPreset(updated)
         onComplete()
     }

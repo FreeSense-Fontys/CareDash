@@ -12,5 +12,6 @@ export enum Time{
 export interface Timing{
     id:string;
     type:TimingType
+    value:number
     time:Time | undefined
 }

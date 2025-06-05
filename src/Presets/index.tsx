@@ -1,5 +1,5 @@
-import PresetDashboard from "./components/PresetDashboard"
-import { PresetProvider } from "./components/PresetProvider"
+import PresetDashboard from './components/PresetDashboard'
+import { PresetProvider } from './components/PresetProvider'
 
 function PresetsPage() {
     return (
@@ -19,7 +19,7 @@ function PresetsPage() {
                         </div> */}
                     </div>
                     <PresetProvider>
-                        <PresetDashboard/>
+                        <PresetDashboard />
                     </PresetProvider>
                 </div>
             </div>

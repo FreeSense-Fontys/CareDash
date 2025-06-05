@@ -1,6 +1,6 @@
 import { Alert } from "./Alert";
 import { Timing } from "./Timing";
-import { Vital } from "./Vital";
+import { VitalName } from "./Vital";
 
 export interface Preset{
     id?:string;
@@ -8,7 +8,7 @@ export interface Preset{
     carepathId:string;
     
     
-    measuredVitals:Vital[];
+    vitals:VitalName[];
     timings:Timing[];
     alerts:Alert[];
 }
