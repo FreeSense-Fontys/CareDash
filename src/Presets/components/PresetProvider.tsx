@@ -19,7 +19,7 @@ export const PresetProvider = ({ children }: { children: React.ReactNode }) => {
             {
                 id: '1',
                 name: 'POTS',
-                carepathId: 'carepath-pots',
+                carepathId: '682ee8958bd54e4ac40e3d03',
                 vitals: [
                     VitalName.HeartRate,
                     VitalName.DiastolicBloodPressure,
@@ -69,7 +69,7 @@ export const PresetProvider = ({ children }: { children: React.ReactNode }) => {
             {
                 id: '2',
                 name: 'COPD',
-                carepathId: 'carepath-copd',
+                carepathId: '682ee8958bd54e0c0c0e3d02',
                 vitals: [VitalName.OxygenSaturation, VitalName.RespiratoryRate],
                 timings: [
                     {
@@ -95,7 +95,7 @@ export const PresetProvider = ({ children }: { children: React.ReactNode }) => {
             {
                 id: '3',
                 name: 'Asthma',
-                carepathId: 'carepath-asthma',
+                carepathId: '682ee8958bd54e0c0c0e3d02',
                 vitals: [VitalName.RespiratoryRate],
                 timings: [
                     {

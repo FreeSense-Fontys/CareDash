@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+import exh from '../../Auth'
 import { Preset } from '../../types/Preset'
 import { usePresetForm } from '../hooks/usePresetForm'
 import AlertsSection from './AlertsSection'
@@ -32,6 +34,25 @@ const PresetForm = ({
         ...handlers
     } = usePresetForm(presetToEdit, onSaveComplete, mode)
 
+    const [carepaths, setCarepaths] = useState<{ id: string; name: string }[]>([])
+
+    useEffect(() => {
+        async function loadCarepaths() {
+            try {
+                const results = await exh.data.documents.findAll('carepaths')
+                const mapped = results.map((doc: any) => ({
+                    id: doc.id,
+                    name: doc.data?.carepathName || 'Unnamed',
+                }))
+                setCarepaths(mapped)
+            } catch (error) {
+                console.error('Failed to load carepaths:', error)
+            }
+        }
+
+        loadCarepaths()
+    }, [])
+
     return (
         <form className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -51,16 +72,22 @@ const PresetForm = ({
 
                 <div>
                     <label className="block mb-1 font-medium text-lg text-gray-700">
-                        Carepath ID*
+                        Carepath*
                     </label>
-                    <input
+                    <select
                         disabled={isReadOnly}
-                        type="text"
                         value={carepathId}
                         onChange={(e) => setCarepathId(e.target.value)}
                         className="w-full border border-gray-300 rounded-lg px-4 py-2 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Enter carepath ID"
-                    />
+                    >
+                      {/* Todo: as long as the file paths are still being retrieved from the database the application shouldn't display the view yet */}
+                        <option value="">Select a carepath</option>
+                        {carepaths.map((cp) => (
+                            <option key={cp.id} value={cp.id}>
+                                {cp.name}
+                            </option>
+                        ))}
+                    </select>
                 </div>
             </div>
 
