@@ -1,6 +1,9 @@
 import WearableData from './WearableData'
 import { usePatient } from '../../contexts/PatientProvider'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { rqlBuilder } from '@extrahorizon/javascript-sdk'
+import exh from '../../Auth'
+import { AlertTrigger } from '../../types/AlertTrigger'
 
 interface PatientListProps {
     selectedDate: string
@@ -24,6 +27,25 @@ const PatientList = ({
         setSelectedWearableId,
         setSelectedPatient,
     } = usePatient()
+    const [alertTriggers, setAlertTriggers] = useState<AlertTrigger[]>([])
+
+    useEffect(() => {
+        const fetchAlertTriggers = async () => {
+            setAlertTriggers([])
+
+            const alertTriggers = await exh.data.documents.find(
+                'alert-trigger',
+                {
+                    rql: rqlBuilder()
+                        .ge('creationTimestamp', `${selectedDate}T00:00:00Z`)
+                        .le('creationTimestamp', `${selectedDate}T23:59:59Z`)
+                        .build(),
+                }
+            )
+            setAlertTriggers(alertTriggers.data)
+        }
+        fetchAlertTriggers()
+    }, [selectedDate])
 
     const normalizedQuery = (searchQuery ?? '').trim().toLowerCase()
     const normalizedFilterCarepath = (filterCarepath ?? '').trim().toLowerCase()
@@ -53,6 +75,19 @@ const PatientList = ({
                     return 1
                 }
             }
+            const aHasAlerts = a.data.coupledWearables.some((wearable) =>
+                alertTriggers.some(
+                    (alert) => alert.data.wearableId === wearable.wearableId
+                )
+            )
+            const bHasAlerts = b.data.coupledWearables.some((wearable) =>
+                alertTriggers.some(
+                    (alert) => alert.data.wearableId === wearable.wearableId
+                )
+            )
+
+            if (aHasAlerts && !bHasAlerts) return -1
+            if (!aHasAlerts && bHasAlerts) return 1
             return 0
         })
 
@@ -64,7 +99,13 @@ const PatientList = ({
         if (!isSameOrder) {
             setPatients(sortedPatients)
         }
-    }, [patients, filterOrder, setPatients, normalizedFilterOrder])
+    }, [
+        patients,
+        filterOrder,
+        setPatients,
+        normalizedFilterOrder,
+        alertTriggers,
+    ])
 
     const highlightMatch = (text: string, query: string) => {
         if (!query) return text
@@ -92,7 +133,7 @@ const PatientList = ({
     const filteredPatients = patients.filter((patient) => {
         const name = patient.data.name.toLowerCase()
         const isInName = name.includes(normalizedQuery)
-        const carepaths = patient.carepaths
+        // const carepaths = patient.carepaths
         // const isInCarepath = carepaths.some((carepath) =>
         //     carepath.name.toLowerCase().includes(normalizedFilterCarepath)
         // )
@@ -121,6 +162,11 @@ const PatientList = ({
                                 const patientWearableId =
                                     patient.data.coupledWearables[index]
                                         .wearableId
+                                const alerts = alertTriggers.filter(
+                                    (alert) =>
+                                        alert.data.wearableId ===
+                                        patientWearableId
+                                )
                                 const isSameWearable =
                                     selectedWearableId === patientWearableId
                                 return (
@@ -174,13 +220,13 @@ const PatientList = ({
 
                                         {/* Centered carepath */}
                                         <div
-                                            className={`italic w-22 justify-center items-center${
+                                            className={`italic w-22 justify-center items-center ${
                                                 isSameWearable
                                                     ? 'text-white'
                                                     : 'text-gray-600'
                                             }`}
                                         >
-                                            {wearable.name}
+                                            {wearable.productName}
                                         </div>
                                         {/* Right-aligned WearableData */}
                                         {!isWearableSelected && (
@@ -189,6 +235,7 @@ const PatientList = ({
                                                     patients={filteredPatients}
                                                     indexPatient={indexPatient}
                                                     selectedDate={selectedDate}
+                                                    alerts={alerts}
                                                 />
                                             </div>
                                         )}

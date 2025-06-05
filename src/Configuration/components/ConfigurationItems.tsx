@@ -63,6 +63,7 @@ const ConfigurationItems = ({
                     .build(),
             })
             setAlerts(alerts.data)
+            setIsEditing(false) // Reset editing state after fetching alerts
         }
         fetchAlerts()
     }, [currentPatient, refetchAlerts])
@@ -74,7 +75,6 @@ const ConfigurationItems = ({
                 activeCarepath={activeCarepath}
                 alerts={alerts}
                 onCancel={async () => {
-                    setIsEditing(false)
                     setRefetchAlerts((prev) => !prev) // Trigger refetch of alerts
                 }}
                 patient={currentPatient}

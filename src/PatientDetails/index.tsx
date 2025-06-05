@@ -44,7 +44,7 @@ export default function DetailPage({ currentDate }: PatientDetailsProps) {
                     .eq('data.wearableId', selectedWearableId)
                     .build(),
             })
-            const alerts = tempAlerts.data ?? []
+            const alerts = tempAlerts.data as unknown as Alert[]
             // note that this may take long to execute depending on how many vital measurements
             // that wearable has measured that day (e.g. the second Eric Berry in the list on April 10, 2025 has
             // almost 4000 measurements per vital)
@@ -86,7 +86,11 @@ export default function DetailPage({ currentDate }: PatientDetailsProps) {
                                         ctx,
                                         [175, 175, 175]
                                     ) ||
-                                    TempAlerts.dangerousBPM(ctx, alerts || []),
+                                    TempAlerts.dangerousVital(
+                                        ctx,
+                                        alerts || [],
+                                        sbp.name
+                                    ),
                                 borderDash: (ctx: ChartJSContext) =>
                                     TempAlerts.missingData(ctx, [6, 6]),
                             },
@@ -104,9 +108,10 @@ export default function DetailPage({ currentDate }: PatientDetailsProps) {
                                         ctx,
                                         [175, 175, 175]
                                     ) ||
-                                    TempAlerts.dangerousLowBPM(
+                                    TempAlerts.dangerousVital(
                                         ctx,
-                                        alerts || []
+                                        alerts || [],
+                                        dbp.name
                                     ),
                                 borderDash: (ctx: ChartJSContext) =>
                                     TempAlerts.missingData(ctx, [6, 6]),
@@ -144,24 +149,16 @@ export default function DetailPage({ currentDate }: PatientDetailsProps) {
                             cubicInterpolationMode: 'monotone',
                             tension: 0.4,
                             segment: {
-                                // TODO: need to change this, currently only checking if value is under
-                                // dangerous heart rate and temperature threshold. But, it should dynamically check based on the
-                                // vital
                                 borderColor: (ctx: ChartJSContext) =>
                                     TempAlerts.missingData(
                                         ctx,
                                         [175, 175, 175]
                                     ) ||
                                     (vitals.name == 'HR'
-                                        ? TempAlerts.dangerousHeartRate(
+                                        ? TempAlerts.dangerousVital(
                                               ctx,
-                                              alerts || []
-                                          )
-                                        : 'rgb(0, 80, 0)') ||
-                                    (vitals.name == 'T'
-                                        ? TempAlerts.dangerousTemperature(
-                                              ctx,
-                                              alerts || []
+                                              alerts || [],
+                                              vitals.name
                                           )
                                         : 'rgb(0, 80, 0)'),
                                 borderDash: (ctx: ChartJSContext) =>
@@ -190,22 +187,15 @@ export default function DetailPage({ currentDate }: PatientDetailsProps) {
                 <div className="grid grid-cols-2">
                     <p>Patient: {selectedPatient?.data.name}</p>
                     <p>Sex: {selectedPatient?.data.gender}</p>
-                    <p>
-                        Care Paths:{' '}
-                        {Array.isArray(selectedPatient?.carepaths)
-                            ? selectedPatient.carepaths
-                                  .map((cp) => cp.name)
-                                  .join(', ')
-                            : selectedPatient?.carepaths ?? 'N/A'}
-                    </p>
+                    <p>Care Paths: N/A</p>
                     <p>BMI: {selectedPatient?.bmi}</p>
-                    <p>DOB: {selectedPatient?.birthDate}</p>
+                    <p>DOB: {selectedPatient?.data.birthDate}</p>
                     <p>Skin Type: {selectedPatient?.skinType}</p>
                 </div>
             </div>
 
             {vitalGraphData != undefined ? (
-                <div className="flex flex-wrap gap-4 h-full items-center">
+                <div className="grid grid-cols-2 gap-4">
                     {vitalGraphData.map((vital: Vital, index: number) => {
                         return <VitalGraph key={index} chartData={vital} />
                     })}

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Check, Trash2, Plus } from 'lucide-react'
+import { Trash2, Plus } from 'lucide-react'
 import exh from '../../Auth'
 import { PatientResponse } from '../../types/PatientResponse'
 import { Alert } from '../../types/Alert'
@@ -25,93 +25,85 @@ interface EditConfigurationProps {
     patient: PatientResponse
 }
 
+async function createAlerts(alerts: Alert[]) {
+    await Promise.all(
+        alerts.map(async (alert) => {
+            await exh.data.documents.create('alert', alert.data)
+        })
+    )
+}
+const vitalAbreviations = ['HR', 'SBP', 'DBP', 'SpO2', 'RR', 'ACT', 'T']
+const vitalName = [
+    { name: 'Heart Rate', abreviation: 'HR' },
+    { name: 'Blood Pressure', abreviation: ['DBP', 'SBP'] },
+    { name: 'Oxygen Saturation', abreviation: 'SpO2' },
+    { name: 'Respiration Rate', abreviation: 'RR' },
+    { name: 'Activity', abreviation: 'ACT' },
+    { name: 'Temperature', abreviation: 'T' },
+]
 
-const EditConfigurationPage = ({
-    activeCarepath,
-    currentConfig,
-    onCancel,
-}: EditConfigurationProps) => {
-    async function createAlerts(alerts: Alert[]) {
-        Promise.all(
-            alerts.map(async (alert) => {
-                await exh.data.documents.create('alert', alert.data)
-            })
-        )
-    }
-    const vitalAbreviations = ['HR', 'SBP', 'DBP', 'SpO2', 'RR', 'ACT', 'T']
-    const vitalName = [
-        { name: 'Heart Rate', abreviation: 'HR' },
-        { name: 'Blood Pressure', abreviation: ['DBP', 'SBP'] },
-        { name: 'Oxygen Saturation', abreviation: 'SpO2' },
-        { name: 'Respiration Rate', abreviation: 'RR' },
-        { name: 'Activity', abreviation: 'ACT' },
-        { name: 'Temperature', abreviation: 'T' },
-    ]
+const createWearableScheduleDocument = async () => {
+    const createdScheduleDocument = await exh.data.documents.create(
+        'wearable-schedule',
+        {
+            patientId: '67ea71688bd54e5ccb0d4066',
+            schedule: [
+                {
+                    what: ['HR', 'SBP', 'DBP', 'SpO2'], // change to value from form
+                    tag: 'Wearable Schedule',
+                    carepaths: ['COPD', 'Diabetes'], // change to value from form
+                    mode: 'interval',
+                    tInterval: 5, // change to value from form
+                },
+            ],
+            wearableId: '679c853b53535d5d4c36cae6',
+        }
+    )
+    console.log(createdScheduleDocument)
+}
 
-    const createWearableScheduleDocument = async () => {
-        const createdScheduleDocument = await exh.data.documents.create(
-            'wearable-schedule',
-            {
-                patientId: '67ea71688bd54e5ccb0d4066',
-                schedule: [
-                    {
-                        what: ['HR', 'SBP', 'DBP', 'SpO2'], // change to value from form
-                        tag: 'Wearable Schedule',
-                        carepaths: ['COPD', 'Diabetes'], // change to value from form
-                        mode: 'interval',
-                        tInterval: 5, // change to value from form
-                    },
-                ],
-                wearableId: '679c853b53535d5d4c36cae6',
-            }
-        )
-        console.log(createdScheduleDocument)
-    }
-
-    const findVitals = () => {
-        let selectedVitalsAbreviations: string[] = []
-        vitals.forEach((vital) => {
-            if (vital.selected) {
-                const foundVital = vitalName.find((v) => v.name === vital.name)
-                if (foundVital) {
-                    if (Array.isArray(foundVital.abreviation)) {
-                        selectedVitalsAbreviations.push(
-                            ...foundVital.abreviation
-                        )
-                    } else {
-                        selectedVitalsAbreviations.push(foundVital.abreviation)
-                    }
+const findVitals = () => {
+    let selectedVitalsAbreviations: string[] = []
+    vitals.forEach((vital) => {
+        if (vital.selected) {
+            const foundVital = vitalName.find((v) => v.name === vital.name)
+            if (foundVital) {
+                if (Array.isArray(foundVital.abreviation)) {
+                    selectedVitalsAbreviations.push(...foundVital.abreviation)
+                } else {
+                    selectedVitalsAbreviations.push(foundVital.abreviation)
                 }
             }
-        })
-        return selectedVitalsAbreviations
-    }
+        }
+    })
+    return selectedVitalsAbreviations
+}
 
-    const updateWearableScheduleDocument = async (id: string) => {
-        const onlySelectedVitals = findVitals()
+const updateWearableScheduleDocument = async (id: string) => {
+    const onlySelectedVitals = findVitals()
 
-        const updateScheduleDocument = await exh.data.documents.update(
-            'wearable-schedule',
-            id,
-            {
-                schedule: [
-                    {
-                        what: onlySelectedVitals, // change to value from form
-                        carepaths: [activeCarepath], // change to value from form
-                        mode: 'interval',
-                        tInterval: timingConfig.frequency, // change to value from form
-                    },
-                ],
-                wearableId: '679c853b53535d5d4c36cae6',
-            }
-        )
-        console.log(updateScheduleDocument)
-    }
+    const updateScheduleDocument = await exh.data.documents.update(
+        'wearable-schedule',
+        id,
+        {
+            schedule: [
+                {
+                    what: onlySelectedVitals, // change to value from form
+                    carepaths: [activeCarepath], // change to value from form
+                    mode: 'interval',
+                    tInterval: timingConfig.frequency, // change to value from form
+                },
+            ],
+            wearableId: '679c853b53535d5d4c36cae6',
+        }
+    )
+    console.log(updateScheduleDocument)
+}
 
-    // createWearableScheduleDocument()
+// createWearableScheduleDocument()
 
 async function deleteAlerts(alerts: Alert[]) {
-    Promise.all(
+    await Promise.all(
         alerts.map(async (alert) => {
             await exh.data.documents.remove('alert', alert.id)
         })
@@ -174,7 +166,7 @@ const EditConfigurationPage = ({
         const newAlert: Alert = {
             // id: Date.now().toString(),
             data: {
-                vital: 'BP',
+                vital: 'HR',
                 alertType: 'Above',
                 threshold: 0,
                 //only using first wearable for now, wearable should be passed in as a prop
@@ -210,7 +202,6 @@ const EditConfigurationPage = ({
         // Reset to initial state and go back
         setVitals(initialVitals)
         setTimingConfig(timingConfig)
-        console.log('Configuration cancelled - reset to initial state')
         // should refetch the alert data to make sure it reflects the latest state
         onCancel()
     }
@@ -260,7 +251,7 @@ const EditConfigurationPage = ({
                                     >
                                         {column.map((config) => (
                                             <div
-                                                key={config.id}
+                                                key={config.id || columnIndex}
                                                 className="flex items-center gap-3"
                                             >
                                                 <select
@@ -290,15 +281,19 @@ const EditConfigurationPage = ({
                                                     }
                                                     className="px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                 >
-                                                      {vitalAbreviations.map(
-                                                        (vital) => (
-                                                            <option
-                                                                key={vital}
-                                                                value={vital}
-                                                            >
-                                                                {vital}
-                                                            </option>
-                                                        )
+                                                    {vitalAbreviations.map(
+                                                        (vital) => {
+                                                            return (
+                                                                <option
+                                                                    key={vital}
+                                                                    value={
+                                                                        vital
+                                                                    }
+                                                                >
+                                                                    {vital}
+                                                                </option>
+                                                            )
+                                                        }
                                                     )}
                                                 </select>
 
@@ -433,5 +428,4 @@ const EditConfigurationPage = ({
         </div>
     )
 }
-
 export default EditConfigurationPage

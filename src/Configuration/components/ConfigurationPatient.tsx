@@ -17,7 +17,7 @@ const ConfigurationPatient = () => {
     const handlePatientChange = (patientId: string) => {
         setSelectedPatient(patients?.find((p) => p.id === patientId) ?? null)
         const patient = patients?.find((p) => p.id === patientId)
-        if (patient && patient.carepaths.length > 0) {
+        if (patient) {
             setActiveCarepath(patient.data.coupledWearables[0].productName)
         }
     }
@@ -36,7 +36,7 @@ const ConfigurationPatient = () => {
                 <select
                     value={selectedPatient?.id}
                     onChange={(e) => handlePatientChange(e.target.value)}
-                    className="block appearance-none w-full py-3 px-4 pr-10 text-white rounded leading-tight focus:outline-none"
+                    className="block appearance-none w-full py-3 px-4 pr-10 text-black rounded leading-tight focus:outline-none"
                 >
                     {patients?.map((patient) => (
                         <option key={patient.id} value={patient.id}>
