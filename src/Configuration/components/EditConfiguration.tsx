@@ -5,7 +5,8 @@ import { Alert } from '../../types/Alert'
 import EditVitalsSection from './EditVitalsSection'
 import EditTimingSection from './EditTimingSection'
 import { usePatient } from '../../contexts/PatientProvider'
-import AlertSection from './AlertSection'
+import EditAlertSection from './EditAlertSection'
+import UpdateButtons from './UpdateButtons'
 
 interface VitalOption {
     name: string
@@ -250,7 +251,7 @@ const EditConfigurationPage = ({
     const [alertLeft, alertRight] = splitIntoTwoColumns(tempAlerts)
 
     return (
-        <div>
+        <>
             <div className="h-[59vh] overflow-y-auto">
                 <div className="space-y-8 mr-2">
                     {/* Vitals Section */}
@@ -266,7 +267,7 @@ const EditConfigurationPage = ({
                     />
 
                     {/* Alerts Section */}
-                    <AlertSection
+                    <EditAlertSection
                         alertLeft={alertLeft}
                         alertRight={alertRight}
                         setTempAlerts={setTempAlerts}
@@ -278,24 +279,11 @@ const EditConfigurationPage = ({
             </div>
 
             {/* Action Buttons */}
-            <div>
-                <div className="flex justify-between pt-3 border-t">
-                    <button
-                        onClick={handleCancel}
-                        className="bg-gray-500 text-white text-lg px-7 py-2 rounded hover:bg-gray-600"
-                    >
-                        Cancel
-                    </button>
-
-                    <button
-                        onClick={handleSave}
-                        className="bg-secondary text-white text-lg px-7 py-2 rounded mr-5 hover:bg-accent"
-                    >
-                        Save
-                    </button>
-                </div>
-            </div>
-        </div>
+            <UpdateButtons
+                handleCancel={handleCancel}
+                handleSave={handleSave}
+            />
+        </>
     )
 }
 export default EditConfigurationPage
