@@ -28,6 +28,9 @@ const ConfigurationPatient = () => {
         if (patient) {
             setActiveCarepath(patient.data.coupledWearables[0].productName)
         }
+        setSelectedWearableId(
+            patient?.data.coupledWearables[0].wearableId ?? ''
+        )
     }
 
     if (!patients) {

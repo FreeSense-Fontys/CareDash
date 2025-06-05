@@ -5,6 +5,7 @@ import exh from '../../Auth'
 import { Alert } from '../../types/Alert'
 import { PatientResponse } from '../../types/PatientResponse'
 import { usePatient } from '../../contexts/PatientProvider'
+import CreateSchedule from './CreateSchedule'
 
 interface ConfigurationItemsProps {
     activeCarepath: string
@@ -20,12 +21,22 @@ const ConfigurationItems = ({
     const [wearableSchedule, setWearableSchedule] = useState<any>(null)
     const [refetch, setRefetch] = useState(false)
     const { selectedWearableId } = usePatient()
+    const [carepaths, setCarepaths] = useState<any>([])
+
+    useEffect(() => {
+        const fetchCarepaths = async () => {
+            const carepathData = await exh.data.documents.findAll('carepaths')
+            setCarepaths(carepathData)
+        }
+        fetchCarepaths()
+    }, [])
 
     const handleEditConfiguration = () => {
         setIsEditing(true)
     }
 
     useEffect(() => {
+        setWearableSchedule(null) // Reset schedule when wearable changes
         const fetchWearableSchedule = async () => {
             const wearableSchedule = await exh.data.documents.find(
                 'wearable-schedule',
@@ -87,11 +98,14 @@ const ConfigurationItems = ({
     // Show message if no configuration found for the carepath
     if (!wearableSchedule) {
         return (
-            <div className="text-center py-12 text-gray-500">
-                <p>No configuration found for {activeCarepath}</p>
-                <p className="text-sm mt-2">
-                    No configuration data. Please configure it.
-                </p>
+            // <div className="text-center py-12 text-gray-500">
+            //     <p>No configuration found for {activeCarepath}</p>
+            //     <p className="text-sm mt-2">
+            //         No configuration data. Please configure it.
+            //     </p>
+            // </div>
+            <div className="">
+                <CreateSchedule carepaths={carepaths} />
             </div>
         )
     }
@@ -108,11 +122,6 @@ const ConfigurationItems = ({
             return message
         })
     )
-
-    // console.log(
-    //     'Wearable Schedule:',
-    //     wearableSchedule[0]?.data.schedule[0]?.tInterval
-    // )
 
     return (
         <div>

@@ -30,7 +30,8 @@ interface EditConfigurationProps {
 
 async function createAlerts(alerts: Alert[]) {
     alerts.map(async (alert) => {
-        await exh.data.documents.create('alert', alert.data)
+        const tempAlert = await exh.data.documents.create('alert', alert.data)
+        console.log('Created alert:', tempAlert)
     })
 }
 const vitalName = [
