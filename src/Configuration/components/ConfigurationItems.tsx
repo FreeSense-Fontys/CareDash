@@ -98,14 +98,13 @@ const ConfigurationItems = ({
     // Show message if no configuration found for the carepath
     if (!wearableSchedule) {
         return (
-            // <div className="text-center py-12 text-gray-500">
-            //     <p>No configuration found for {activeCarepath}</p>
-            //     <p className="text-sm mt-2">
-            //         No configuration data. Please configure it.
-            //     </p>
-            // </div>
             <div className="">
-                <CreateSchedule carepaths={carepaths} />
+                <CreateSchedule
+                    carepaths={carepaths}
+                    onCancel={async () => {
+                        setRefetch((prev) => !prev)
+                    }}
+                />
             </div>
         )
     }
@@ -127,7 +126,7 @@ const ConfigurationItems = ({
         <div>
             <div className="h-[59vh] overflow-y-auto">
                 {/* Vitals Section */}
-                <div className="grid grid-cols-4 mb-6">
+                <div className="grid grid-cols-4 gap-4 mb-6">
                     <h2 className="text-lg font-semibold text-gray-800">
                         Vitals
                     </h2>

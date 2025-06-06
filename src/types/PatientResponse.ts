@@ -14,6 +14,7 @@ export interface PatientResponse extends Patient {
     }
     status: string
     checked?: boolean
+    carepaths?: string[]
     bmi?: string
     birthDate?: string
     skinType?: string

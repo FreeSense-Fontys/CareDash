@@ -1,5 +1,5 @@
 import { Line } from 'react-chartjs-2'
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useEffect, useState, useMemo } from 'react'
 
 export default function VitalGraph({ chartData }: any) {
     const chartRef = useRef<any>(null)
@@ -63,6 +63,7 @@ export default function VitalGraph({ chartData }: any) {
         >
             <Line
                 ref={chartRef}
+                // could look into data decimation for performance improvements
                 data={chartData}
                 options={{
                     responsive: true,

@@ -4,9 +4,10 @@ import { usePatient } from '../../contexts/PatientProvider'
 
 interface CreateScheduleProps {
     carepaths: any[]
+    onCancel: () => void
 }
 
-function CreateSchedule({ carepaths }: CreateScheduleProps) {
+function CreateSchedule({ carepaths, onCancel }: CreateScheduleProps) {
     const [selectedCarepath, setSelectedCarepath] = useState<string>('')
     const [isCarepathSelected, setIsCarepathSelected] = useState<boolean>(false)
     const { selectedWearableId, selectedPatient } = usePatient()
@@ -16,7 +17,7 @@ function CreateSchedule({ carepaths }: CreateScheduleProps) {
     }
 
     return (
-        <div className="flex flex-col justify-between h-[59vh]">
+        <div className="flex flex-col justify-between h-[65vh]">
             {!isCarepathSelected && (
                 <>
                     <div className="grid grid-cols-2 max-w-100 items-center">
@@ -57,6 +58,8 @@ function CreateSchedule({ carepaths }: CreateScheduleProps) {
                     carepath={selectedCarepath}
                     wearableId={selectedWearableId ?? ''}
                     patientId={selectedPatient?.id || ''}
+                    setIsCarepathSelected={setIsCarepathSelected}
+                    onCancel={onCancel}
                 />
             )}
         </div>

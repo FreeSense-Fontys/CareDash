@@ -1,8 +1,7 @@
 interface EditTimingSectionProps {
     timingConfig: {
-        id: string
-        interval: string
-        frequency: number
+        mode: string
+        tInterval: number
         unit: string
     }
     updateTimingConfig: (key: string, value: string | number) => void
@@ -16,23 +15,21 @@ const EditTimingSection = ({
             <h2 className="text-lg font-semibold text-gray-800">Timing</h2>
             <div className="flex items-center gap-3">
                 <select
-                    value={timingConfig.interval}
+                    value={timingConfig.mode}
                     onChange={(e) =>
                         updateTimingConfig('interval', e.target.value)
                     }
                     className="px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                     <option value="Interval">Interval</option>
-                    <option value="Daily">Daily</option>
-                    <option value="Hourly">Hourly</option>
                 </select>
                 <span className="text-gray-600">Every</span>
                 <input
                     type="number"
-                    value={timingConfig.frequency}
+                    value={timingConfig.tInterval}
                     onChange={(e) =>
                         updateTimingConfig(
-                            'frequency',
+                            'tInterval',
                             parseInt(e.target.value) || 1
                         )
                     }
@@ -42,11 +39,9 @@ const EditTimingSection = ({
                 <select
                     value={timingConfig.unit}
                     onChange={(e) => updateTimingConfig('unit', e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                     <option value="Minutes">Minutes</option>
-                    <option value="Hours">Hours</option>
-                    <option value="Days">Days</option>
                 </select>
             </div>
         </div>

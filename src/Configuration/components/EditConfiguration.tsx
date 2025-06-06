@@ -11,12 +11,12 @@ import UpdateButtons from './UpdateButtons'
 interface VitalOption {
     name: string
     selected: boolean
+    abbreviation: string[]
 }
 
 interface TimingConfig {
-    id: string
-    interval: string
-    frequency: number
+    mode: string
+    tInterval: number
     unit: string
 }
 
@@ -29,11 +29,13 @@ interface EditConfigurationProps {
 }
 
 async function createAlerts(alerts: Alert[]) {
-    alerts.map(async (alert) => {
-        const tempAlert = await exh.data.documents.create('alert', alert.data)
-        console.log('Created alert:', tempAlert)
-    })
+    return Promise.all(
+        alerts.map(async (alert) => {
+            await exh.data.documents.create('alert', alert.data)
+        })
+    )
 }
+
 const vitalName = [
     { name: 'Heart Rate', abreviation: 'HR' },
     { name: 'Blood Pressure', abreviation: ['DBP', 'SBP'] },
@@ -42,26 +44,6 @@ const vitalName = [
     { name: 'Activity', abreviation: 'ACT' },
     { name: 'Temperature', abreviation: 'T' },
 ]
-
-const createWearableScheduleDocument = async () => {
-    const createdScheduleDocument = await exh.data.documents.create(
-        'wearable-schedule',
-        {
-            patientId: '67ea71688bd54e5ccb0d4066',
-            schedule: [
-                {
-                    what: ['HR', 'SBP', 'DBP', 'SpO2'], // change to value from form
-                    tag: 'Wearable Schedule',
-                    carepaths: ['COPD', 'Diabetes'], // change to value from form
-                    mode: 'interval',
-                    tInterval: 5, // change to value from form
-                },
-            ],
-            wearableId: '679c853b53535d5d4c36cae6',
-        }
-    )
-    console.log(createdScheduleDocument)
-}
 
 const findVitals = (vitals: any) => {
     const selectedVitalsAbreviations: string[] = []
@@ -80,33 +62,56 @@ const findVitals = (vitals: any) => {
     return selectedVitalsAbreviations
 }
 
-// createWearableScheduleDocument()
-
 async function deleteAlerts(alerts: Alert[]) {
-    alerts.map(async (alert) => {
-        await exh.data.documents.remove('alert', alert.id)
-    })
+    return Promise.all(
+        alerts.map(async (alert) => {
+            await exh.data.documents.remove('alert', alert.id)
+        })
+    )
 }
 
 async function updateAlerts(alerts: Alert[]) {
-    alerts.map(async (alert) => {
-        await exh.data.documents.update('alert', alert.id, {
-            vital: alert.data.vital,
-            alertType: alert.data.alertType,
-            threshold: alert.data.threshold,
+    return Promise.all(
+        alerts.map(async (alert) => {
+            await exh.data.documents.update('alert', alert.id, {
+                vital: alert.data.vital,
+                alertType: alert.data.alertType,
+                threshold: alert.data.threshold,
+            })
         })
-    })
+    )
 }
 
-async function updateWearableSchedule(vitals: any, wearableSchedule: any) {
+async function editAlerts(alerts: Alert[], originalAlerts: Alert[]) {
+    const newAlerts = alerts.filter(
+        (alert) => !originalAlerts.find((a) => a.id === alert.id)
+    )
+    const updatedAlerts = alerts.filter(
+        (alert) =>
+            alert !== originalAlerts.find((a) => a.id === alert.id) &&
+            newAlerts.find((a) => a.id === alert.id) === undefined
+    )
+    const removeAlerts = originalAlerts.filter(
+        (a) => alerts.find((alert) => alert.id === a.id) === undefined
+    )
+    await createAlerts(newAlerts)
+    await updateAlerts(updatedAlerts)
+    await deleteAlerts(removeAlerts)
+}
+
+async function updateWearableSchedule(
+    vitals: any,
+    timing: TimingConfig,
+    wearableSchedule: any
+) {
     const onlySelectedVitals = findVitals(vitals)
     await exh.data.documents.update('wearable-schedule', wearableSchedule.id, {
         schedule: [
             {
                 what: onlySelectedVitals,
                 carepaths: wearableSchedule.data.schedule[0].carepaths, // use existing carepath
-                mode: 'interval',
-                tInterval: wearableSchedule.data.schedule[0].tInterval, // use existing interval
+                mode: timing.mode,
+                tInterval: timing.tInterval, // use existing interval
             },
         ],
     })
@@ -138,6 +143,7 @@ const EditConfigurationPage = ({
         useState<any>(null)
 
     useEffect(() => {
+        if (!wearableSchedule || !selectedWearableId) return
         const relevantWearableSchedule = wearableSchedule.find((schedule) => {
             return schedule.data.wearableId === selectedWearableId
         })
@@ -163,6 +169,12 @@ const EditConfigurationPage = ({
                     return vital
                 })
             )
+            setTimingConfig({
+                mode: relevantWearableSchedule.data.schedule[0].mode,
+                tInterval: relevantWearableSchedule.data.schedule[0].tInterval,
+                unit:
+                    relevantWearableSchedule.data.schedule[0].unit || 'Minutes',
+            })
         }
     }, [wearableSchedule, selectedWearableId])
 
@@ -172,9 +184,8 @@ const EditConfigurationPage = ({
 
     // Timing configurations
     const [timingConfig, setTimingConfig] = useState<TimingConfig>({
-        id: '1',
-        interval: 'Interval',
-        frequency: 3,
+        mode: 'interval',
+        tInterval: 3,
         unit: 'Minutes',
     })
 
@@ -184,16 +195,13 @@ const EditConfigurationPage = ({
         setVitals(newVitals)
     }
 
-    const updateTimingConfig = (
-        field: keyof TimingConfig,
-        value: string | number
-    ) => {
+    const updateTimingConfig = (field: string, value: string | number) => {
         setTimingConfig({ ...timingConfig, [field]: value })
     }
 
     const addAlert = () => {
         const newAlert: Alert = {
-            // id: Date.now().toString(),
+            id: Date.now().toString(),
             data: {
                 vital: 'HR',
                 alertType: 'Above',
@@ -212,19 +220,13 @@ const EditConfigurationPage = ({
     }
 
     const handleSave = async () => {
-        const newAlerts = tempAlerts.filter((alert) => !alert.id)
-        const updatedAlerts = tempAlerts.filter(
-            (alert) =>
-                alert !== alerts.find((a) => a.id === alert.id) &&
-                newAlerts.find((a) => a.id === alert.id) === undefined
+        // console.log('Temp alerts:', tempAlerts)
+        await editAlerts(tempAlerts, alerts)
+        await updateWearableSchedule(
+            vitals,
+            timingConfig,
+            selectedWearableSchedule
         )
-        const removeAlerts = alerts.filter(
-            (alert) => alert.id && !tempAlerts.find((a) => a.id === alert.id)
-        )
-        await deleteAlerts(removeAlerts)
-        await updateAlerts(updatedAlerts)
-        await createAlerts(newAlerts)
-        await updateWearableSchedule(vitals, selectedWearableSchedule)
         onCancel()
     }
 
@@ -253,7 +255,7 @@ const EditConfigurationPage = ({
 
     return (
         <>
-            <div className="h-[59vh] overflow-y-auto">
+            <div className="h-[57vh] overflow-y-auto">
                 <div className="space-y-8 mr-2">
                     {/* Vitals Section */}
                     <EditVitalsSection

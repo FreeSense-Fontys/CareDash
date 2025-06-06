@@ -81,6 +81,7 @@ const EditAlertColumn = ({
             })
         )
     }
+
     return (
         <div key={config.id || columnIndex} className="flex items-center gap-3">
             <select

@@ -1,15 +1,23 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Alert } from '../../types/Alert'
-import AlertSection from './AlertSection'
-import EditTimingSection from './EditTimingSection'
+import AlertSection from './EditAlertSection'
 import EditVitalsSection from './EditVitalsSection'
 import exh from '../../Auth'
-import { useAuth } from '../../contexts/AuthProvider'
+import EditTimingSection from './EditTimingSection'
 
 interface CreateSchedulePageProps {
     carepath: string
     wearableId: string
     patientId: string
+    setIsCarepathSelected: (isSelected: boolean) => void
+    onCancel: () => void
+}
+
+interface TimingConfig {
+    id: string
+    interval: string
+    frequency: number
+    unit: string
 }
 
 const vitalName = [
@@ -51,76 +59,73 @@ const findVitals = (vitals: any) => {
     return selectedVitalsAbreviations
 }
 
+async function createAlerts(alerts: Alert[]) {
+    return Promise.all(
+        alerts.map(async (alert) => {
+            await exh.data.documents.create('alert', alert.data)
+        })
+    )
+}
+
 const createWearableScheduleDocument = async (
     wearableId: string,
     patientId: string,
     vitals: string[],
-    carepaths: string[],
-    groupId: string | undefined
+    carepaths: string[]
 ) => {
-    if (groupId === undefined) {
-        return
-    }
-    const createdWearableSchedule = await exh.data.documents.create(
-        'wearable-schedule',
-        {
-            patientId: patientId,
-            schedule: [
-                {
-                    what: vitals, // change to value from form
-                    tag: 'Wearable Schedule',
-                    carepaths: carepaths, // change to value from form
-                    mode: 'interval',
-                    tInterval: 5, // change to value from form
-                },
-            ],
-            wearableId: wearableId,
-        }
-    )
-    console.log('Created wearable schedule: ', createdWearableSchedule)
-    // await exh.data.documents.linkGroups(
-    //     'wearable-schedule',
-    //     createdWearableSchedule.id,
-    //     {
-    //         groupIds: [groupId],
-    //     }
-    // )
-}
-
-const deleteWearableSchedule = async () => {
-    await exh.data.documents.remove(
-        'wearable-schedule',
-        '68418f958bd54ec8770e3dc9'
-    )
+    await exh.data.documents.create('wearable-schedule', {
+        patientId: patientId,
+        schedule: [
+            {
+                what: vitals, // change to value from form
+                tag: 'Wearable Schedule',
+                carepaths: carepaths, // change to value from form
+                mode: 'interval',
+                tInterval: 3, // change to value from form
+            },
+        ],
+        wearableId: wearableId,
+    })
 }
 
 function CreateSchedulePage({
     carepath,
     wearableId,
     patientId,
+    setIsCarepathSelected,
+    onCancel,
 }: CreateSchedulePageProps) {
     const [alerts, setAlerts] = useState<Alert[]>([])
     const [vitals, setVitals] = useState(initialVitals)
-    const { user } = useAuth()
-
+    // Timing configurations
+    const [timingConfig, setTimingConfig] = useState<TimingConfig>({
+        id: '1',
+        interval: 'Interval',
+        frequency: 3,
+        unit: 'Minutes',
+    })
     const toggleVital = (index: number) => {
         const newVitals = [...vitals]
         newVitals[index].selected = !newVitals[index].selected
         setVitals(newVitals)
     }
 
-    useEffect(() => {
-        deleteWearableSchedule()
-    }, [])
+    const updateTimingConfig = (
+        field: keyof TimingConfig,
+        value: string | number
+    ) => {
+        setTimingConfig({ ...timingConfig, [field]: value })
+    }
 
     const handleCreate = async () => {
         await createWearableScheduleDocument(
             wearableId,
             patientId,
             findVitals(vitals),
-            [carepath],
-            user && user?.staffEnlistments && user?.staffEnlistments[0]?.groupId
+            [carepath]
         )
+        await createAlerts(alerts)
+        onCancel()
     }
 
     const addAlert = () => {
@@ -130,10 +135,9 @@ function CreateSchedulePage({
                 vital: 'HR',
                 alertType: 'Above',
                 threshold: 0,
-                //only using first wearable for now, wearable should be passed in as a prop
                 wearableId: wearableId,
                 patientId: patientId,
-                carepathId: carepathId,
+                carepathId: carepath,
             },
         }
         setAlerts([...alerts, newAlert])
@@ -159,7 +163,7 @@ function CreateSchedulePage({
 
     return (
         <div>
-            <div className="h-[59vh] overflow-y-auto">
+            <div className="h-[57vh] overflow-y-auto">
                 <div className="space-y-8 mr-2">
                     {/* Vitals Section */}
                     <EditVitalsSection
@@ -168,10 +172,10 @@ function CreateSchedulePage({
                     />
 
                     {/* Timing Section */}
-                    {/* <EditTimingSection
+                    <EditTimingSection
                         timingConfig={timingConfig}
                         updateTimingConfig={updateTimingConfig}
-                    /> */}
+                    />
 
                     {/* Alerts Section */}
                     <AlertSection
@@ -189,10 +193,10 @@ function CreateSchedulePage({
             <div>
                 <div className="flex justify-between pt-3 border-t">
                     <button
-                        // onClick={handleCancel}
+                        onClick={() => setIsCarepathSelected(false)}
                         className="bg-gray-500 text-white text-lg px-7 py-2 rounded hover:bg-gray-600"
                     >
-                        Cancel
+                        Back
                     </button>
 
                     <button

@@ -75,6 +75,8 @@ const PatientList = ({
                     return 1
                 }
             }
+
+            // moves patients with alerts to the top
             const aHasAlerts = a.data.coupledWearables.some((wearable) =>
                 alertTriggers.some(
                     (alert) => alert.data.wearableId === wearable.wearableId
@@ -133,12 +135,15 @@ const PatientList = ({
     const filteredPatients = patients.filter((patient) => {
         const name = patient.data.name.toLowerCase()
         const isInName = name.includes(normalizedQuery)
-        // const carepaths = patient.carepaths
-        // const isInCarepath = carepaths.some((carepath) =>
-        //     carepath.name.toLowerCase().includes(normalizedFilterCarepath)
-        // )
-        // return isInName && isInCarepath
-        return isInName
+        const carepaths = patient.carepaths
+        const isInCarepath =
+            normalizedFilterCarepath === '' ||
+            carepaths?.some((carepath) => {
+                return carepath.toLowerCase().includes(normalizedFilterCarepath)
+            }) ||
+            false
+
+        return isInName && isInCarepath
     })
 
     if (filteredPatients.length === 0) {
