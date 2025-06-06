@@ -16,15 +16,13 @@ const DeletePreset = ({
     onComplete,
 }: DeletePresetProps) => {
     const handleConfirm = () => {
-        console.log('setPreset:', setPreset)
-
         const updated = presets ? presets.filter((p) => p.id !== preset.id) : []
         setPreset(updated)
         onComplete()
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
             <div className="bg-white rounded-lg shadow-lg p-6 w-96 animate-fade-in">
                 <h2 className="text-lg font-semibold text-gray-800 mb-4">
                     Confirm Delete

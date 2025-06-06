@@ -7,7 +7,6 @@ export interface Preset{
     name:string;
     carepathId:string;
     
-    
     vitals:VitalName[];
     timings:Timing[];
     alerts:Alert[];

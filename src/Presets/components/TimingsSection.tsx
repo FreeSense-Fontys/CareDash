@@ -1,4 +1,10 @@
-import { Time, Timing, TimingType } from '../../types/Timing'
+import { Timing } from '../../types/Timing'
+import {
+    TIME_ENUM_TO_STRING,
+    TIME_STRING_TO_ENUM,
+    TIMING_TYPE_ENUM_TO_STRING,
+    TIMING_TYPE_STRING_TO_ENUM,
+} from '../../types/utils/Timing.utils'
 
 interface TimingsSectionProps {
     timings: Timing[]
@@ -15,14 +21,8 @@ const TimingsSection = ({
     updateTiming,
     removeTiming,
 }: TimingsSectionProps) => {
-    const timingTypesArray = Object.values(TimingType).filter(
-        (v) => typeof v === 'string'
-    ) as string[]
-
-    const timeUnitsArray = Object.values(Time).filter(
-        (v) => typeof v === 'number'
-    ) as Time[]
-
+    const timingTypes = Object.keys(TIMING_TYPE_STRING_TO_ENUM)
+    const timeUnits = Object.keys(TIME_STRING_TO_ENUM)
     return (
         <div className="border-t pt-4">
             <section className="space-y-4">
@@ -50,29 +50,29 @@ const TimingsSection = ({
                         key={timing.id}
                         className="flex flex-wrap items-center gap-2 md:gap-4"
                     >
-                        {/* Type dropdown */}
+                        {/* Type selector */}
                         <select
                             disabled={isReadOnly}
-                            value={timing.type}
+                            value={TIMING_TYPE_ENUM_TO_STRING[timing.type]}
                             onChange={(e) =>
                                 updateTiming(
                                     idx,
                                     'type',
-                                    e.target.value as unknown as TimingType
+                                    TIMING_TYPE_STRING_TO_ENUM[e.target.value]
                                 )
                             }
                             className="border rounded px-2 py-1 text-sm disabled:bg-gray-100"
                         >
-                            {timingTypesArray.map((tt) => (
-                                <option key={tt} value={tt}>
-                                    {tt}
+                            {timingTypes.map((type) => (
+                                <option key={type} value={type}>
+                                    {type}
                                 </option>
                             ))}
                         </select>
 
                         <span className="text-sm">Every</span>
 
-                        {/* Time value */}
+                        {/* Value input */}
                         <input
                             type="number"
                             min="1"
@@ -81,34 +81,38 @@ const TimingsSection = ({
                             className="w-16 border rounded px-2 py-1 text-sm disabled:bg-gray-100"
                             value={timing.value ?? ''}
                             onChange={(e) => {
-                                const num = Number(e.target.value)
-                                if (num > 0) {
-                                    updateTiming(idx, 'value', num)
-                                } else {
-                                    updateTiming(idx, 'value', undefined)
-                                }
+                                const val = Number(e.target.value)
+                                updateTiming(
+                                    idx,
+                                    'value',
+                                    val > 0 ? val : undefined
+                                )
                             }}
                         />
 
-                        {/* Unit dropdown */}
+                        {/* Unit selector */}
                         <select
                             disabled={isReadOnly}
-                            value={timing.time ?? ''}
+                            value={
+                                timing.time !== undefined
+                                    ? TIME_ENUM_TO_STRING[timing.time]
+                                    : ''
+                            }
                             onChange={(e) =>
                                 updateTiming(
                                     idx,
                                     'time',
                                     e.target.value === ''
                                         ? undefined
-                                        : (Number(e.target.value) as Time)
+                                        : TIME_STRING_TO_ENUM[e.target.value]
                                 )
                             }
                             className="border rounded px-2 py-1 text-sm disabled:bg-gray-100"
                         >
                             <option value="">Select unit</option>
-                            {timeUnitsArray.map((tu) => (
-                                <option key={tu} value={tu}>
-                                    {Time[tu]}
+                            {timeUnits.map((unit) => (
+                                <option key={unit} value={unit}>
+                                    {unit}
                                 </option>
                             ))}
                         </select>

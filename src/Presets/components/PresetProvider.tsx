@@ -1,7 +1,9 @@
 import { createContext, useEffect, useState } from 'react'
+import exh from '../../Auth'
 import { Preset } from '../../types/Preset'
-import { VitalName } from '../../types/Vital'
-import { Time, TimingType } from '../../types/Timing'
+import { Timing, Time, TimingType } from '../../types/Timing'
+import { Alert } from '../../types/Alert'
+import { rqlBuilder } from '@extrahorizon/javascript-sdk'
 
 interface PresetContextType {
     preset: Preset[] | null
@@ -11,116 +13,75 @@ interface PresetContextType {
 export const PresetContext = createContext<PresetContextType | undefined>(
     undefined
 )
+
 export const PresetProvider = ({ children }: { children: React.ReactNode }) => {
     const [preset, setPreset] = useState<Preset[] | null>(null)
 
     async function getPresetData() {
-        const dummyData: Preset[] = [
-            {
-                id: '1',
-                name: 'POTS',
-                carepathId: '682ee8958bd54e4ac40e3d03',
-                vitals: [
-                    VitalName.HeartRate,
-                    VitalName.DiastolicBloodPressure,
-                    VitalName.SystolicBloodPressure,
-                ],
-                timings: [
-                    {
-                        id: 't1',
-                        type: TimingType.Interval,
-                        value: 15,
-                        time: Time.Minutes,
-                    },
-                ],
-                alerts: [
-                    {
-                        id: 'a1',
-                        data: {
-                            vital: VitalName.HeartRate,
-                            alertType: 'Above',
-                            threshold: 120,
-                            wearableId: '',
-                            carepathId: 'carepath-pots',
-                        },
-                    },
-                    {
-                        id: 'a2',
-                        data: {
-                            vital: VitalName.DiastolicBloodPressure,
-                            alertType: 'Below',
-                            threshold: 90,
-                            wearableId: '',
-                            carepathId: 'carepath-pots',
-                        },
-                    },
-                    {
-                        id: 'a3',
-                        data: {
-                            vital: VitalName.SystolicBloodPressure,
-                            alertType: 'Below',
-                            threshold: 50,
-                            wearableId: '',
-                            carepathId: 'carepath-pots',
-                        },
-                    },
-                ],
-            },
-            {
-                id: '2',
-                name: 'COPD',
-                carepathId: '682ee8958bd54e0c0c0e3d02',
-                vitals: [VitalName.OxygenSaturation, VitalName.RespiratoryRate],
-                timings: [
-                    {
-                        id: 't2',
-                        type: TimingType.Interval,
-                        value: 30,
-                        time: Time.Minutes,
-                    },
-                ],
-                alerts: [
-                    {
-                        id: 'a3',
-                        data: {
-                            vital: VitalName.OxygenSaturation,
-                            alertType: 'Below',
-                            threshold: 90,
-                            wearableId: '',
-                            carepathId: 'carepath-copd',
-                        },
-                    },
-                ],
-            },
-            {
-                id: '3',
-                name: 'Asthma',
-                carepathId: '682ee8958bd54e0c0c0e3d02',
-                vitals: [VitalName.RespiratoryRate],
-                timings: [
-                    {
-                        id: 't3',
-                        type: TimingType.Interval,
-                        value: 4, 
-                        time: Time.Hours,
-                    },
-                ],
-                alerts: [
-                    {
-                        id: 'a4',
-                        data: {
-                            vital: VitalName.RespiratoryRate,
-                            alertType: 'Below',
-                            threshold: 250,
-                            wearableId: '',
-                            carepathId: 'carepath-asthma',
-                        },
-                    },
-                ],
-            },
-        ]
+        try {
+            const response = await exh.data.documents.find(
+                'wearable-preset',
+                {}
+            )
 
-        setPreset(dummyData)
+            const cleanedPresets: Preset[] = await Promise.all(
+                response.data.map(async (doc: any) => {
+                    const data = doc.data
+                    const timings: Timing[] = await Promise.all(
+                        (data.timings || []).map(async (id: string) => {
+                            const timingRes = await exh.data.documents.find(
+                                'preset-timing',
+                                {
+                                    rql: rqlBuilder().eq('id', id).build(),
+                                }
+                            )
+
+                            const timingDoc = timingRes.data[0]
+                            const t = timingDoc.data
+
+                            return {
+                                id: timingDoc.id,
+                                type: TimingType[
+                                    t.timingType as keyof typeof TimingType
+                                ],
+                                value: t.value,
+                                time: t.time
+                                    ? Time[t.time as keyof typeof Time]
+                                    : undefined,
+                            }
+                        })
+                    )
+                    const alerts: Alert[] = await Promise.all(
+                        (data.alerts || []).map(async (id: string) => {
+                            const alertRes = await exh.data.documents.find(
+                                'alert',
+                                {
+                                    rql: rqlBuilder().eq('id', id).build(),
+                                }
+                            )
+                            const alertDoc = alertRes.data[0]
+                            return {
+                                id: alertDoc.id,
+                                data: alertDoc.data,
+                            }
+                        })
+                    )
+
+                    return {
+                        id: doc.id,
+                        name: data.name,
+                        carepathId: data.carepathId,
+                        vitals: data.vitals,
+                        timings,
+                        alerts,
+                    }
+                })
+            )
+
+            setPreset(cleanedPresets)
+        } catch (error) {
+            console.error('Failed to fetch presets:', error)
+        }
     }
 
     useEffect(() => {
@@ -128,12 +89,7 @@ export const PresetProvider = ({ children }: { children: React.ReactNode }) => {
     }, [])
 
     return (
-        <PresetContext.Provider
-            value={{
-                preset,
-                setPreset,
-            }}
-        >
+        <PresetContext.Provider value={{ preset, setPreset }}>
             {children}
         </PresetContext.Provider>
     )
