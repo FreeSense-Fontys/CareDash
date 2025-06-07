@@ -216,6 +216,185 @@ function App() {
         })
     }
 
+        const createSchemaPreset = async () => {
+        await exh.data.schemas.create({
+            name: 'wearable-preset',
+            description:
+                'This is a basic object for the presets of the wearable',
+            defaultLimit: 20,
+            maximumLimit: 20,
+        })
+    }
+
+    const addPropertiesToPreset = async () => {
+        await exh.data.properties.create('wearable-preset', {
+            name: 'name',
+            configuration: {
+                type: 'string',
+            },
+        })
+        await exh.data.properties.create('wearable-preset', {
+            name: 'carepathId',
+            configuration: {
+                type: 'string',
+            },
+        })
+        await exh.data.properties.create('wearable-preset', {
+            name: 'timings',
+            configuration: {
+                type: 'array',
+                items: {
+                    type: 'object',
+                    properties: {
+                        value: { type: 'number' },
+                        timingType: {
+                            type: 'string',
+                            enum: ['Interval'],
+                        },
+                        time: {
+                            type: 'string',
+                            enum: ['Seconds', 'Minutes', 'Hours', 'Days'],
+                        },
+                    },
+                },
+            },
+        })
+        await exh.data.properties.create('wearable-preset', {
+            name: 'vitals',
+            configuration: {
+                type: 'array',
+                items: {
+                    type: 'string',
+                    enum: ['HR', 'SBP', 'DBP', 'SPO2', 'RR', 'ACT', 'T'],
+                },
+            },
+        })
+        await exh.data.properties.create('wearable-preset', {
+            name: 'alerts',
+            configuration: {
+                type: 'array',
+                items: {
+                    type: 'object',
+                    properties: {
+                        vitals: {
+                            type: 'string',
+                            enum: [
+                                'HR',
+                                'SBP',
+                                'DBP',
+                                'SPO2',
+                                'RR',
+                                'ACT',
+                                'T',
+                            ],
+                        },
+                        threshold: { type: 'number' },
+                        alertType: {
+                            type: 'string',
+                            enum: ['Above', 'Below'],
+                        },
+                    },
+                },
+            },
+        })
+    }
+
+    const addDataToPreset = async () => {
+        await exh.data.documents.create('wearable-preset', {
+            name: 'COPD GOLD 2 Monitoring',
+            carepathId: 'copd-carepath-gold2',
+            vitals: ['HR', 'RR', 'SPO2'],
+            timings: [
+                {
+                    value: 4,
+                    timingType: 'Interval',
+                    time: 'Hours',
+                },
+            ],
+            alerts: [
+                {
+                    vitals: 'SPO2',
+                    threshold: 90,
+                    alertType: 'Below',
+                    carepathId: 'copd-carepath-gold2',
+                    wearableId: 'device-copd-gold2',
+                },
+                {
+                    vitals: 'RR',
+                    threshold: 22,
+                    alertType: 'Above',
+                    carepathId: 'copd-carepath-gold2',
+                    wearableId: 'device-copd-gold2',
+                },
+            ],
+        })
+
+        await exh.data.documents.create('wearable-preset', {
+            name: 'COPD GOLD 3 Monitoring',
+            carepathId: 'copd-carepath-gold3',
+            vitals: ['HR', 'RR', 'SPO2', 'T'],
+            timings: [
+                {
+                    value: 2,
+                    timingType: 'Interval',
+                    time: 'Hours',
+                },
+            ],
+            alerts: [
+                {
+                    vitals: 'SPO2',
+                    threshold: 88,
+                    alertType: 'Below',
+                    carepathId: 'copd-carepath-gold3',
+                    wearableId: 'device-copd-gold3',
+                },
+                {
+                    vitals: 'RR',
+                    threshold: 24,
+                    alertType: 'Above',
+                    carepathId: 'copd-carepath-gold3',
+                    wearableId: 'device-copd-gold3',
+                },
+                {
+                    vitals: 'T',
+                    threshold: 37.8,
+                    alertType: 'Above',
+                    carepathId: 'copd-carepath-gold3',
+                    wearableId: 'device-copd-gold3',
+                },
+            ],
+        })
+
+        await exh.data.documents.create('wearable-preset', {
+            name: 'Diabetes Monitoring',
+            carepathId: 'diabetes-carepath',
+            vitals: ['HR', 'ACT', 'T'],
+            timings: [
+                {
+                    value: 6,
+                    timingType: 'Interval',
+                    time: 'Hours',
+                },
+            ],
+            alerts: [
+                {
+                    vitals: 'HR',
+                    threshold: 110,
+                    alertType: 'Above',
+                    carepathId: 'diabetes-carepath',
+                    wearableId: 'device-diabetes',
+                },
+                {
+                    vitals: 'T',
+                    threshold: 38.0,
+                    alertType: 'Above',
+                    carepathId: 'diabetes-carepath',
+                    wearableId: 'device-diabetes',
+                },
+            ],
+        })
+    }
+
     const createSchema = async () => {
         // createSchemaCarepaths()
         // addPropertiesToCarepaths()
@@ -235,6 +414,11 @@ function App() {
         // addDataToAlertTriggers()
         // removeDocumentAlertTriggers('6834376a8bd54e22dc0e3d1e')
         // removeSchema('alert-triggers')
+
+        createSchemaPreset()
+        addPropertiesToPreset()
+        addDataToPreset()
+        removeSchema('wearable-preset')
 
         addDocumentWearableObservation()
     }
