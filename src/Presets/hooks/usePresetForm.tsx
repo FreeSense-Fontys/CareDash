@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Preset } from '../../types/Preset'
+import { Preset, PresetAlert, PresetTiming } from '../../types/Preset'
 import { VitalName } from '../../types/Vital'
-import { Timing, TimingType } from '../../types/Timing'
-import { Alert } from '../../types/Alert'
 
 export function usePresetForm(
     presetToEdit: Preset | undefined,
@@ -11,31 +9,31 @@ export function usePresetForm(
 ) {
     const [name, setName] = useState('')
     const [carepathId, setCarepathId] = useState('')
-    const [vitals, setvitalsState] = useState<VitalName[]>([])
-    const [timings, setTimings] = useState<Timing[]>([])
-    const [alerts, setAlerts] = useState<Alert[]>([])
-
-    useEffect(() => {
-        if (presetToEdit) {
-            setName(presetToEdit.name)
-            setCarepathId(presetToEdit.carepathId)
-            setvitalsState(presetToEdit.vitals)
-            setTimings(presetToEdit.timings)
-            setAlerts(presetToEdit.alerts)
-        }
-    }, [presetToEdit])
+    const [vitals, setVitals] = useState<VitalName[]>([])
+    const [timings, setTimings] = useState<PresetTiming[]>([])
+    const [alerts, setAlerts] = useState<PresetAlert[]>([])
 
     const isReadOnly = mode === 'view'
     const isFormValid = name.trim() !== '' && carepathId.trim() !== ''
 
-    function handleSave() {
+    // Populate form if editing/viewing an existing preset
+    useEffect(() => {
+        if (!presetToEdit) return
+        setName(presetToEdit.name)
+        setCarepathId(presetToEdit.carepathId)
+        setVitals(presetToEdit.vitals)
+        setTimings(presetToEdit.timings)
+        setAlerts(presetToEdit.alerts)
+    }, [presetToEdit])
+
+    const handleSave = () => {
         if (!isFormValid) {
             alert('Name and Carepath ID are required.')
             return
         }
 
-        const updatedPreset: Preset = {
-            id: presetToEdit?.id || `preset-${Date.now()}`,
+        const newPreset: Preset = {
+            id: presetToEdit?.id,
             name: name.trim(),
             carepathId: carepathId.trim(),
             vitals,
@@ -43,72 +41,59 @@ export function usePresetForm(
             alerts,
         }
 
-        onSaveComplete(updatedPreset)
-    }
-
-    // --- Vitals ---
-    const setVitals = (newVitals: VitalName[]) => {
-        setvitalsState(newVitals)
+        onSaveComplete(newPreset)
     }
 
     // --- Timings ---
     const addTiming = () => {
-        setTimings([
-            ...timings,
-            {
-                id: crypto.randomUUID(),
-                type: TimingType.Interval,
-                value: 0,
-                time: undefined,
-            },
-        ])
+        const newTiming: PresetTiming = {
+            value: 0,
+            timingType: 'Interval',
+            time: 'Minutes',
+        }
+        setTimings((prev) => [...prev, newTiming])
     }
 
-    const updateTiming = (idx: number, key: keyof Timing, value: any) => {
-        const updated = [...timings]
-        updated[idx] = { ...updated[idx], [key]: value }
-        setTimings(updated)
+    const updateTiming = <K extends keyof PresetTiming>(
+        index: number,
+        key: K,
+        value: PresetTiming[K]
+    ) => {
+        setTimings((prev) =>
+            prev.map((timing, i) =>
+                i === index ? { ...timing, [key]: value } : timing
+            )
+        )
     }
 
-    const removeTiming = (idx: number) => {
-        const updated = [...timings]
-        updated.splice(idx, 1)
-        setTimings(updated)
+    const removeTiming = (index: number) => {
+        setTimings((prev) => prev.filter((_, i) => i !== index))
     }
 
     // --- Alerts ---
     const addAlert = () => {
-        setAlerts([
-            ...alerts,
-            {
-                id: crypto.randomUUID(),
-                data: {
-                    vital: VitalName.HeartRate,
-                    alertType: 'Above',
-                    threshold: 100,
-                    wearableId: '',
-                    carepathId: carepathId || '',
-                },
-            },
-        ])
-    }
-
-    const updateAlert = (idx: number, key: keyof Alert['data'], value: any) => {
-        const updated = [...alerts]
-        updated[idx] = {
-            ...updated[idx],
-            data: {
-                ...updated[idx].data,
-                [key]: value,
-            },
+        const newAlert: PresetAlert = {
+            vitals: 'HR',
+            threshold: 100,
+            alertType: 'Above',
         }
-        setAlerts(updated)
+        setAlerts((prev) => [...prev, newAlert])
     }
 
-    const removeAlert = (idx: number) => {
-        const updated = [...alerts]
-        updated.splice(idx, 1)
-        setAlerts(updated)
+    const updateAlert = <K extends keyof PresetAlert>(
+        index: number,
+        key: K,
+        value: PresetAlert[K]
+    ) => {
+        setAlerts((prev) =>
+            prev.map((alert, i) =>
+                i === index ? { ...alert, [key]: value } : alert
+            )
+        )
+    }
+
+    const removeAlert = (index: number) => {
+        setAlerts((prev) => prev.filter((_, i) => i !== index))
     }
 
     return {
@@ -117,12 +102,12 @@ export function usePresetForm(
         carepathId,
         setCarepathId,
         vitals,
+        setVitals,
         timings,
         alerts,
         isReadOnly,
         isFormValid,
         handleSave,
-        setVitals,
         timingHooks: { addTiming, updateTiming, removeTiming },
         alertHooks: { addAlert, updateAlert, removeAlert },
     }

@@ -1,9 +1,6 @@
 import { createContext, useEffect, useState } from 'react'
 import exh from '../../Auth'
-import { Preset } from '../../types/Preset'
-import { Timing, Time, TimingType } from '../../types/Timing'
-import { Alert } from '../../types/Alert'
-import { rqlBuilder } from '@extrahorizon/javascript-sdk'
+import { Preset, PresetTiming, PresetAlert } from '../../types/Preset'
 
 interface PresetContextType {
     preset: Preset[] | null
@@ -17,53 +14,34 @@ export const PresetContext = createContext<PresetContextType | undefined>(
 export const PresetProvider = ({ children }: { children: React.ReactNode }) => {
     const [preset, setPreset] = useState<Preset[] | null>(null)
 
-    async function getPresetData() {
+    async function GetPresets() {
         try {
             const response = await exh.data.documents.find(
                 'wearable-preset',
                 {}
             )
 
-            const cleanedPresets: Preset[] = await Promise.all(
-                response.data.map(async (doc: any) => {
+            const cleanedPresets: Preset[] = response.data.map(
+                (doc: any) => {
                     const data = doc.data
-                    const timings: Timing[] = await Promise.all(
-                        (data.timings || []).map(async (id: string) => {
-                            const timingRes = await exh.data.documents.find(
-                                'preset-timing',
-                                {
-                                    rql: rqlBuilder().eq('id', id).build(),
-                                }
-                            )
 
-                            const timingDoc = timingRes.data[0]
-                            const t = timingDoc.data
-
-                            return {
-                                id: timingDoc.id,
-                                type: TimingType[
-                                    t.timingType as keyof typeof TimingType
-                                ],
-                                value: t.value,
-                                time: t.time
-                                    ? Time[t.time as keyof typeof Time]
-                                    : undefined,
-                            }
+                    const timings: PresetTiming[] = (data.timings || []).map(
+                        (t: any) => ({
+                            value: t.value,
+                            timingType: t.timingType as 'Interval',
+                            time: t.time as
+                                | 'Seconds'
+                                | 'Minutes'
+                                | 'Hours'
+                                | 'Days',
                         })
                     )
-                    const alerts: Alert[] = await Promise.all(
-                        (data.alerts || []).map(async (id: string) => {
-                            const alertRes = await exh.data.documents.find(
-                                'alert',
-                                {
-                                    rql: rqlBuilder().eq('id', id).build(),
-                                }
-                            )
-                            const alertDoc = alertRes.data[0]
-                            return {
-                                id: alertDoc.id,
-                                data: alertDoc.data,
-                            }
+
+                    const alerts: PresetAlert[] = (data.alerts || []).map(
+                        (a: any) => ({
+                            vitals: a.vitals,
+                            threshold: a.threshold,
+                            alertType: a.alertType,
                         })
                     )
 
@@ -75,9 +53,10 @@ export const PresetProvider = ({ children }: { children: React.ReactNode }) => {
                         timings,
                         alerts,
                     }
-                })
+                }
             )
 
+            console.log(cleanedPresets);
             setPreset(cleanedPresets)
         } catch (error) {
             console.error('Failed to fetch presets:', error)
@@ -85,7 +64,7 @@ export const PresetProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     useEffect(() => {
-        getPresetData()
+        GetPresets()
     }, [])
 
     return (

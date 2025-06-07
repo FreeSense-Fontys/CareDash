@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import exh from '../../Auth'
-import { Preset } from '../../types/Preset'
 import { usePresetForm } from '../hooks/usePresetForm'
 import AlertsSection from './AlertsSection'
 import TimingsSection from './TimingsSection'
 import VitalsSelector from './VitalsSection'
+import { Preset } from '../../types/Preset'
 
 interface PresetFormProps {
     presetToEdit?: Preset
@@ -35,6 +35,7 @@ const PresetForm = ({
     } = usePresetForm(presetToEdit, onSaveComplete, mode)
 
     const [carepaths, setCarepaths] = useState<{ id: string; name: string }[]>([])
+    const [loadingCarepaths, setLoadingCarepaths] = useState(true)
 
     useEffect(() => {
         async function loadCarepaths() {
@@ -47,11 +48,21 @@ const PresetForm = ({
                 setCarepaths(mapped)
             } catch (error) {
                 console.error('Failed to load carepaths:', error)
+            } finally {
+                setLoadingCarepaths(false)
             }
         }
 
         loadCarepaths()
     }, [])
+
+    if (loadingCarepaths && mode !== 'view') {
+        return (
+            <div className="text-center text-gray-500 py-4">
+                Loading carepaths...
+            </div>
+        )
+    }
 
     return (
         <form className="space-y-6">
@@ -80,7 +91,6 @@ const PresetForm = ({
                         onChange={(e) => setCarepathId(e.target.value)}
                         className="w-full border border-gray-300 rounded-lg px-4 py-2 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
-                      {/* Todo: as long as the file paths are still being retrieved from the database the application shouldn't display the view yet */}
                         <option value="">Select a carepath</option>
                         {carepaths.map((cp) => (
                             <option key={cp.id} value={cp.id}>
@@ -105,7 +115,6 @@ const PresetForm = ({
 
             <AlertsSection
                 alerts={alerts}
-                carepathId={carepathId}
                 isReadOnly={isReadOnly}
                 {...handlers.alertHooks}
             />

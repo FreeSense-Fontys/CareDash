@@ -1,13 +1,22 @@
-import { Alert } from "./Alert";
-import { Timing } from "./Timing";
-import { VitalName } from "./Vital";
+import { VitalName } from "./Vital"
 
-export interface Preset{
-    id?:string;
-    name:string;
-    carepathId:string;
-    
-    vitals:VitalName[];
-    timings:Timing[];
-    alerts:Alert[];
+export interface PresetTiming {
+    value: number
+    timingType: 'Interval'
+    time: 'Seconds' | 'Minutes' | 'Hours' | 'Days'
+}
+
+export interface PresetAlert {
+    vitals: 'HR' | 'SBP' | 'DBP' | 'SPO2' | 'RR' | 'ACT' | 'T'
+    threshold: number
+    alertType: 'Above' | 'Below'
+}
+
+export interface Preset {
+    id?:string
+    name: string
+    carepathId: string
+    vitals: VitalName[]
+    timings: PresetTiming[]
+    alerts: PresetAlert[]
 }

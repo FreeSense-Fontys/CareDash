@@ -1,3 +1,4 @@
+import exh from '../../Auth'
 import { Preset } from '../../types/Preset'
 
 interface DeletePresetProps {
@@ -15,10 +16,27 @@ const DeletePreset = ({
     onCancel,
     onComplete,
 }: DeletePresetProps) => {
-    const handleConfirm = () => {
-        const updated = presets ? presets.filter((p) => p.id !== preset.id) : []
-        setPreset(updated)
-        onComplete()
+    const handleConfirm = async () => {
+        try {
+            if (!preset?.id) {
+                console.error('No preset ID to delete.')
+                return
+            }
+
+            // Delete from Exh
+            await exh.data.documents.remove('wearable-preset', preset.id)
+
+            // Update local state
+            const updated = presets
+                ? presets.filter((p) => p.id !== preset.id)
+                : []
+            setPreset(updated)
+
+            onComplete()
+        } catch (err) {
+            console.error('Failed to delete preset:', err)
+            alert('Failed to delete preset. Please try again.')
+        }
     }
 
     return (

@@ -1,12 +1,10 @@
-import { Alert } from '../../types/Alert'
-import { VitalName } from '../../types/Vital'
+import { PresetAlert } from '../../types/Preset'
 
 interface AlertsSectionProps {
-    alerts: Alert[]
-    carepathId: string
+    alerts: PresetAlert[]
     isReadOnly: boolean
     addAlert: () => void
-    updateAlert: (idx: number, key: keyof Alert['data'], value: any) => void
+    updateAlert: <K extends keyof PresetAlert>(idx: number, key: K, value: PresetAlert[K]) => void
     removeAlert: (idx: number) => void
 }
 
@@ -17,7 +15,8 @@ const AlertsSection = ({
     updateAlert,
     removeAlert,
 }: AlertsSectionProps) => {
-    const vitalNamesArray = Object.values(VitalName)
+    const vitalOptions: PresetAlert['vitals'][] = ['HR', 'SBP', 'DBP', 'SPO2', 'RR', 'ACT', 'T']
+
     return (
         <div className="border-t pt-4">
             <section className="space-y-4">
@@ -34,38 +33,25 @@ const AlertsSection = ({
                     )}
                 </div>
 
-                {alerts.length === 0 && (
-                    <p className="text-gray-500 italic">
-                        No alerts configured.
-                    </p>
-                )}
-
-                <div className="space-y-2">
-                    {alerts.map((alert, idx) => {
-                        // Safeguard in case data is missing
-                        if (!alert?.data) return null
-
-                        const {
-                            vital,
-                            alertType,
-                            threshold,
-                        } = alert.data
-
-                        return (
+                {alerts.length === 0 ? (
+                    <p className="text-gray-500 italic">No alerts configured.</p>
+                ) : (
+                    <div className="space-y-2">
+                        {alerts.map((alert, idx) => (
                             <div
-                                key={alert.id || idx}
+                                key={idx}
                                 className="flex flex-wrap items-center gap-2 md:gap-4"
                             >
                                 {/* Vital Name */}
                                 <select
                                     disabled={isReadOnly}
-                                    value={vital}
+                                    value={alert.vitals}
                                     onChange={(e) =>
-                                        updateAlert(idx, 'vital', e.target.value)
+                                        updateAlert(idx, 'vitals', e.target.value as PresetAlert['vitals'])
                                     }
                                     className="border rounded px-2 py-1 text-sm disabled:bg-gray-100"
                                 >
-                                    {vitalNamesArray.map((vn) => (
+                                    {vitalOptions.map((vn) => (
                                         <option key={vn} value={vn}>
                                             {vn}
                                         </option>
@@ -75,13 +61,9 @@ const AlertsSection = ({
                                 {/* Condition */}
                                 <select
                                     disabled={isReadOnly}
-                                    value={alertType}
+                                    value={alert.alertType}
                                     onChange={(e) =>
-                                        updateAlert(
-                                            idx,
-                                            'alertType',
-                                            e.target.value as 'Above' | 'Below'
-                                        )
+                                        updateAlert(idx, 'alertType', e.target.value as 'Above' | 'Below')
                                     }
                                     className="border rounded px-2 py-1 text-sm disabled:bg-gray-100"
                                 >
@@ -91,11 +73,12 @@ const AlertsSection = ({
 
                                 {/* Threshold */}
                                 <input
-                                    disabled={isReadOnly}
                                     type="number"
-                                    value={threshold}
+                                    min={1}
+                                    disabled={isReadOnly}
+                                    value={alert.threshold}
                                     onChange={(e) =>
-                                        updateAlert(idx, 'threshold', +e.target.value)
+                                        updateAlert(idx, 'threshold', Math.max(1, Number(e.target.value)))
                                     }
                                     className="border rounded px-2 py-1 w-20 text-sm disabled:bg-gray-100"
                                     placeholder="Value"
@@ -103,18 +86,18 @@ const AlertsSection = ({
 
                                 {!isReadOnly && (
                                     <button
+                                        type="button"
                                         onClick={() => removeAlert(idx)}
                                         className="text-red-600 text-xl hover:text-red-800"
-                                        type="button"
                                         title="Remove alert"
                                     >
                                         🗑
                                     </button>
                                 )}
                             </div>
-                        )
-                    })}
-                </div>
+                        ))}
+                    </div>
+                )}
             </section>
         </div>
     )
