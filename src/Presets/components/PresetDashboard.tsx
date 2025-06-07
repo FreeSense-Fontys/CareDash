@@ -1,4 +1,6 @@
 import { useContext, useEffect, useState } from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faTrashCan, faPencil } from '@fortawesome/free-solid-svg-icons'
 import { PresetContext } from './PresetProvider'
 import { Preset } from '../../types/Preset'
 import DeletePreset from './DeletePreset'
@@ -74,13 +76,10 @@ const PresetDashboard = () => {
 
             setPreset((prev) => {
                 const existing = prev ?? []
-                const exists = existing.some((p) => p.id === savedPreset!.id)
-
-                if (exists) {
-                    return existing.map((p) => (p.id === savedPreset!.id ? savedPreset! : p))
-                }
-
-                return [...existing, savedPreset!]
+                const exists = existing.some((p) => p.id === savedPreset.id)
+                return exists
+                    ? existing.map((p) => (p.id === savedPreset.id ? savedPreset : p))
+                    : [...existing, savedPreset]
             })
 
             closeForm()
@@ -139,7 +138,7 @@ const PresetDashboard = () => {
                                 className="p-2 rounded-md bg-gray-200 hover:bg-gray-300"
                                 aria-label="Edit"
                             >
-                                ✏️
+                                <FontAwesomeIcon icon={faPencil} />
                             </button>
                             <button
                                 onClick={(e) => {
@@ -149,7 +148,7 @@ const PresetDashboard = () => {
                                 className="p-2 rounded-md bg-gray-200 hover:bg-gray-300"
                                 aria-label="Delete"
                             >
-                                🗑️
+                                <FontAwesomeIcon icon={faTrashCan} />
                             </button>
                         </div>
                     </div>
@@ -184,10 +183,7 @@ const PresetDashboard = () => {
             ) : preset?.length ? (
                 renderPresetList()
             ) : (
-                <div
-                    className="h-[70vh] overflow-y-auto text-center text-gray-500 p-4"
-                    data-testid="preset-dashboard"
-                >
+                <div className="h-[70vh] overflow-y-auto text-center text-gray-500 p-4">
                     No presets available.
                     <div className="mt-4">
                         <button
