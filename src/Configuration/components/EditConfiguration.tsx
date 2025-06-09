@@ -220,7 +220,6 @@ const EditConfigurationPage = ({
     }
 
     const handleSave = async () => {
-        // console.log('Temp alerts:', tempAlerts)
         await editAlerts(tempAlerts, alerts)
         await updateWearableSchedule(
             vitals,
@@ -231,9 +230,6 @@ const EditConfigurationPage = ({
     }
 
     const handleCancel = () => {
-        // Reset to initial state and go back
-        setVitals(initialVitals)
-        setTimingConfig(timingConfig)
         // should refetch the alert data to make sure it reflects the latest state
         onCancel()
     }
