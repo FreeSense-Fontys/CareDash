@@ -13,8 +13,8 @@ export interface PatientResponse extends Patient {
         phoneNumber: string
     }
     status: string
-    carepaths: Array<{ name: string }>
     checked?: boolean
+    carepaths?: string[]
     bmi?: string
     birthDate?: string
     skinType?: string

@@ -25,7 +25,7 @@ const SidebarNavItem = ({
     return (
         <Link
             to={to}
-            className={`flex text-xl items-center p-2 gap-2 transition-all duration-200 ease-in-out justify-center w-full ${
+            className={`flex text-xl items-center p-2 gap-2 transition-all duration-200 ease-in-out justify-center w-9/10 ${
                 isActive && activeStyling
             }`}
             data-testid={testId}

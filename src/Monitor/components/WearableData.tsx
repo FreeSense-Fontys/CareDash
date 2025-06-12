@@ -13,6 +13,7 @@ interface WearableDataProps {
     patients: PatientResponse[]
     indexPatient: number
     selectedDate: string
+    alerts: AlertTrigger[]
 }
 
 const allVitals = ['HR', 'SBP', 'DBP', 'SPO2', 'RR', 'ACT', 'T']
@@ -21,10 +22,10 @@ const WearableData = ({
     patients,
     indexPatient,
     selectedDate,
+    alerts,
 }: WearableDataProps) => {
-    const [wearables, setWearableData] = useState<WearableResponse[]>([])
+    const [wearableData, setWearableData] = useState<WearableResponse[]>([])
     const [hasChecked, setHasChecked] = useState(false)
-    const [alertTriggers, setAlertTriggers] = useState<AlertTrigger[]>([])
     const { setPatients } = usePatient()
 
     // what if patient has multiple wearables? only using the first one right now
@@ -32,7 +33,6 @@ const WearableData = ({
         patients[indexPatient]?.data.coupledWearables[0].wearableId
 
     useEffect(() => {
-        setWearableData([])
         const getWearable = async (): Promise<void> => {
             if (!wearableId) return
 
@@ -48,30 +48,22 @@ const WearableData = ({
                 }
             )
 
-            if (!wearableData) return
+            if (!wearableData) {
+                setWearableData([])
+                return
+            }
 
             setWearableData([wearableData as unknown as WearableResponse])
         }
-
         setHasChecked(patients[indexPatient]?.checked ?? false)
         getWearable()
-    }, [selectedDate, indexPatient, patients, wearableId])
 
-    useEffect(() => {
-        const getAlerts = async () => {
-            // gets alert triggers for each wearable for the selected date
-            const alerts = await exh.data.documents.find('alert-trigger', {
-                rql: rqlBuilder()
-                    .eq('data.wearableId', wearableId)
-                    .ge('creationTimestamp', `${selectedDate}T00:00:00Z`)
-                    .le('creationTimestamp', `${selectedDate}T23:59:59Z`)
-                    .build(),
-            })
-            if (alerts.data.length == 0) return
-            setAlertTriggers(alerts.data as unknown as AlertTrigger[])
-        }
-        getAlerts()
-    }, [patients, indexPatient, wearableId, selectedDate])
+        const refreshtime = 1 * 1000 // number of seconds * 1000 to get milliseconds
+        const interval = setInterval(() => {
+            getWearable()
+        }, refreshtime)
+        return () => clearInterval(interval)
+    }, [selectedDate, indexPatient, wearableId, patients])
 
     interface CheckPatientEvent {
         target: {
@@ -96,7 +88,7 @@ const WearableData = ({
 
     return (
         <>
-            {wearables?.map(
+            {wearableData?.map(
                 (wearable: WearableResponse, wearableIndex: number) => (
                     <div
                         key={wearable.id ?? `wearable-${wearableIndex}`}
@@ -107,10 +99,8 @@ const WearableData = ({
                                 (v: Vital) => v.name === vitalName
                             )
 
-                            const temp = alertTriggers.some(
-                                (alert) =>
-                                    alert.data.vital === vitalName &&
-                                    alert.data.wearableId === wearableId
+                            const temp = alerts.some(
+                                (alert) => alert.data.vital === vitalName
                             )
 
                             return (
@@ -120,11 +110,11 @@ const WearableData = ({
                                 >
                                     {vital ? (
                                         <div
-                                            className={
-                                                (temp &&
-                                                    'text-white bg-red-500') +
-                                                ` text-center border size-12 rounded-lg justify-center items-center flex leading-tight`
-                                            }
+                                            className={`${
+                                                temp
+                                                    ? 'text-white bg-red-500'
+                                                    : ''
+                                            } text-center border size-12 rounded-lg justify-center items-center flex leading-tight`}
                                         >
                                             {vital.value.toFixed(
                                                 vitalName === 'T' ? 1 : 0

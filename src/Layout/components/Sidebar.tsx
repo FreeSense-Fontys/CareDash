@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Outlet } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthProvider'
 import SidebarLogo from './SidebarLogo'
 import SidebarNavList from './SidebarNavList'

@@ -1,6 +1,7 @@
 import { PatientResponse } from '../types/PatientResponse'
 import exh from '../Auth'
 import { createContext, useState, useEffect, useContext } from 'react'
+import { rqlBuilder } from '@extrahorizon/javascript-sdk'
 
 interface PatientContextType {
     patients: PatientResponse[] | null
@@ -35,23 +36,47 @@ export const PatientProvider = ({
             setPatients(null)
             return
         }
-        const updatedPatients = patients.map((patient) => ({
-            ...patient,
-            carepaths: [{ name: 'COPD' }],
-        }))
-        updatedPatients[0].carepaths.push({ name: 'Diabetes' })
-        const firstWearable = updatedPatients[0].data.coupledWearables[0]
-        updatedPatients[0].data.coupledWearables.push({
-            ...firstWearable,
-        })
+
+        // Fetch wearable schedules for each patient and update carepaths for filtering to work
+        const updatedPatients = await Promise.all(
+            patients.map(async (patient) => {
+                const wearableSchedules = await exh.data.documents.find(
+                    'wearable-schedule',
+                    {
+                        rql: rqlBuilder()
+                            .eq('data.patientId', patient.id)
+                            .build(),
+                    }
+                )
+                if (!wearableSchedules || wearableSchedules.data.length === 0) {
+                    return {
+                        ...patient,
+                        carepaths: [],
+                    }
+                }
+
+                // extracting carepaths from all wearable schedules of a patient
+                const carepaths = wearableSchedules.data.map((schedule) => {
+                    return schedule.data.schedule[0].carepaths
+                })
+
+                // this flattens the array of arrays into a single array
+                let uniqueCarepaths: string[] = []
+                carepaths.forEach((scheduleCarepaths) => {
+                    uniqueCarepaths = uniqueCarepaths.concat(scheduleCarepaths)
+                })
+
+                return {
+                    ...patient,
+                    carepaths: uniqueCarepaths,
+                }
+            })
+        )
         setPatients(updatedPatients)
     }
 
     useEffect(() => {
         getPatientData()
-        const refreshtime = 60000 // 1 minutes
-        const interval = setInterval(() => getPatientData(), refreshtime)
-        return () => clearInterval(interval)
     }, [])
 
     return (

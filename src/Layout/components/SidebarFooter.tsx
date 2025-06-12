@@ -19,7 +19,7 @@ const SidebarFooter = ({
             className={`w-full flex flex-col items-center justify-center mb-4`}
         >
             {!collapsed && (
-                <div className="w-full px-2 rounded-xsm m-2 p-2 bg-background text-black text-center transition-opacity duration-200 ease-in-out">
+                <div className="w-9/10 px-2 rounded-xsm m-2 p-2 bg-background text-black text-center transition-opacity duration-200 ease-in-out">
                     <p className="text-lg truncate">Good morning,</p>
                     <p className="text-lg truncate">Dr. {user?.lastName}</p>
                 </div>

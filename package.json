@@ -20,6 +20,7 @@
         "@mui/material": "^7.0.1",
         "@mui/x-date-pickers": "^7.28.2",
         "@tailwindcss/vite": "^4.0.14",
+        "chartjs-adapter-dayjs-4": "^1.0.4",
         "chartjs-plugin-datalabels": "^2.2.0",
         "dayjs": "^1.11.13",
         "js-cookie": "^3.0.5",
