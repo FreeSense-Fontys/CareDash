@@ -66,14 +66,6 @@ export default function DetailPage({ currentDate }: PatientDetailsProps) {
             let bloodPressureChartData = null
             if (sbp && dbp) {
                 bloodPressureChartData = {
-                    // labels: sbp.series.map((x: Vital) => {
-                    //     const date = new Date(x.timestamp)
-                    //     return `${date.getHours().toLocaleString()}:${
-                    //         date.getMinutes().toString().length == 1
-                    //             ? '0' + date.getMinutes()
-                    //             : date.getMinutes()
-                    //     }`
-                    // }),
                     datasets: [
                         {
                             label: 'Systolic Blood Pressure',
@@ -138,14 +130,6 @@ export default function DetailPage({ currentDate }: PatientDetailsProps) {
                 if (vitals.name == 'DBP') continue // skip DBP as it's already included in the blood pressure chart
 
                 vitalsData.push({
-                    // labels: vitals.series.map((vital: Vital) => {
-                    //     const date: Date = new Date(vital.timestamp)
-                    //     return `${date.getHours().toLocaleString()}:${
-                    //         date.getMinutes().toString().length == 1
-                    //             ? '0' + date.getMinutes()
-                    //             : date.getMinutes()
-                    //     }`
-                    // }),
                     datasets: [
                         {
                             label: vitals.name,

@@ -4,7 +4,7 @@ import PatientListForm from '../Monitor'
 import dayjs from 'dayjs'
 
 const Home = () => {
-    const [selectedDate, setSelectedDate] = useState(dayjs('2025-04-10'))
+    const [selectedDate, setSelectedDate] = useState(dayjs())
 
     return (
         <PatientProvider>
