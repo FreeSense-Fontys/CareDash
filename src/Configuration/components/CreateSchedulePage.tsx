@@ -130,7 +130,7 @@ function CreateSchedulePage({
 
     const addAlert = () => {
         const newAlert: Alert = {
-            // id: Date.now().toString(),
+            id: Date.now().toString(),
             data: {
                 vital: 'HR',
                 alertType: 'Above',
@@ -194,14 +194,14 @@ function CreateSchedulePage({
                 <div className="flex justify-between pt-3 border-t">
                     <button
                         onClick={() => setIsCarepathSelected(false)}
-                        className="bg-gray-500 text-white text-lg px-7 py-2 rounded hover:bg-gray-600"
+                        className="bg-gray-500 text-white text-lg px-7 py-2 rounded hover:bg-gray-600 cursor-pointer"
                     >
                         Back
                     </button>
 
                     <button
                         onClick={handleCreate}
-                        className="bg-secondary text-white text-lg px-7 py-2 rounded mr-5 hover:bg-accent"
+                        className="bg-secondary text-white text-lg px-7 py-2 rounded mr-5 hover:bg-accent cursor-pointer"
                     >
                         Create
                     </button>

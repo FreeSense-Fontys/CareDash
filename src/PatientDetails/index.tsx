@@ -1,5 +1,5 @@
 import Chart from 'chart.js/auto'
-import { CategoryScale } from 'chart.js'
+import { CategoryScale, Decimation } from 'chart.js'
 import { useEffect, useState } from 'react'
 import ChartDataLabels from 'chartjs-plugin-datalabels'
 import { chartAreaBorder } from './Components/graph-border'
@@ -15,9 +15,7 @@ import { Alert } from '../types/Alert'
 import * as TempAlerts from './Components/TempAlerts'
 import { rqlBuilder } from '@extrahorizon/javascript-sdk'
 
-Chart.register(CategoryScale)
-Chart.register(ChartDataLabels)
-Chart.register(chartAreaBorder)
+Chart.register(CategoryScale, ChartDataLabels, chartAreaBorder, Decimation)
 
 interface PatientDetailsProps {
     currentDate: string
@@ -27,6 +25,7 @@ export default function DetailPage({ currentDate }: PatientDetailsProps) {
     const [vitalGraphData, setVitalGraphData] = useState<any | undefined>()
     const { selectedPatient, selectedWearableId } = usePatient()
     const [isLoading, setIsLoading] = useState(true)
+    const [refreshTime, setRefreshTime] = useState(new Date())
 
     // gets data for patient and sets graph data
     useEffect(() => {
@@ -61,22 +60,27 @@ export default function DetailPage({ currentDate }: PatientDetailsProps) {
             const dbp = data?.vitals.find((v: VitalSeries) => v.name === 'DBP')
             const vitalsData = []
 
+            console.log(dbp)
+
             // creating a custom chart that contains both SBP and DBP only if they exist in the data
             let bloodPressureChartData = null
             if (sbp && dbp) {
                 bloodPressureChartData = {
-                    labels: sbp.series.map((x: Vital) => {
-                        const date = new Date(x.timestamp)
-                        return `${date.getHours().toLocaleString()}:${
-                            date.getMinutes().toString().length == 1
-                                ? '0' + date.getMinutes()
-                                : date.getMinutes()
-                        }`
-                    }),
+                    // labels: sbp.series.map((x: Vital) => {
+                    //     const date = new Date(x.timestamp)
+                    //     return `${date.getHours().toLocaleString()}:${
+                    //         date.getMinutes().toString().length == 1
+                    //             ? '0' + date.getMinutes()
+                    //             : date.getMinutes()
+                    //     }`
+                    // }),
                     datasets: [
                         {
                             label: 'Systolic Blood Pressure',
-                            data: sbp.series.map((x: Vital) => x.value),
+                            data: sbp.series.map((x: Vital) => ({
+                                y: x.value,
+                                x: new Date(x.timestamp).getTime(),
+                            })),
                             borderColor: 'rgb(0, 80, 0)',
                             cubicInterpolationMode: 'monotone',
                             tension: 0.4,
@@ -98,7 +102,10 @@ export default function DetailPage({ currentDate }: PatientDetailsProps) {
                         },
                         {
                             label: 'Diastolic Blood Pressure',
-                            data: dbp.series.map((x: Vital) => x.value),
+                            data: dbp.series.map((x: Vital) => ({
+                                y: x.value,
+                                x: new Date(x.timestamp).getTime(),
+                            })),
                             borderColor: 'rgb(0, 0, 80)',
                             cubicInterpolationMode: 'monotone',
                             tension: 0.4,
@@ -131,20 +138,21 @@ export default function DetailPage({ currentDate }: PatientDetailsProps) {
                 if (vitals.name == 'DBP') continue // skip DBP as it's already included in the blood pressure chart
 
                 vitalsData.push({
-                    labels: vitals.series.map((vital: Vital) => {
-                        const date: Date = new Date(vital.timestamp)
-                        return `${date.getHours().toLocaleString()}:${
-                            date.getMinutes().toString().length == 1
-                                ? '0' + date.getMinutes()
-                                : date.getMinutes()
-                        }`
-                    }),
+                    // labels: vitals.series.map((vital: Vital) => {
+                    //     const date: Date = new Date(vital.timestamp)
+                    //     return `${date.getHours().toLocaleString()}:${
+                    //         date.getMinutes().toString().length == 1
+                    //             ? '0' + date.getMinutes()
+                    //             : date.getMinutes()
+                    //     }`
+                    // }),
                     datasets: [
                         {
                             label: vitals.name,
-                            data: vitals.series.map(
-                                (vital: Vital) => vital.value
-                            ),
+                            data: vitals.series.map((vital: Vital) => ({
+                                y: vital.value,
+                                x: new Date(vital.timestamp).getTime(),
+                            })),
                             borderColor: 'rgb(0, 80, 0)',
                             cubicInterpolationMode: 'monotone',
                             tension: 0.4,
@@ -174,7 +182,15 @@ export default function DetailPage({ currentDate }: PatientDetailsProps) {
         }
 
         getVitalData()
-    }, [selectedWearableId, currentDate])
+
+        // Set up interval to refresh every minute (60000ms)
+        const intervalId = setInterval(() => {
+            setRefreshTime(new Date()) // Update refresh time to trigger useEffect
+        }, 60 * 1000)
+
+        // Clean up interval on component unmount
+        return () => clearInterval(intervalId)
+    }, [selectedWearableId, currentDate, refreshTime])
 
     if (isLoading) {
         return <div className="text-white">Loading...</div>

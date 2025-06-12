@@ -25,8 +25,7 @@ const EditAlertSection = ({
                 <h2 className="text-lg font-semibold text-gray-800">Alerts</h2>
                 <div className="col-span-3 flex gap-6">
                     {[alertLeft, alertRight].map((column, columnIndex) => {
-                        const columnKey =
-                            columnIndex % 2 === 0 ? 'left' : 'right'
+                        const columnKey = columnIndex === 0 ? 'left' : 'right'
                         return (
                             <div key={columnKey} className="flex-1 space-y-2">
                                 {column.map((config) => (

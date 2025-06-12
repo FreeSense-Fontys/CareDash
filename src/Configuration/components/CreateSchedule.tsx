@@ -44,7 +44,7 @@ function CreateSchedule({ carepaths, onCancel }: CreateScheduleProps) {
                     </div>
                     <div className="flex justify-end">
                         <button
-                            className="bg-secondary text-white text-lg px-7 py-2 rounded mr-5 hover:bg-accent disabled:opacity-80 disabled:cursor-not-allowed"
+                            className="bg-secondary text-white text-lg px-7 py-2 rounded mr-5 hover:bg-accent disabled:opacity-80 disabled:cursor-not-allowed cursor-pointer"
                             disabled={!selectedCarepath}
                             onClick={() => setIsCarepathSelected(true)}
                         >

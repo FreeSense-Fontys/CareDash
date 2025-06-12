@@ -33,7 +33,7 @@ const PatientList = ({
         const fetchAlertTriggers = async () => {
             setAlertTriggers([])
 
-            const alertTriggers = await exh.data.documents.find(
+            const alertTriggers = (await exh.data.documents.find(
                 'alert-trigger',
                 {
                     rql: rqlBuilder()
@@ -41,8 +41,8 @@ const PatientList = ({
                         .le('creationTimestamp', `${selectedDate}T23:59:59Z`)
                         .build(),
                 }
-            )
-            setAlertTriggers(alertTriggers.data)
+            )) as unknown as { data: AlertTrigger[] }
+            setAlertTriggers(alertTriggers.data as unknown as AlertTrigger[])
         }
         fetchAlertTriggers()
     }, [selectedDate])

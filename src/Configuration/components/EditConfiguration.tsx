@@ -206,8 +206,7 @@ const EditConfigurationPage = ({
                 vital: 'HR',
                 alertType: 'Above',
                 threshold: 0,
-                //only using first wearable for now, wearable should be passed in as a prop
-                wearableId: patient.data.coupledWearables[0].wearableId,
+                wearableId: selectedWearableId || '',
                 patientId: patient.id,
                 carepathId: activeCarepath,
             },

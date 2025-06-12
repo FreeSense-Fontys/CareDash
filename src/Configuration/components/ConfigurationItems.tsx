@@ -192,7 +192,7 @@ const ConfigurationItems = ({
                 {/* Edit Button */}
                 <div className="flex justify-end">
                     <button
-                        className="bg-secondary text-white text-lg px-7 py-2 rounded mr-5 hover:bg-accent"
+                        className="bg-secondary text-white text-lg px-7 py-2 rounded mr-5 hover:bg-accent cursor-pointer"
                         onClick={handleEditConfiguration}
                     >
                         Edit
