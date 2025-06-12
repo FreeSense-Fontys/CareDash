@@ -58,7 +58,7 @@ const WearableData = ({
         setHasChecked(patients[indexPatient]?.checked ?? false)
         getWearable()
 
-        const refreshtime = 1 * 1000 // number of seconds * 1000 to get milliseconds
+        const refreshtime = 60 * 1000 // number of seconds * 1000 to get milliseconds
         const interval = setInterval(() => {
             getWearable()
         }, refreshtime)
