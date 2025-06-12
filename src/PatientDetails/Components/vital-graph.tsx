@@ -9,7 +9,6 @@ export default function VitalGraph({ chartData }: any) {
             style={{ minHeight: '200px' }}
         >
             <Line
-                // could look into data decimation for performance improvements
                 data={chartData}
                 options={{
                     animation: false,
@@ -23,10 +22,12 @@ export default function VitalGraph({ chartData }: any) {
                         title: {
                             display: false,
                         },
+                        // data decimation removes points but keeps general shape of the graph
+                        // for more information see https://www.chartjs.org/docs/latest/configuration/decimation.html
                         decimation: {
                             enabled: true,
-                            algorithm: 'lttb',
-                            samples: 10,
+                            algorithm: 'min-max',
+                            threshold: 10,
                         },
                     },
                     scales: {

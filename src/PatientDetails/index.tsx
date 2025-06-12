@@ -66,17 +66,9 @@ export default function DetailPage({ currentDate }: PatientDetailsProps) {
             let bloodPressureChartData = null
             if (sbp && dbp) {
                 bloodPressureChartData = {
-                    // labels: sbp.series.map((x: Vital) => {
-                    //     const date = new Date(x.timestamp)
-                    //     return `${date.getHours().toLocaleString()}:${
-                    //         date.getMinutes().toString().length == 1
-                    //             ? '0' + date.getMinutes()
-                    //             : date.getMinutes()
-                    //     }`
-                    // }),
                     datasets: [
                         {
-                            label: 'Systolic Blood Pressure',
+                            label: 'SBP',
                             data: sbp.series.map((x: Vital) => ({
                                 y: x.value,
                                 x: new Date(x.timestamp).getTime(),
@@ -101,7 +93,7 @@ export default function DetailPage({ currentDate }: PatientDetailsProps) {
                             spanGaps: true,
                         },
                         {
-                            label: 'Diastolic Blood Pressure',
+                            label: 'DBP',
                             data: dbp.series.map((x: Vital) => ({
                                 y: x.value,
                                 x: new Date(x.timestamp).getTime(),
@@ -138,14 +130,6 @@ export default function DetailPage({ currentDate }: PatientDetailsProps) {
                 if (vitals.name == 'DBP') continue // skip DBP as it's already included in the blood pressure chart
 
                 vitalsData.push({
-                    // labels: vitals.series.map((vital: Vital) => {
-                    //     const date: Date = new Date(vital.timestamp)
-                    //     return `${date.getHours().toLocaleString()}:${
-                    //         date.getMinutes().toString().length == 1
-                    //             ? '0' + date.getMinutes()
-                    //             : date.getMinutes()
-                    //     }`
-                    // }),
                     datasets: [
                         {
                             label: vitals.name,
@@ -203,7 +187,7 @@ export default function DetailPage({ currentDate }: PatientDetailsProps) {
                 <div className="grid grid-cols-2">
                     <p>Patient: {selectedPatient?.data.name}</p>
                     <p>Sex: {selectedPatient?.data.gender}</p>
-                    <p>Care Paths: N/A</p>
+                    <p>Carepaths: N/A</p>
                     <p>BMI: {selectedPatient?.bmi}</p>
                     <p>DOB: {selectedPatient?.data.birthDate}</p>
                     <p>Skin Type: {selectedPatient?.skinType}</p>
