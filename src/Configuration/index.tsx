@@ -1,6 +1,6 @@
 import logo from '../assets/Carebuddy logo.webp'
 import { PatientProvider } from '../contexts/PatientProvider'
-import ConfigurationPatient from './components/ConfigurationPatient'
+import ConfigurationPatient from './components/Main/ConfigurationPatient'
 
 const ConfigurationPage = () => {
     return (

@@ -1,23 +1,18 @@
 import { useEffect, useState } from 'react'
-import exh from '../../Auth'
-import { PatientResponse } from '../../types/PatientResponse'
-import { Alert } from '../../types/Alert'
+import exh from '../../../Auth'
+import { PatientResponse } from '../../../types/PatientResponse'
+import { Alert } from '../../../types/Alert'
 import EditVitalsSection from './EditVitalsSection'
 import EditTimingSection from './EditTimingSection'
-import { usePatient } from '../../contexts/PatientProvider'
+import { usePatient } from '../../../contexts/PatientProvider'
 import EditAlertSection from './EditAlertSection'
 import UpdateButtons from './UpdateButtons'
+import { TimingConfig } from './CreateSchedulePage'
 
 interface VitalOption {
     name: string
     selected: boolean
     abbreviation: string[]
-}
-
-interface TimingConfig {
-    mode: string
-    tInterval: number
-    unit: string
 }
 
 interface EditConfigurationProps {
@@ -47,7 +42,7 @@ const vitalName = [
 
 const findVitals = (vitals: any) => {
     const selectedVitalsAbreviations: string[] = []
-    vitals.forEach((vital) => {
+    vitals.forEach((vital: any) => {
         if (vital.selected) {
             const foundVital = vitalName.find((v) => v.name === vital.name)
             if (foundVital) {
@@ -144,9 +139,11 @@ const EditConfigurationPage = ({
 
     useEffect(() => {
         if (!wearableSchedule || !selectedWearableId) return
-        const relevantWearableSchedule = wearableSchedule.find((schedule) => {
-            return schedule.data.wearableId === selectedWearableId
-        })
+        const relevantWearableSchedule = wearableSchedule.find(
+            (schedule: any) => {
+                return schedule.data.wearableId === selectedWearableId
+            }
+        )
         setSelectedWearableSchedule(relevantWearableSchedule)
 
         if (relevantWearableSchedule) {

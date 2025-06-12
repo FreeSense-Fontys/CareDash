@@ -1,11 +1,13 @@
+import { TimingConfig } from './CreateSchedulePage'
+
 interface EditTimingSectionProps {
-    timingConfig: {
-        mode: string
-        tInterval: number
-        unit: string
-    }
-    updateTimingConfig: (key: string, value: string | number) => void
+    timingConfig: TimingConfig
+    updateTimingConfig: (
+        field: keyof TimingConfig,
+        value: string | number
+    ) => void
 }
+
 const EditTimingSection = ({
     timingConfig,
     updateTimingConfig,
@@ -17,7 +19,7 @@ const EditTimingSection = ({
                 <select
                     value={timingConfig.mode}
                     onChange={(e) =>
-                        updateTimingConfig('interval', e.target.value)
+                        updateTimingConfig('tInterval', e.target.value)
                     }
                     className="px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >

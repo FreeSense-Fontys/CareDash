@@ -1,4 +1,4 @@
-import { Alert } from '../../types/Alert'
+import { Alert } from '../../../types/Alert'
 import { Plus } from 'lucide-react'
 import EditAlertColumn from './EditAlertColumn'
 

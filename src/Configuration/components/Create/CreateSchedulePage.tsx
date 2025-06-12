@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { Alert } from '../../types/Alert'
-import AlertSection from './EditAlertSection'
-import EditVitalsSection from './EditVitalsSection'
-import exh from '../../Auth'
-import EditTimingSection from './EditTimingSection'
+import { Alert } from '../../../types/Alert'
+import AlertSection from '../Edit/EditAlertSection'
+import EditVitalsSection from '../Edit/EditVitalsSection'
+import exh from '../../../Auth'
+import EditTimingSection from '../Edit/EditTimingSection'
 
 interface CreateSchedulePageProps {
     carepath: string
@@ -13,10 +13,9 @@ interface CreateSchedulePageProps {
     onCancel: () => void
 }
 
-interface TimingConfig {
-    id: string
-    interval: string
-    frequency: number
+export interface TimingConfig {
+    mode: string
+    tInterval: number
     unit: string
 }
 
@@ -44,7 +43,7 @@ const initialVitals = [
 
 const findVitals = (vitals: any) => {
     const selectedVitalsAbreviations: string[] = []
-    vitals.forEach((vital) => {
+    vitals.forEach((vital: any) => {
         if (vital.selected) {
             const foundVital = vitalName.find((v) => v.name === vital.name)
             if (foundVital) {
@@ -99,9 +98,8 @@ function CreateSchedulePage({
     const [vitals, setVitals] = useState(initialVitals)
     // Timing configurations
     const [timingConfig, setTimingConfig] = useState<TimingConfig>({
-        id: '1',
-        interval: 'Interval',
-        frequency: 3,
+        mode: 'Interval',
+        tInterval: 3,
         unit: 'Minutes',
     })
     const toggleVital = (index: number) => {

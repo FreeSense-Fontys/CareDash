@@ -1,11 +1,15 @@
 import { useEffect, useState } from 'react'
-import EditConfigurationPage from './EditConfiguration'
+import EditConfigurationPage from '../Edit/EditConfiguration'
 import { rqlBuilder } from '@extrahorizon/javascript-sdk'
-import exh from '../../Auth'
-import { Alert } from '../../types/Alert'
-import { PatientResponse } from '../../types/PatientResponse'
-import { usePatient } from '../../contexts/PatientProvider'
-import CreateSchedule from './CreateSchedule'
+import exh from '../../../Auth'
+import { Alert } from '../../../types/Alert'
+import { PatientResponse } from '../../../types/PatientResponse'
+import { usePatient } from '../../../contexts/PatientProvider'
+import CreateSchedule from '../Create'
+import VitalsSection from './VitalsSection'
+import TimingSection from './TimingSection'
+import AlertsSection from './AlertsSection'
+import EditButton from './EditButton'
 
 interface ConfigurationItemsProps {
     activeCarepath: string
@@ -126,79 +130,21 @@ const ConfigurationItems = ({
         <div>
             <div className="h-[59vh] overflow-y-auto">
                 {/* Vitals Section */}
-                <div className="grid grid-cols-4 gap-4 mb-6">
-                    <h2 className="text-lg font-semibold text-gray-800">
-                        Vitals
-                    </h2>
-                    <div className="col-span-3 flex gap-6">
-                        {[vitalLeft, vitalRight].map((column, columnIndex) => (
-                            <div key={columnIndex} className="flex-1 space-y-2">
-                                {column.map((vital, index) => (
-                                    <div
-                                        key={index}
-                                        className="flex items-start p-2 bg-blue-50 border-l-4 border-blue-500 rounded"
-                                    >
-                                        <p className="text-grey-700">{vital}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        ))}
-                    </div>
-                </div>
+                <VitalsSection vitalLeft={vitalLeft} vitalRight={vitalRight} />
 
                 {/* Timing Section */}
-                <div className="grid grid-cols-4 gap-4 border-t pt-4 mb-6">
-                    <h2 className="text-lg font-semibold text-gray-800">
-                        Timing
-                    </h2>
-                    <div className="col-span-3 flex gap-6">
-                        <div className="flex-1 space-y-2">
-                            <div className="flex items-start p-2 bg-gray-100 border-l-4 border-gray-500 rounded">
-                                <p className="text-grey-700">
-                                    Measurements taken every{' '}
-                                    {
-                                        wearableSchedule[0]?.data.schedule[0]
-                                            ?.tInterval
-                                    }{' '}
-                                    minutes
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <TimingSection
+                    tInterval={
+                        wearableSchedule[0]?.data.schedule[0]?.tInterval ||
+                        'N/A'
+                    }
+                />
 
                 {/* Alerts Section */}
-                <div className="grid grid-cols-4 gap-4 border-t pt-4 mb-6">
-                    <h2 className="text-lg font-semibold text-gray-800">
-                        Alerts
-                    </h2>
-                    <div className="col-span-3 flex gap-6">
-                        {[alertLeft, alertRight].map((column, columnIndex) => (
-                            <div key={columnIndex} className="flex-1 space-y-2">
-                                {column.map((alert, index) => (
-                                    <div
-                                        key={index}
-                                        className="flex items-start p-2 bg-red-50 border-l-4 border-red-400 rounded"
-                                    >
-                                        <p className="text-red-700 ">{alert}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        ))}
-                    </div>
-                </div>
+                <AlertsSection alertLeft={alertLeft} alertRight={alertRight} />
             </div>
-            <div>
-                {/* Edit Button */}
-                <div className="flex justify-end">
-                    <button
-                        className="bg-secondary text-white text-lg px-7 py-2 rounded mr-5 hover:bg-accent cursor-pointer"
-                        onClick={handleEditConfiguration}
-                    >
-                        Edit
-                    </button>
-                </div>
-            </div>
+            {/* Edit Button */}
+            <EditButton handleEditConfiguration={handleEditConfiguration} />
         </div>
     )
 }

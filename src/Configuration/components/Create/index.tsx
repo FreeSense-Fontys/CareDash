@@ -1,18 +1,18 @@
 import { useState } from 'react'
 import CreateSchedulePage from './CreateSchedulePage'
-import { usePatient } from '../../contexts/PatientProvider'
+import { usePatient } from '../../../contexts/PatientProvider'
 
-interface CreateScheduleProps {
+interface IndexProps {
     carepaths: any[]
     onCancel: () => void
 }
 
-function CreateSchedule({ carepaths, onCancel }: CreateScheduleProps) {
+const index = ({ carepaths, onCancel }: IndexProps) => {
     const [selectedCarepath, setSelectedCarepath] = useState<string>('')
     const [isCarepathSelected, setIsCarepathSelected] = useState<boolean>(false)
     const { selectedWearableId, selectedPatient } = usePatient()
 
-    const handleCarepathChange = (e) => {
+    const handleCarepathChange = (e: any) => {
         setSelectedCarepath(e.target.value)
     }
 
@@ -66,4 +66,4 @@ function CreateSchedule({ carepaths, onCancel }: CreateScheduleProps) {
     )
 }
 
-export default CreateSchedule
+export default index
