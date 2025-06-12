@@ -68,7 +68,7 @@ export default function DetailPage({ currentDate }: PatientDetailsProps) {
                 bloodPressureChartData = {
                     datasets: [
                         {
-                            label: 'Systolic Blood Pressure',
+                            label: 'SBP',
                             data: sbp.series.map((x: Vital) => ({
                                 y: x.value,
                                 x: new Date(x.timestamp).getTime(),
@@ -93,7 +93,7 @@ export default function DetailPage({ currentDate }: PatientDetailsProps) {
                             spanGaps: true,
                         },
                         {
-                            label: 'Diastolic Blood Pressure',
+                            label: 'DBP',
                             data: dbp.series.map((x: Vital) => ({
                                 y: x.value,
                                 x: new Date(x.timestamp).getTime(),
@@ -187,7 +187,7 @@ export default function DetailPage({ currentDate }: PatientDetailsProps) {
                 <div className="grid grid-cols-2">
                     <p>Patient: {selectedPatient?.data.name}</p>
                     <p>Sex: {selectedPatient?.data.gender}</p>
-                    <p>Care Paths: N/A</p>
+                    <p>Carepaths: N/A</p>
                     <p>BMI: {selectedPatient?.bmi}</p>
                     <p>DOB: {selectedPatient?.data.birthDate}</p>
                     <p>Skin Type: {selectedPatient?.skinType}</p>
